@@ -111,7 +111,7 @@ $eqLogics = eqLogic::byType('ChauffeEau');
 					</div>
 					<div class="form-group input-group">
 						<label class="col-sm-2 control-label" >{{Selectioner une commande ou estimer la temperature actuel de l'eau}}</label>
-						<div class="col-lg-1">
+						<div class="col-sm-5">
 							<a class="btn btn-warning btn-sm bt_selectCmdExpression">
 								<i class="fa fa-list-alt"></i>
 							</a>
@@ -122,7 +122,7 @@ $eqLogics = eqLogic::byType('ChauffeEau');
 					</div>  
 					<div class="form-group input-group">
 						<label class="col-sm-2 control-label" >{{Configurer le lancement de votre chauffage}}</label>
-						<div class="col-lg-1">
+						<div class="col-sm-5">
 							<a class="btn btn-warning btn-sm ScheduleCron">
 								<i class="fa fa-list-alt"></i>
 							</a>
@@ -133,7 +133,7 @@ $eqLogics = eqLogic::byType('ChauffeEau');
 					</div>
 					<div class="form-group input-group">
 						<label class="col-sm-2 control-label" >{{Commande d'activation du chauffe eau}}</label>
-						<div class="col-lg-1">
+						<div class="col-sm-5">
 							<a class="btn btn-warning btn-sm bt_selectCmdExpression">
 								<i class="fa fa-list-alt"></i>
 							</a>
@@ -144,7 +144,7 @@ $eqLogics = eqLogic::byType('ChauffeEau');
 					</div>
 					<div class="form-group input-group">
 						<label class="col-sm-2 control-label" >{{Commande de desactivation du chauffe eau}}</label>
-						<div class="col-lg-1">
+						<div class="col-sm-5">
 							<a class="btn btn-warning btn-sm bt_selectCmdExpression">
 								<i class="fa fa-list-alt"></i>
 							</a>
