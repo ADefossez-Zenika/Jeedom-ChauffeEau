@@ -119,6 +119,7 @@ $eqLogics = eqLogic::byType('ChauffeEau');
 						<div class="col-lg-3">
 							<input class="eqLogicAttr form-control input-sm" data-l1key="configuration"  data-l2key="TempActuel" />
 						</div>
+					</div>  
 					<div class="form-group input-group">
 						<label class="col-sm-2 control-label" >{{Configurer le lancement de votre chauffage}}</label>
 						<div class="col-lg-1">
@@ -151,8 +152,7 @@ $eqLogics = eqLogic::byType('ChauffeEau');
 						<div class="col-lg-3">
 							<input class="eqLogicAttr form-control input-sm" data-l1key="configuration"  data-l2key="Desactivation" />
 						</div>
-					</div>
-					</div>  	
+					</div>	
 				</fieldset>
 			</form>
 		</div>
