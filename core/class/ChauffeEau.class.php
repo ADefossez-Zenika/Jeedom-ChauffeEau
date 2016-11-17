@@ -61,7 +61,7 @@ class ChauffeEau extends eqLogic {
 	public function EvaluatePowerTime() {
 		//Evaluation du temps necessaire au chauffage de l'eau
 		$DeltaTempCmd=cmd::byKey($this->getConfiguration('TempActuel'));
-		if(is_object($DeltaTempCmd)
+		if(is_object($DeltaTempCmd))
 			$DeltaTemp=$DeltaTempCmd->exeCmd();
 		else
 			$DeltaTemp=$this->getConfiguration('TempActuel');
