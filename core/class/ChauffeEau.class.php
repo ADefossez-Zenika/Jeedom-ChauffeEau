@@ -53,7 +53,7 @@ class ChauffeEau extends eqLogic {
 		}
 	} 
 	public function TimeToShedule($Time) {
-		$now = new DateTime(new DateInterval($Time););
+		$now = new DateTime(new DateInterval($Time));
 		$Shedule=date_add();
 		// min heure jours mois année
 		return $Shedule->format("i H d m Y");
