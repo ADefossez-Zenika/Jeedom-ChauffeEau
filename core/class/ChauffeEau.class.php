@@ -75,7 +75,7 @@ class ChauffeEau extends eqLogic {
 				$cron = new cron();
 				$cron->setClass('ChauffeEau');
 				$cron->setFunction($logicalId);
-				$cron->setOption(array('id',$this->getId()))
+				$cron->setOption(array('id',$this->getId()));
 				$cron->setEnable(1);
 				$cron->setDeamon(0);
 				$cron->setSchedule($Schedule);
