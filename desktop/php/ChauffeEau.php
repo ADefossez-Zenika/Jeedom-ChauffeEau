@@ -109,7 +109,8 @@ $eqLogics = eqLogic::byType('ChauffeEau');
 							<input type="text" class="eqLogicAttr form-control" data-l1key="configuration"  data-l2key="TempSouhaite" placeholder="{{Nom du groupe de zones}}"/>
 						</div>
 					</div>
-					<div class="form-group input-group">
+					<div class="form-group">
+					<div class="input-group">
 						<label class="col-sm-2 control-label" >{{Selectioner une commande ou estimer la temperature actuel de l'eau}}</label>
 						<div class="col-sm-5">
 							<a class="btn btn-warning btn-sm bt_selectCmdExpression">
@@ -119,6 +120,7 @@ $eqLogics = eqLogic::byType('ChauffeEau');
 						<div class="col-lg-3">
 							<input class="eqLogicAttr form-control input-sm" data-l1key="configuration"  data-l2key="TempActuel" />
 						</div>
+					</div>  
 					</div>  
 					<div class="form-group input-group">
 						<label class="col-sm-2 control-label" >{{Configurer le lancement de votre chauffage}}</label>
