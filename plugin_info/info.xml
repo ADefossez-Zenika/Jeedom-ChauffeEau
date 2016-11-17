@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<info>
+	<id>ChauffeEau</id>
+	<name>Gestion du Chauffe Eau</name>
+	<description>Ce plugin de gere l'ouverture et la fermeture de nos Chauffe Eau</description>
+	<icon>fa fa fa-bolt</icon>
+	<licence>AGPL</licence>
+	<author>Halbout Michael</author>
+	<installation>Aucune</installation>
+	<category>automatisation</category>
+   	<require>2.0</require>
+	<hasOwnDeamon>1</hasOwnDeamon>
+</info>
+
