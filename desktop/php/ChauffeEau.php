@@ -111,7 +111,7 @@ $eqLogics = eqLogic::byType('ChauffeEau');
 					</div>
 					<div class="form-group">
 						<label class="col-sm-2 control-label" >{{Selectioner une commande ou estimer la temperature actuel de l'eau}}</label>
-						<div class="input-group">
+						<div class="col-sm-5 input-group">
 							<input class="eqLogicAttr form-control input-sm" data-l1key="configuration"  data-l2key="TempActuel">
 							<span class="input-group-btn">
 								<a class="btn btn-success btn-sm bt_selectCmdExpression" >
