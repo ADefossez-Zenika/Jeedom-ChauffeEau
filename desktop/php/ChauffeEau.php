@@ -120,9 +120,9 @@ $eqLogics = eqLogic::byType('ChauffeEau');
 							</span>
 						</div>
 					</div>  
-					<div class="form-group input-group">
+					<div class="form-group">
 						<label class="col-sm-2 control-label" >{{Configurer le lancement de votre chauffage}}</label>
-						<div class="input-group">
+						<div class=" col-sm-5 input-group">
 							<input class="eqLogicAttr form-control input-sm" data-l1key="configuration"  data-l2key="ScheduleCron">
 							<span class="input-group-btn">
 								<a class="btn btn-success btn-sm bt_selectCmdExpression" >
@@ -131,9 +131,9 @@ $eqLogics = eqLogic::byType('ChauffeEau');
 							</span>
 						</div>
 					</div>
-					<div class="form-group input-group">
+					<div class="form-group">
 						<label class="col-sm-2 control-label" >{{Commande d'activation du chauffe eau}}</label>
-						<div class="input-group">
+						<div class="col-sm-5 input-group">
 							<input class="eqLogicAttr form-control input-sm" data-l1key="configuration"  data-l2key="Activation">
 							<span class="input-group-btn">
 								<a class="btn btn-success btn-sm bt_selectCmdExpression" >
@@ -142,9 +142,9 @@ $eqLogics = eqLogic::byType('ChauffeEau');
 							</span>
 						</div>
 					</div>
-					<div class="form-group input-group">
+					<div class="form-group">
 						<label class="col-sm-2 control-label" >{{Commande de desactivation du chauffe eau}}</label>
-						<div class="input-group">
+						<div class="col-sm-5 input-group">
 							<input class="eqLogicAttr form-control input-sm" data-l1key="configuration"  data-l2key="Desactivation">
 							<span class="input-group-btn">
 								<a class="btn btn-success btn-sm bt_selectCmdExpression" >
