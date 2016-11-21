@@ -55,8 +55,7 @@ class ChauffeEau extends eqLogic {
 		}
 	} 
 	public function TimeToShedule($Time) {
-		$now = new DateTime(new DateInterval($Time));
-		$Shedule=date_add();
+		$Shedule = DateTime::createFromFormat('i', $Time);
 		// min heure jours mois année
 		return $Shedule->format("i H d m Y");
 	} 
@@ -68,8 +67,8 @@ class ChauffeEau extends eqLogic {
 		else
 			$DeltaTemp=$this->getConfiguration('TempActuel');
 		$DeltaTemp=$this->getConfiguration('TempSouhaite')-$DeltaTemp;
-		$Calorie=$this->getConfiguration('Capacite')*$DeltaTemp*1.16;
-		return $Calorie / $this->getConfiguration('Puissance');
+		$Energie=$this->getConfiguration('Capacite')*$DeltaTemp*4185;
+		return $this->getConfiguration('Puissance')/$Energie;
 	} 
 	public function CreateCron($Schedule, $logicalId) {
 		$cron =cron::byClassAndFunction('ChauffeEau', $logicalId);
