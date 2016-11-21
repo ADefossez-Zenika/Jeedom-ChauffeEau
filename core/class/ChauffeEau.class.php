@@ -67,7 +67,7 @@ class ChauffeEau extends eqLogic {
 		else
 			$DeltaTemp=$this->getConfiguration('TempActuel');
 		$DeltaTemp=$this->getConfiguration('TempSouhaite')-$DeltaTemp;
-		$Energie=($this->getConfiguration('Capacite')/1000)*$DeltaTemp*4185;
+		$Energie=$this->getConfiguration('Capacite')*$DeltaTemp*4.185;
 		return $this->getConfiguration('Puissance')/$Energie;
 	} 
 	public function CreateCron($Schedule, $logicalId) {
