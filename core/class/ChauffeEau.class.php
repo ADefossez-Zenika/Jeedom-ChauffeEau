@@ -55,9 +55,12 @@ class ChauffeEau extends eqLogic {
 		}
 	} 
 	public function TimeToShedule($Time) {
-		$Shedule = DateTime::createFromFormat('i', $Time);
+		$Heure=round($Time/60);
+		$Minute=$Time-($Heure*60);
+		$Shedule = new DateTime();
+		$Shedule->setTime($Heure, $Minute);
 		// min heure jours mois année
-		return $Shedule->format("i H d m Y");
+		return  $Shedule->format("i H d m Y");
 	} 
 	public function EvaluatePowerTime() {
 		//Evaluation du temps necessaire au chauffage de l'eau
