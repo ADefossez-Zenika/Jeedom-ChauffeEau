@@ -29,14 +29,16 @@ class ChauffeEau extends eqLogic {
 			$cron->remove();
 	}
 	public function StartChauffe($_options) {
+		log::add('ChauffeEau','info','Debut de l\'activatio');
 		$ChauffeEau=eqLogic::byId($_options['id']);
-		if(is_object($ChauffeEau)){
-			//Activer le chauffage de l'eau
+		if(is_object($ChauffeEau)){			
+			log::add('ChauffeEau','info','Debut de l\'activation du chauffe eau '.$ChauffeEau->getHumanName());
 			$Commande=eqLogic::byId($ChauffeEau->getConfiguration('Activation'));
 			if(is_object($Commande))
 				$Commande->execute();
-			//Charger la fin du chauffage
-			$Schedule= $ChauffeEau->TimeToShedule($ChauffeEau->EvaluatePowerTime());
+			$PowerTime=$ChauffeEau->EvaluatePowerTime()
+			log::add('ChauffeEau','info','Estimation du temps d\'activation '.$PowerTime);
+			$Schedule= $ChauffeEau->TimeToShedule($PowerTime);
 			$ChauffeEau->CreateCron($Schedule, 'EndChauffe');	
 			//Lancer le prochain chauffage
 			foreach(eqLogic::byType('ChauffeEau') as $ChauffeEau){
@@ -47,6 +49,7 @@ class ChauffeEau extends eqLogic {
 	public function EndChauffe($_options) {		
 		$ChauffeEau=eqLogic::byId($_options['id']);
 		if(is_object($ChauffeEau)){
+			log::add('ChauffeEau','info','Fin de l\'activation du chauffe eau '.$ChauffeEau->getHumanName());
 			$Commande=eqLogic::byId($ChauffeEau->getConfiguration('Desactivation'));
 			if(is_object($Commande))
 				$Commande->execute();
