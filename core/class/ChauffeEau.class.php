@@ -29,14 +29,13 @@ class ChauffeEau extends eqLogic {
 			$cron->remove();
 	}
 	public function StartChauffe($_options) {
-		log::add('ChauffeEau','info','Debut de l\'activatio');
 		$ChauffeEau=eqLogic::byId($_options['id']);
 		if(is_object($ChauffeEau)){			
 			log::add('ChauffeEau','info','Debut de l\'activation du chauffe eau '.$ChauffeEau->getHumanName());
 			$Commande=eqLogic::byId($ChauffeEau->getConfiguration('Activation'));
 			if(is_object($Commande))
 				$Commande->execute();
-			$PowerTime=$ChauffeEau->EvaluatePowerTime()
+			$PowerTime=$ChauffeEau->EvaluatePowerTime();
 			log::add('ChauffeEau','info','Estimation du temps d\'activation '.$PowerTime);
 			$Schedule= $ChauffeEau->TimeToShedule($PowerTime);
 			$ChauffeEau->CreateCron($Schedule, 'EndChauffe');	
