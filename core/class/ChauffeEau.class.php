@@ -55,8 +55,8 @@ class ChauffeEau extends eqLogic {
 		}
 	} 
 	public function TimeToShedule($Time) {
-		$Heure=round($Time/60);
-		$Minute=$Time-($Heure*60);
+		$Heure=round($Time/3600);
+		$Minute=round(($Time-($Heure*3600))/60);
 		$Shedule = new DateTime();
 		$Shedule->setTime($Heure, $Minute);
 		// min heure jours mois année
