@@ -61,7 +61,7 @@ class ChauffeEau extends eqLogic {
 		$Shedule->add(new DateInterval('PT'.$Time.'S'));
 		//$Shedule->setTime($Heure, $Minute);
 		// min heure jours mois année
-		return  $Shedule->format("i H d m Y");
+		return  $Shedule->format("i H d m *");
 	} 
 	public function EvaluatePowerTime() {
 		//Evaluation du temps necessaire au chauffage de l'eau
