@@ -33,8 +33,10 @@ class ChauffeEau extends eqLogic {
 		if(is_object($ChauffeEau)){			
 			log::add('ChauffeEau','info','Debut de l\'activation du chauffe eau '.$ChauffeEau->getHumanName());
 			$Commande=eqLogic::byId($ChauffeEau->getConfiguration('Activation'));
-			if(is_object($Commande))
+			if(is_object($Commande)){
+				log::add('ChauffeEau','info','FExecution de '.$Commande->getHumanName());
 				$Commande->execute();
+			}
 			$PowerTime=$ChauffeEau->EvaluatePowerTime();
 			log::add('ChauffeEau','info','Estimation du temps d\'activation '.$PowerTime);
 			$Schedule= $ChauffeEau->TimeToShedule($PowerTime);
@@ -50,8 +52,10 @@ class ChauffeEau extends eqLogic {
 		if(is_object($ChauffeEau)){
 			log::add('ChauffeEau','info','Fin de l\'activation du chauffe eau '.$ChauffeEau->getHumanName());
 			$Commande=eqLogic::byId($ChauffeEau->getConfiguration('Desactivation'));
-			if(is_object($Commande))
+			if(is_object($Commande)){
+				log::add('ChauffeEau','info','FExecution de '.$Commande->getHumanName());
 				$Commande->execute();
+			}
 		}
 	} 
 	public function TimeToShedule($Time) {
