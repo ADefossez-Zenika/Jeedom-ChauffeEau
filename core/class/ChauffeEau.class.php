@@ -32,9 +32,9 @@ class ChauffeEau extends eqLogic {
 		$ChauffeEau=eqLogic::byId($_options['id']);
 		if(is_object($ChauffeEau)){			
 			log::add('ChauffeEau','info','Debut de l\'activation du chauffe eau '.$ChauffeEau->getHumanName());
-			$Commande=eqLogic::byId($ChauffeEau->getConfiguration('Activation'));
+			$Commande=cmd::byId($ChauffeEau->getConfiguration('Activation'));
 			if(is_object($Commande)){
-				log::add('ChauffeEau','info','FExecution de '.$Commande->getHumanName());
+				log::add('ChauffeEau','info','Execution de '.$Commande->getHumanName());
 				$Commande->execute();
 			}
 			$PowerTime=$ChauffeEau->EvaluatePowerTime();
@@ -51,9 +51,9 @@ class ChauffeEau extends eqLogic {
 		$ChauffeEau=eqLogic::byId($_options['id']);
 		if(is_object($ChauffeEau)){
 			log::add('ChauffeEau','info','Fin de l\'activation du chauffe eau '.$ChauffeEau->getHumanName());
-			$Commande=eqLogic::byId($ChauffeEau->getConfiguration('Desactivation'));
+			$Commande=cmd::byId($ChauffeEau->getConfiguration('Desactivation'));
 			if(is_object($Commande)){
-				log::add('ChauffeEau','info','FExecution de '.$Commande->getHumanName());
+				log::add('ChauffeEau','info','Execution de '.$Commande->getHumanName());
 				$Commande->execute();
 			}
 		}
