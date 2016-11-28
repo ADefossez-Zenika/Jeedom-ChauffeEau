@@ -32,7 +32,7 @@ class ChauffeEau extends eqLogic {
 		$ChauffeEau=eqLogic::byId($_options['id']);
 		if(is_object($ChauffeEau)){			
 			log::add('ChauffeEau','info','Debut de l\'activation du chauffe eau '.$ChauffeEau->getHumanName());
-			$Commande=cmd::byId($ChauffeEau->getConfiguration('Activation'));
+			$Commande=cmd::byId(str_replace('#','',$ChauffeEau->getConfiguration('Activation')));
 			if(is_object($Commande)){
 				log::add('ChauffeEau','info','Execution de '.$Commande->getHumanName());
 				$Commande->execute();
@@ -51,7 +51,7 @@ class ChauffeEau extends eqLogic {
 		$ChauffeEau=eqLogic::byId($_options['id']);
 		if(is_object($ChauffeEau)){
 			log::add('ChauffeEau','info','Fin de l\'activation du chauffe eau '.$ChauffeEau->getHumanName());
-			$Commande=cmd::byId($ChauffeEau->getConfiguration('Desactivation'));
+			$Commande=cmd::byId(str_replace('#','',$ChauffeEau->getConfiguration('Desactivation')));
 			if(is_object($Commande)){
 				log::add('ChauffeEau','info','Execution de '.$Commande->getHumanName());
 				$Commande->execute();
