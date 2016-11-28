@@ -92,27 +92,27 @@ $eqLogics = eqLogic::byType('ChauffeEau');
 						</div>
 					</div>
 					<div class="form-group">
-						<label class="col-sm-2 control-label" >{{Capacité du chauffe eau}}</label>
+						<label class="col-sm-2 control-label" >{{Capacité du chauffe eau (Litre)}}</label>
 						<div class="col-sm-5">
-							<input type="text" class="eqLogicAttr form-control" data-l1key="configuration"  data-l2key="Capacite" placeholder="{{Nom du groupe de zones}}"/>
+							<input type="text" class="eqLogicAttr form-control" data-l1key="configuration"  data-l2key="Capacite" placeholder="{{Capacité du chauffe eau (Litre)}}"/>
 						</div>
 					</div>
 					<div class="form-group">
-						<label class="col-sm-2 control-label" >{{Puissance du chauffe eau}}</label>
+						<label class="col-sm-2 control-label" >{{Puissance du chauffe eau (Watt)}}</label>
 						<div class="col-sm-5">
-							<input type="text" class="eqLogicAttr form-control" data-l1key="configuration"  data-l2key="Puissance" placeholder="{{Nom du groupe de zones}}"/>
+							<input type="text" class="eqLogicAttr form-control" data-l1key="configuration"  data-l2key="Puissance" placeholder="{{Puissance du chauffe eau (Watt)}}"/>
 						</div>
 					</div>
 					<div class="form-group">
-						<label class="col-sm-2 control-label" >{{Température Souhaité}}</label>
+						<label class="col-sm-2 control-label" >{{Température Souhaité (°C)}}</label>
 						<div class="col-sm-5">
-							<input type="text" class="eqLogicAttr form-control" data-l1key="configuration"  data-l2key="TempSouhaite" placeholder="{{Nom du groupe de zones}}"/>
+							<input type="text" class="eqLogicAttr form-control" data-l1key="configuration"  data-l2key="TempSouhaite" placeholder="{{Température Souhaité (°C) - Valeur conseillé 60°C}}"/>
 						</div>
 					</div>
 					<div class="form-group">
 						<label class="col-sm-2 control-label" >{{Selectioner une commande ou estimer la temperature actuel de l'eau}}</label>
 						<div class="col-sm-5 input-group">
-							<input class="eqLogicAttr form-control input-sm" data-l1key="configuration"  data-l2key="TempActuel">
+							<input class="eqLogicAttr form-control input-sm" data-l1key="configuration"  data-l2key="TempActuel" placeholder="{{Selectionner un objet Jeedom de température, ou Saisissez une valeur par defaut}}">
 							<span class="input-group-btn">
 								<a class="btn btn-success btn-sm bt_selectCmdExpression" >
 									<i class="fa fa-list-alt"></i>
@@ -123,7 +123,7 @@ $eqLogics = eqLogic::byType('ChauffeEau');
 					<div class="form-group">
 						<label class="col-sm-2 control-label" >{{Configurer le lancement de votre chauffage}}</label>
 						<div class=" col-sm-5 input-group">
-							<input class="eqLogicAttr form-control input-sm" data-l1key="configuration"  data-l2key="ScheduleCron">
+							<input class="eqLogicAttr form-control input-sm" data-l1key="configuration"  data-l2key="ScheduleCron" placeholder="{{Choisir a l'aide de l'assistant, l'heure de depart de votre chauffe eau}}">
 							<span class="input-group-btn">
 								<a class="btn btn-success btn-sm bt_selectCmdExpression" >
 									<i class="fa fa-list-alt"></i>
@@ -134,7 +134,7 @@ $eqLogics = eqLogic::byType('ChauffeEau');
 					<div class="form-group">
 						<label class="col-sm-2 control-label" >{{Commande d'activation du chauffe eau}}</label>
 						<div class="col-sm-5 input-group">
-							<input class="eqLogicAttr form-control input-sm" data-l1key="configuration"  data-l2key="Activation">
+							<input class="eqLogicAttr form-control input-sm" data-l1key="configuration"  data-l2key="Activation" placeholder="{{Séléctioner l'objet de commande d'activation du chauffe eau}}">
 							<span class="input-group-btn">
 								<a class="btn btn-success btn-sm bt_selectCmdExpression" >
 									<i class="fa fa-list-alt"></i>
@@ -145,7 +145,7 @@ $eqLogics = eqLogic::byType('ChauffeEau');
 					<div class="form-group">
 						<label class="col-sm-2 control-label" >{{Commande de desactivation du chauffe eau}}</label>
 						<div class="col-sm-5 input-group">
-							<input class="eqLogicAttr form-control input-sm" data-l1key="configuration"  data-l2key="Desactivation">
+							<input class="eqLogicAttr form-control input-sm" data-l1key="configuration"  data-l2key="Desactivation"placeholder="{{Séléctioner l'objet de commande de desactivation du chauffe eau}}">
 							<span class="input-group-btn">
 								<a class="btn btn-success btn-sm bt_selectCmdExpression" >
 									<i class="fa fa-list-alt"></i>
