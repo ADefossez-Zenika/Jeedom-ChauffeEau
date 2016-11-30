@@ -125,7 +125,7 @@ $eqLogics = eqLogic::byType('ChauffeEau');
 						<div class=" col-sm-5 input-group">
 							<input class="eqLogicAttr form-control input-sm" data-l1key="configuration"  data-l2key="ScheduleCron" placeholder="{{Choisir a l'aide de l'assistant, l'heure de depart de votre chauffe eau}}">
 							<span class="input-group-btn">
-								<a class="btn btn-success btn-sm bt_selectCmdExpression" >
+								<a class="btn btn-success btn-sm ScheduleCron" >
 									<i class="fa fa-list-alt"></i>
 								</a>
 							</span>
