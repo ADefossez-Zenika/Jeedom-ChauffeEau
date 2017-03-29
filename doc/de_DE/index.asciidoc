@@ -1,0 +1,25 @@
+= Wasser-Heizung Verwaltung
+
+== Beschreibung
+Dieses Plugin, ermöglicht es Ihren Warmwasserbereiter zu verwalten.
+Es wird die Zeit geschätzt, die für ein vollständiges Heizen Ihres Warmwasserspeichers notwendig ist.
+
+== Einrichtung
+Wie mit allen Jeedom Plugins werden wir mit der Erstellung eines Wecker Gerätes beginnen.		
+Nachdem wir es einen Namen gegeben haben, können wir es parametrieren. 		
+
+=== Allgemeine Jeedom Konfiguration		
+		
+image::../images/ConfigurationGeneral.jpg[]		
+* Name : Der Name wurde bereits festgelegt, aber Sie können ihn ändern.		
+* Eltern Objekt : Dieser Parameter ermöglicht das hinzufügen von Geräten in einem Jeedom-Objekt.		
+* Kategorie : Ordnet das Gerät in eine Kategorie ein.		
+* Sichtbar : Erlaubt das Gerät auf den Armaturenbrett sichtbar zu machen.		
+* Aktivieren : Erlaubt das Gerät zu aktivieren.		
+* Kapazität  (Liter) : Geben Sie das Volumen vom Warmwasserbereiter ein.
+* Leistung des Warmwasserbereiters (Watt) : Geben Sie die Leistung Ihres Warmwasserbereiter ein.
+* Gewünschte Temperatur (°C) : Geben Sie die zu erreichende Temperatur ein.
+* Selectioner une commande ou estimer la temperature actuel de l'eau : Indiquer la temperature au moment de la chauffe ou choisisez un objet jeedom représantant la valeur
+* Start des Heizens konfigurieren : Startzeit vom Warmwasserbereiter, im cron Format.
+* Aktivierungsbefehl Warmwasserbereiter : An Befehl auswählen für ihren Warmwasserbereiter
+* Deaktivierungsbefehl Warmwasserbereiter : Aus Befehl auswählen für ihren Warmwasserbereiter
