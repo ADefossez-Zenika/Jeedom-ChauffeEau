@@ -24,7 +24,10 @@ class ChauffeEau extends eqLogic {
 			$ChauffeEau->save();
 	}
 	public static function deamon_stop() {	
-		$cron = cron::byClassAndFunction('ChauffeEau', 'ActionJour');
+		$cron = cron::byClassAndFunction('ChauffeEau', 'StartChauffe');
+		if (is_object($cron)) 	
+			$cron->remove();
+		$cron = cron::byClassAndFunction('ChauffeEau', 'EndChauffe');
 		if (is_object($cron)) 	
 			$cron->remove();
 	}
