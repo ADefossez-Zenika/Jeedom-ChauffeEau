@@ -48,122 +48,145 @@ $eqLogics = eqLogic::byType('ChauffeEau');
 			?>
 		</div>
 	</div>  
-	<div class="col-lg-10 eqLogic" style="border-left: solid 1px #EEE; padding-left: 25px;display: none;">
-		<form class="form-horizontal">
-			<fieldset>		
-				<legend>
-					<i class="fa fa-arrow-circle-left eqLogicAction cursor" data-action="returnToThumbnailDisplay"></i> {{Général}}  
-					<i class="fa fa-cogs eqLogicAction pull-right cursor expertModeVisible" data-action="configure"></i>
-					<a class="btn btn-default btn-xs pull-right expertModeVisible eqLogicAction" data-action="copy"><i class="fa fa-copy"></i>{{Dupliquer}}</a>
-					<a class="btn btn-success btn-xs eqLogicAction pull-right" data-action="save"><i class="fa fa-check-circle"></i> Sauvegarder</a>
-					<a class="btn btn-danger btn-xs eqLogicAction pull-right" data-action="remove"><i class="fa fa-minus-circle"></i> Supprimer</a>
-				</legend> 
-			</fieldset> 
-		</form>	
-		<div class="row" style="padding-left:25px;">
-			<form class="form-horizontal">
-				<fieldset>
-					<div class="form-group ">
-						<label class="col-sm-2 control-label">{{Nom de la Zone}}</label>
-						<div class="col-sm-5">
-							<input type="text" class="eqLogicAttr form-control" data-l1key="id" style="display : none;" />
-							<input type="text" class="eqLogicAttr form-control" data-l1key="name" placeholder="{{Nom du groupe de zones}}"/>
+	<div class="col-lg-10 col-md-9 col-sm-8 eqLogic" style="border-left: solid 1px #EEE; padding-left: 25px;display: none;">
+		<a class="btn btn-success btn-sm eqLogicAction pull-right" data-action="save"><i class="fa fa-check-circle"></i> Sauvegarder</a>
+		<a class="btn btn-danger btn-sm eqLogicAction pull-right" data-action="remove"><i class="fa fa-minus-circle"></i> Supprimer</a>
+		<a class="btn btn-default btn-sm eqLogicAction pull-right" data-action="configure"><i class="fa fa-cogs"></i></a>
+		<a class="btn btn-default btn-sm eqLogicAction pull-right expertModeVisible " data-action="copy"><i class="fa fa-copy"></i></a>
+		<ul class="nav nav-tabs" role="tablist">
+			<li role="presentation">
+				<a href="#" class="eqLogicAction" aria-controls="home" role="tab" data-toggle="tab" data-action="returnToThumbnailDisplay">
+					<i class="fa fa-arrow-circle-left"></i>
+				</a>
+			</li>
+			<li role="presentation" class="active">
+				<a href="#eqlogictab" aria-controls="home" role="tab" data-toggle="tab" aria-expanded="true">
+					<i class="fa fa-tachometer"></i> Equipement</a>
+			</li>
+			<li role="presentation" class="">
+				<a href="#commandtab" aria-controls="profile" role="tab" data-toggle="tab" aria-expanded="false">
+					<i class="fa fa-list-alt"></i> Commandes</a>
+			</li>
+			<li role="presentation" class="">
+				<a href="#conditiontab" aria-controls="profile" role="tab" data-toggle="tab" aria-expanded="false">
+					<i class="fa fa-map"></i> {{Conditions d'exécution}}</a>
+			</li>
+
+		</ul>
+		<div class="tab-content" style="height:calc(100% - 50px);overflow:auto;overflow-x: hidden;">
+			<div role="tabpanel" class="tab-pane active" id="eqlogictab">
+				<form class="form-horizontal">
+					<fieldset>
+						<div class="form-group ">
+							<label class="col-sm-2 control-label">{{Nom de la Zone}}</label>
+							<div class="col-sm-5">
+								<input type="text" class="eqLogicAttr form-control" data-l1key="id" style="display : none;" />
+								<input type="text" class="eqLogicAttr form-control" data-l1key="name" placeholder="{{Nom du groupe de zones}}"/>
+							</div>
 						</div>
-					</div>
-					<div class="form-group">
-						<label class="col-sm-2 control-label" >{{Objet parent}}</label>
-						<div class="col-sm-5">
-							<select id="sel_object" class="eqLogicAttr form-control" data-l1key="object_id">
-								<option value="">{{Aucun}}</option>
-								<?php
-									foreach (object::all() as $object) 
-										echo '<option value="' . $object->getId() . '">' . $object->getName() . '</option>';
-								?>
-							</select>
+						<div class="form-group">
+							<label class="col-sm-2 control-label" >{{Objet parent}}</label>
+							<div class="col-sm-5">
+								<select id="sel_object" class="eqLogicAttr form-control" data-l1key="object_id">
+									<option value="">{{Aucun}}</option>
+									<?php
+										foreach (object::all() as $object) 
+											echo '<option value="' . $object->getId() . '">' . $object->getName() . '</option>';
+									?>
+								</select>
+							</div>
 						</div>
-					</div>
-					<div class="form-group">
-						<label class="col-sm-2 control-label" ></label>
-						<div class="col-sm-5">
-							<label>{{Activer}}</label>
-							<input type="checkbox" class="eqLogicAttr" data-label-text="{{Activer}}" data-l1key="isEnable" checked/>
-							<label>{{Visible}}</label>
-							<input type="checkbox" class="eqLogicAttr" data-label-text="{{Visible}}" data-l1key="isVisible" checked/>
+						<div class="form-group">
+							<label class="col-sm-2 control-label" ></label>
+							<div class="col-sm-5">
+								<label>{{Activer}}</label>
+								<input type="checkbox" class="eqLogicAttr" data-label-text="{{Activer}}" data-l1key="isEnable" checked/>
+								<label>{{Visible}}</label>
+								<input type="checkbox" class="eqLogicAttr" data-label-text="{{Visible}}" data-l1key="isVisible" checked/>
+							</div>
 						</div>
-					</div>
-					<div class="form-group">
-						<label class="col-sm-2 control-label" >{{Capacité du chauffe eau (Litre)}}</label>
-						<div class="col-sm-5">
-							<input type="text" class="eqLogicAttr form-control" data-l1key="configuration"  data-l2key="Capacite" placeholder="{{Capacité du chauffe eau (Litre)}}"/>
+						<div class="form-group">
+							<label class="col-sm-2 control-label" >{{Capacité du chauffe eau (Litre)}}</label>
+							<div class="col-sm-5">
+								<input type="text" class="eqLogicAttr form-control" data-l1key="configuration"  data-l2key="Capacite" placeholder="{{Capacité du chauffe eau (Litre)}}"/>
+							</div>
 						</div>
-					</div>
-					<div class="form-group">
-						<label class="col-sm-2 control-label" >{{Puissance du chauffe eau (Watt)}}</label>
-						<div class="col-sm-5">
-							<input type="text" class="eqLogicAttr form-control" data-l1key="configuration"  data-l2key="Puissance" placeholder="{{Puissance du chauffe eau (Watt)}}"/>
+						<div class="form-group">
+							<label class="col-sm-2 control-label" >{{Puissance du chauffe eau (Watt)}}</label>
+							<div class="col-sm-5">
+								<input type="text" class="eqLogicAttr form-control" data-l1key="configuration"  data-l2key="Puissance" placeholder="{{Puissance du chauffe eau (Watt)}}"/>
+							</div>
 						</div>
-					</div>
-					<div class="form-group">
-						<label class="col-sm-2 control-label" >{{Température Souhaité (°C)}}</label>
-						<div class="col-sm-5">
-							<input type="text" class="eqLogicAttr form-control" data-l1key="configuration"  data-l2key="TempSouhaite" placeholder="{{Température Souhaité (°C) - Valeur conseillé 60°C}}"/>
+						<div class="form-group">
+							<label class="col-sm-2 control-label" >{{Température Souhaité (°C)}}</label>
+							<div class="col-sm-5">
+								<input type="text" class="eqLogicAttr form-control" data-l1key="configuration"  data-l2key="TempSouhaite" placeholder="{{Température Souhaité (°C) - Valeur conseillé 60°C}}"/>
+							</div>
 						</div>
-					</div>
-					<div class="form-group">
-						<label class="col-sm-2 control-label" >{{Selectioner une commande ou estimer la temperature actuel de l'eau}}</label>
-						<div class="col-sm-5 input-group">
-							<input class="eqLogicAttr form-control input-sm" data-l1key="configuration"  data-l2key="TempActuel" placeholder="{{Selectionner un objet Jeedom de température, ou Saisissez une valeur par defaut}}">
-							<span class="input-group-btn">
-								<a class="btn btn-success btn-sm bt_selectCmdExpression" >
-									<i class="fa fa-list-alt"></i>
-								</a>
-							</span>
+						<div class="form-group">
+							<label class="col-sm-2 control-label" >{{Selectioner une commande ou estimer la temperature actuel de l'eau}}</label>
+							<div class="col-sm-5 input-group">
+								<input class="eqLogicAttr form-control input-sm" data-l1key="configuration"  data-l2key="TempActuel" placeholder="{{Selectionner un objet Jeedom de température, ou Saisissez une valeur par defaut}}">
+								<span class="input-group-btn">
+									<a class="btn btn-success btn-sm bt_selectCmdExpression" >
+										<i class="fa fa-list-alt"></i>
+									</a>
+								</span>
+							</div>
+						</div>  
+						<div class="form-group">
+							<label class="col-sm-2 control-label" >{{Configurer le lancement de votre chauffage}}</label>
+							<div class=" col-sm-5 input-group">
+								<input class="eqLogicAttr form-control input-sm" data-l1key="configuration"  data-l2key="ScheduleCron" placeholder="{{Choisir a l'aide de l'assistant, l'heure de depart de votre chauffe eau}}">
+								<span class="input-group-btn">
+									<a class="btn btn-success btn-sm ScheduleCron" >
+										<i class="fa fa-list-alt"></i>
+									</a>
+								</span>
+							</div>
 						</div>
-					</div>  
-					<div class="form-group">
-						<label class="col-sm-2 control-label" >{{Configurer le lancement de votre chauffage}}</label>
-						<div class=" col-sm-5 input-group">
-							<input class="eqLogicAttr form-control input-sm" data-l1key="configuration"  data-l2key="ScheduleCron" placeholder="{{Choisir a l'aide de l'assistant, l'heure de depart de votre chauffe eau}}">
-							<span class="input-group-btn">
-								<a class="btn btn-success btn-sm ScheduleCron" >
-									<i class="fa fa-list-alt"></i>
-								</a>
-							</span>
+						<div class="form-group">
+							<label class="col-sm-2 control-label" >{{Commande d'activation du chauffe eau}}</label>
+							<div class="col-sm-5 input-group">
+								<input class="eqLogicAttr form-control input-sm" data-l1key="configuration"  data-l2key="Activation" placeholder="{{Séléctioner l'objet de commande d'activation du chauffe eau}}">
+								<span class="input-group-btn">
+									<a class="btn btn-success btn-sm bt_selectCmdExpression" >
+										<i class="fa fa-list-alt"></i>
+									</a>
+								</span>
+							</div>
 						</div>
-					</div>
-					<div class="form-group">
-						<label class="col-sm-2 control-label" >{{Commande d'activation du chauffe eau}}</label>
-						<div class="col-sm-5 input-group">
-							<input class="eqLogicAttr form-control input-sm" data-l1key="configuration"  data-l2key="Activation" placeholder="{{Séléctioner l'objet de commande d'activation du chauffe eau}}">
-							<span class="input-group-btn">
-								<a class="btn btn-success btn-sm bt_selectCmdExpression" >
-									<i class="fa fa-list-alt"></i>
-								</a>
-							</span>
-						</div>
-					</div>
-					<div class="form-group">
-						<label class="col-sm-2 control-label" >{{Commande de desactivation du chauffe eau}}</label>
-						<div class="col-sm-5 input-group">
-							<input class="eqLogicAttr form-control input-sm" data-l1key="configuration"  data-l2key="Desactivation"placeholder="{{Séléctioner l'objet de commande de desactivation du chauffe eau}}">
-							<span class="input-group-btn">
-								<a class="btn btn-success btn-sm bt_selectCmdExpression" >
-									<i class="fa fa-list-alt"></i>
-								</a>
-							</span>
-						</div>
-					</div>	
-				</fieldset>
-			</form>
+						<div class="form-group">
+							<label class="col-sm-2 control-label" >{{Commande de desactivation du chauffe eau}}</label>
+							<div class="col-sm-5 input-group">
+								<input class="eqLogicAttr form-control input-sm" data-l1key="configuration"  data-l2key="Desactivation"placeholder="{{Séléctioner l'objet de commande de desactivation du chauffe eau}}">
+								<span class="input-group-btn">
+									<a class="btn btn-success btn-sm bt_selectCmdExpression" >
+										<i class="fa fa-list-alt"></i>
+									</a>
+								</span>
+							</div>
+						</div>	
+					</fieldset>
+				</form>
+			</div>	
+			<div role="tabpanel" class="tab-pane" id="conditiontab">
+				<form class="form-horizontal">
+					<fieldset>
+						<legend>{{Les conditions d'exécution :}}
+							<sup>
+								<i class="fa fa-question-circle tooltips" title="Saisir toutes les conditions d'exécution de la gestion"></i>
+							</sup>
+							<a class="btn btn-success btn-xs conditionAttr" data-action="add" style="margin-left: 5px;">
+								<i class="fa fa-plus-circle"></i>
+								{{Ajouter Condition}}
+							</a>
+						</legend>
+						<div class="div_Condition"></div>
+					</fieldset>
+				</form>
+			</div>
 		</div>
-		<form class="form-horizontal">
-			<fieldset>
-				<div class="form-actions">
-					<a class="btn btn-danger eqLogicAction" data-action="remove"><i class="fa fa-minus-circle"></i> {{Supprimer}}</a>
-					<a class="btn btn-success eqLogicAction" data-action="save"><i class="fa fa-check-circle"></i> {{Sauvegarder}}</a>
-				</div>
-			</fieldset>
-		</form>
 	</div>
 </div>
 
