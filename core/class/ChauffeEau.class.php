@@ -36,7 +36,7 @@ class ChauffeEau extends eqLogic {
 		if(is_object($ChauffeEau)){			
 			log::add('ChauffeEau','info','Debut de l\'activation du chauffe eau '.$ChauffeEau->getHumanName());
 			$Commande=cmd::byId(str_replace('#','',$ChauffeEau->getConfiguration('Activation')));
-			if(is_object($Commande)){
+			if(is_object($Commande) && $ChauffeEau->EvaluateCondition()){
 				log::add('ChauffeEau','info','Execution de '.$Commande->getHumanName());
 				$Commande->execute();
 			}
@@ -55,7 +55,7 @@ class ChauffeEau extends eqLogic {
 		if(is_object($ChauffeEau)){
 			log::add('ChauffeEau','info','Fin de l\'activation du chauffe eau '.$ChauffeEau->getHumanName());
 			$Commande=cmd::byId(str_replace('#','',$ChauffeEau->getConfiguration('Desactivation')));
-			if(is_object($Commande)){
+			if(is_object($Commande) && $ChauffeEau->EvaluateCondition()){
 				log::add('ChauffeEau','info','Execution de '.$Commande->getHumanName());
 				$Commande->execute();
 			}
@@ -82,6 +82,31 @@ class ChauffeEau extends eqLogic {
 		$Energie=$this->getConfiguration('Capacite')*$DeltaTemp*4185;
 		return round($Energie/ $this->getConfiguration('Puissance'));
 	} 
+	public function EvaluateCondition(){
+		foreach($this->getConfiguration('condition') as $condition){		
+			if (isset($condition['enable']) && $condition['enable'] == 0)
+				continue;
+			$_scenario = null;
+			$expression = scenarioExpression::setTags($condition['expression'], $_scenario, true);
+			$message = __('Evaluation de la condition : [', __FILE__) . trim($expression) . '] = ';
+			$result = evaluate($expression);
+			if (is_bool($result)) {
+				if ($result) {
+					$message .= __('Vrai', __FILE__);
+				} else {
+					$message .= __('Faux', __FILE__);
+				}
+			} else {
+				$message .= $result;
+			}
+			log::add('Volets','info',$this->getHumanName().' : '.$message);
+			if(!$result){
+				log::add('Volets','info',$this->getHumanName().' : Les conditions ne sont pas remplies');
+				return false;
+			}
+		}
+		return true;
+	}
 	public function CreateCron($Schedule, $logicalId) {
 		$cron =cron::byClassAndFunction('ChauffeEau', $logicalId);
 			if (!is_object($cron)) {
