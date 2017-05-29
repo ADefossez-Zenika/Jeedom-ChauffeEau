@@ -64,12 +64,8 @@ $eqLogics = eqLogic::byType('ChauffeEau');
 					<i class="fa fa-tachometer"></i> Equipement</a>
 			</li>
 			<li role="presentation" class="">
-				<a href="#commandtab" aria-controls="profile" role="tab" data-toggle="tab" aria-expanded="false">
-					<i class="fa fa-list-alt"></i> Commandes</a>
-			</li>
-			<li role="presentation" class="">
 				<a href="#conditiontab" aria-controls="profile" role="tab" data-toggle="tab" aria-expanded="false">
-					<i class="fa fa-map"></i> {{Conditions d'exécution}}</a>
+					<i class="fa fa-list-alt"></i> {{Conditions d'exécution}}</a>
 			</li>
 
 		</ul>
