@@ -99,9 +99,9 @@ class ChauffeEau extends eqLogic {
 			} else {
 				$message .= $result;
 			}
-			log::add('Volets','info',$this->getHumanName().' : '.$message);
+			log::add('ChauffeEau','info',$this->getHumanName().' : '.$message);
 			if(!$result){
-				log::add('Volets','info',$this->getHumanName().' : Les conditions ne sont pas remplies');
+				log::add('ChauffeEau','info',$this->getHumanName().' : Les conditions ne sont pas remplies');
 				return false;
 			}
 		}
