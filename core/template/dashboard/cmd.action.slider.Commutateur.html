@@ -1,0 +1,43 @@
+<div style="width:100px;min-height:90px;" class="cmd #history# tooltips cmd-widget" data-type="action" data-subtype="slider" data-cmd_id="#id#" title="#collectDate#">
+    <center>
+        <div style="font-weight: bold;font-size : 12px;">Actif</div>
+        <span style="font-size: 3em;font-weight: bold;margin-top: 5px;" class="iconCmd"><i class="icon jeedom-lock-ferme"></i></span>
+    </center>
+    <script>
+        var valeur=0;
+        jeedom.cmd.update['#id#'] = function(_options){
+            if (_options.display_value == '1' || _options.display_value == 1 || _options.display_value == 'on') {
+                if (jeedom.cmd.normalizeName('Désactiver') == 'on') {
+                    $('.cmd[data-cmd_id=#id#]').hide();
+                }else{
+                    $('.cmd[data-cmd_id=#id#]').show();
+                    $('.cmd[data-cmd_id=#id#] .iconCmd').empty().append('<i class="icon jeedom-lock-ferme"></i>');
+                    //Remplacer par commutateur on
+                    valeur=1;
+                }
+            } elseif (_options.display_value == '2' || _options.display_value == 2) {
+                if (jeedom.cmd.normalizeName('Désactiver') == 'on') {
+                    $('.cmd[data-cmd_id=#id#]').hide();
+                }else{
+                    $('.cmd[data-cmd_id=#id#]').show();
+                    $('.cmd[data-cmd_id=#id#] .iconCmd').empty().append('<i class="icon jeedom-lock-ferme"></i>');
+                    //Remplacer par commutateur auto
+                    valeur=2;
+                }
+            } else {
+                if (jeedom.cmd.normalizeName('Désactiver') == 'off') {
+                    $('.cmd[data-cmd_id=#id#]').hide();
+                }else{
+                    $('.cmd[data-cmd_id=#id#]').show();
+                    $('.cmd[data-cmd_id=#id#] .iconCmd').empty().append('<i class="icon jeedom-lock-ouvert"></i>');
+                    //Remplacer par commutateur off
+                    valeur=3;
+                }
+            }
+        }
+        jeedom.cmd.update['#id#']({display_value:'1'});
+        $('.cmd[data-cmd_id=#id#] .iconCmd').off().on('click', function () {
+            jeedom.cmd.execute({id: '#id#', value=valeur});
+        });
+    </script>
+</div>
