@@ -7,7 +7,6 @@
     <script>
         var valeur=0;
         $('.cmd[data-cmd_id=#id#]').hide();
-        jeedom.cmd.update['#id#'] = function(_options){
            $('.cmd[data-cmd_id=#id#]').hide();
             if ('#state#' == '1' && '#logicalId#'== 'armed') {
                     $('.cmd[data-cmd_id=#id#]').show();
@@ -21,8 +20,6 @@
                     $('.cmd[data-cmd_id=#id#]').show();
                     $('.cmd[data-cmd_id=#id#] .iconCmd .autoonoffImg').attr('src','plugins/ChauffeEau/core/template/images/AutoOnOffCommut_OFF.png');
             }
-        }
-        var nextValue=
         $('.cmd[data-cmd_id=#id#] .iconCmd').off().on('click', function () {
             jeedom.cmd.execute({id: '#id#', value:{slider: parseFloat('#state#')+1}});
         });
