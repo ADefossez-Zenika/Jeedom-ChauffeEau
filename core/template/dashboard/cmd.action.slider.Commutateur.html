@@ -1,0 +1,30 @@
+<div style="width:100px;min-height:90px;" class="cmd #history# tooltips cmd-widget" data-type="action" data-subtype="slider" data-cmd_id="#id#" title="#collectDate#">
+    <center>
+        <span style="font-size: 3em;font-weight: bold;margin-top: 5px;" class="iconCmd">
+            <img class="autoonoffImg" style="width: 80px;" />
+        </span>
+    </center>
+    <script>
+        var valeur=0;
+        $('.cmd[data-cmd_id=#id#]').hide();
+           $('.cmd[data-cmd_id=#id#]').hide();
+            if ('#state#' == '1' && '#logicalId#'== 'armed') {
+                    $('.cmd[data-cmd_id=#id#]').show();
+                    $('.cmd[data-cmd_id=#id#] .iconCmd .autoonoffImg').attr('src','plugins/ChauffeEau/core/template/images/AutoOnOffCommut_ON.png');
+
+            } else if ('#state#' == '2' && '#logicalId#'== 'auto') {
+                    $('.cmd[data-cmd_id=#id#]').show();
+                    $('.cmd[data-cmd_id=#id#] .iconCmd .autoonoffImg').attr('src','plugins/ChauffeEau/core/template/images/AutoOnOffCommut_AUTO.png');
+
+            } else if ('#state#' == '3' && '#logicalId#'== 'released') {
+                    $('.cmd[data-cmd_id=#id#]').show();
+                    $('.cmd[data-cmd_id=#id#] .iconCmd .autoonoffImg').attr('src','plugins/ChauffeEau/core/template/images/AutoOnOffCommut_OFF.png');
+            }
+        var nextState=parseFloat('#state#')+1;
+        if(nextState>3)
+            nextState=1;
+        $('.cmd[data-cmd_id=#id#] .iconCmd').off().on('click', function () {
+            jeedom.cmd.execute({id: '#id#', value:{slider: nextState}});
+        });
+    </script>
+</div>
