@@ -24,7 +24,7 @@
         }
         var nextValue=
         $('.cmd[data-cmd_id=#id#] .iconCmd').off().on('click', function () {
-            jeedom.cmd.execute({id: '#id#', value: parseFloat('#state#')+1});
+            jeedom.cmd.execute({id: '#id#', value:{slider: parseFloat('#state#')+1}});
         });
     </script>
 </div>
