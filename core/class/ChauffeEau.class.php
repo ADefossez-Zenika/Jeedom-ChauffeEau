@@ -37,7 +37,7 @@ class ChauffeEau extends eqLogic {
 			$Etat=$ChauffeEau->getCmd(null,'etatCommut');
 			if(is_object($Etat))
 				break;	
-			$State=$Etat->execCmd()
+			$State=$Etat->execCmd();
 			if($State == 3)
 				break;
 			log::add('ChauffeEau','info','Debut de l\'activation du chauffe eau '.$ChauffeEau->getHumanName());
