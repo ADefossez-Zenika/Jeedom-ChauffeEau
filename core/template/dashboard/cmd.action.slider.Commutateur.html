@@ -37,7 +37,7 @@
         }
         jeedom.cmd.update['#id#']({display_value:'1'});
         $('.cmd[data-cmd_id=#id#] .iconCmd').off().on('click', function () {
-            jeedom.cmd.execute({id: '#id#', value=valeur});
+            jeedom.cmd.execute({id: '#id#', slider=valeur});
         });
     </script>
 </div>
