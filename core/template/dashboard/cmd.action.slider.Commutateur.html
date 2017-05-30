@@ -16,7 +16,7 @@
                     valeur=1;
                 }
             } elseif (_options.display_value == '2' || _options.display_value == 2) {
-                if (jeedom.cmd.normalizeName('Désactiver') == 'on') {
+                if (jeedom.cmd.normalizeName('Désactiver') == 'auto') {
                     $('.cmd[data-cmd_id=#id#]').hide();
                 }else{
                     $('.cmd[data-cmd_id=#id#]').show();
