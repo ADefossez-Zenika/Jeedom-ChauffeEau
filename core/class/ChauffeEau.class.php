@@ -125,7 +125,39 @@ class ChauffeEau extends eqLogic {
 			}
 		return $cron;
 	}
+	public static function AddCommande($eqLogic,$Name,$_logicalId,$Type="info", $SubType='binary',$visible,$Template='') {
+		$Commande = $eqLogic->getCmd(null,$_logicalId);
+		if (!is_object($Commande))
+		{
+			$Commande = new ChauffeEauCmd();
+			$Commande->setId(null);
+			$Commande->setName($Name);
+			$Commande->setIsVisible($visible);
+			$Commande->setLogicalId($_logicalId);
+			$Commande->setEqLogic_id($eqLogic->getId());
+			$Commande->setType($Type);
+			$Commande->setSubType($SubType);
+		}
+   		$Commande->setTemplate('dashboard',$Template );
+		$Commande->setTemplate('mobile', $Template);
+		$Commande->save();
+		return $Commande;
+	}
 	public function postSave() {
+		$state=self::AddCommande($this,"Etat du chauffe-eau","state","info", 'binary',true);
+		$state->event(false);
+		$state->setCollectDate(date('Y-m-d H:i:s'));
+		$state->save();
+		$isArmed=self::AddCommande($this,"Etat fonctionnement","armed","action","other",false);
+		$Armed=self::AddCommande($this,"Marche forcé","armed","action","other",true,'Commutateur');
+		$Armed->setValue($isArmed->getId());
+		$Armed->save();
+		$Released=self::AddCommande($this,"Desactiver","released","action","other",true,'Commutateur');
+		$Released->setValue($isArmed->getId());
+		$Released->save();
+		$Auto=self::AddCommande($this,"Desactiver","released","action","other",true,'Commutateur');
+		$Auto->setValue($isArmed->getId());
+		$Auto->save();
 		if($this->getIsEnable()){
 			$cron = $this->CreateCron($this->getConfiguration('ScheduleCron'), 'StartChauffe');
 		}
