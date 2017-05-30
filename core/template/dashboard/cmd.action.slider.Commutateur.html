@@ -9,22 +9,22 @@
         var valeur=0;
         jeedom.cmd.update['#id#'] = function(_options){
             $('.cmd[data-cmd_id=#id#]').hide();
-            if ('#value#' == '1') {
+            if ('#value#' == 1 && '#logicalId#'== 'armed') {
                     $('.cmd[data-cmd_id=#id#]').show();
                     $('.cmd[data-cmd_id=#id#] .iconCmd .autoonoffImg').attr('src','plugins/ChauffeEau/core/template/images/AutoOnOffCommut_ON.png');
 
-            } else if ('#value#' == 2) {
+            } else if ('#value#' == 2 && '#logicalId#'== 'auto') {
                     $('.cmd[data-cmd_id=#id#]').show();
                     $('.cmd[data-cmd_id=#id#] .iconCmd .autoonoffImg').attr('src','plugins/ChauffeEau/core/template/images/AutoOnOffCommut_AUTO.png');
 
-            } else {
+            } else if ('#value#' == 3 && '#logicalId#'== 'released') {
                     $('.cmd[data-cmd_id=#id#]').show();
                     $('.cmd[data-cmd_id=#id#] .iconCmd .autoonoffImg').attr('src','plugins/ChauffeEau/core/template/images/AutoOnOffCommut_OFF.png');
             }
         }
-        jeedom.cmd.update['#id#']({display_value:'1'});
+        var nextValue=
         $('.cmd[data-cmd_id=#id#] .iconCmd').off().on('click', function () {
-            jeedom.cmd.execute({id: '#id#', slider: parsefloat('#value#')+1});
+            jeedom.cmd.execute({id: '#id#', slider: parseFloat('#value#')+1});
         });
     </script>
 </div>
