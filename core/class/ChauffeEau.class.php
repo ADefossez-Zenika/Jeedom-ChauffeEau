@@ -148,14 +148,14 @@ class ChauffeEau extends eqLogic {
 		$state->event(false);
 		$state->setCollectDate(date('Y-m-d H:i:s'));
 		$state->save();
-		$isArmed=self::AddCommande($this,"Etat fonctionnement","armed","action","other",false);
+		$isArmed=self::AddCommande($this,"Etat fonctionnement","armed","info","numeric",false);
 		$Armed=self::AddCommande($this,"Marche forcé","armed","action","other",true,'Commutateur');
 		$Armed->setValue($isArmed->getId());
 		$Armed->save();
-		$Released=self::AddCommande($this,"Desactiver","released","action","other",true,'Commutateur');
+		$Released=self::AddCommande($this,"Desactiver","released","action","slider",true,'Commutateur');
 		$Released->setValue($isArmed->getId());
 		$Released->save();
-		$Auto=self::AddCommande($this,"Desactiver","released","action","other",true,'Commutateur');
+		$Auto=self::AddCommande($this,"Desactiver","released","action","slider",true,'Commutateur');
 		$Auto->setValue($isArmed->getId());
 		$Auto->save();
 		if($this->getIsEnable()){
