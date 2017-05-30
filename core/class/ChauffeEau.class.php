@@ -34,7 +34,7 @@ class ChauffeEau extends eqLogic {
 	public static function StartChauffe($_options) {
 		$ChauffeEau=eqLogic::byId($_options['id']);
 		if (is_object($ChauffeEau) && $ChauffeEau->getIsEnable()) {
-			$Etat=$ChauffeEau->getCmd('','etatCommut');
+			$Etat=$ChauffeEau->getCmd(null,'etatCommut');
 			if(is_object($Etat))
 				break;			   
 			if($Etat->execCmd() == 3)
@@ -170,6 +170,7 @@ class ChauffeEau extends eqLogic {
 }
 class ChauffeEauCmd extends cmd {
 	public function execute($_options = null) {
+		$this->getEqLogic()->checkAndUpdateCmd('etatCommut',$_options['slider']);
 		switch($this->getLogicalId()){
 			case 'armed':
 				$cron = cron::byClassAndFunction('ChauffeEau', 'StartChauffe', array('id' => $this->getEqLogic()->getId()));
@@ -193,12 +194,6 @@ class ChauffeEauCmd extends cmd {
 	   			$this->getEqLogic()->CreateCron($this->getEqLogic()->getConfiguration('ScheduleCron'), 'StartChauffe');
 			break;
 	   	}
-		$Etat=$this->getEqLogic()->getCmd('','etatCommut');
-		if(is_object($Etat)){
-			$Etat->event($_options['slider']);
-			$Etat->setCollectDate(date('Y-m-d H:i:s'));
-			$Etat->save();
-		}
 	}
 }
 ?>
