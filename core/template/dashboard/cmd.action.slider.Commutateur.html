@@ -8,15 +8,15 @@
         var valeur=0;
         jeedom.cmd.update['#id#'] = function(_options){
             $('.cmd[data-cmd_id=#id#]').hide();
-            if ('#state#' == 1 && '#logicalId#'== 'armed') {
+            if ('#state#' == '1' && '#logicalId#'== 'armed') {
                     $('.cmd[data-cmd_id=#id#]').show();
                     $('.cmd[data-cmd_id=#id#] .iconCmd .autoonoffImg').attr('src','plugins/ChauffeEau/core/template/images/AutoOnOffCommut_ON.png');
 
-            } else if ('#state#' == 2 && '#logicalId#'== 'auto') {
+            } else if ('#state#' == '2' && '#logicalId#'== 'auto') {
                     $('.cmd[data-cmd_id=#id#]').show();
                     $('.cmd[data-cmd_id=#id#] .iconCmd .autoonoffImg').attr('src','plugins/ChauffeEau/core/template/images/AutoOnOffCommut_AUTO.png');
 
-            } else if ('#state#' == 3 && '#logicalId#'== 'released') {
+            } else if ('#state#' == '3' && '#logicalId#'== 'released') {
                     $('.cmd[data-cmd_id=#id#]').show();
                     $('.cmd[data-cmd_id=#id#] .iconCmd .autoonoffImg').attr('src','plugins/ChauffeEau/core/template/images/AutoOnOffCommut_OFF.png');
             }
