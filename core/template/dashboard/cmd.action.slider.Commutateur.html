@@ -8,35 +8,23 @@
     <script>
         var valeur=0;
         jeedom.cmd.update['#id#'] = function(_options){
-            if (_options.display_value == '1' || _options.display_value == 1 || _options.display_value == 'on') {
-                if (jeedom.cmd.normalizeName('Désactiver') == 'on') {
-                    $('.cmd[data-cmd_id=#id#]').hide();
-                }else{
+            $('.cmd[data-cmd_id=#id#]').hide();
+            if ('#value#' == '1') {
                     $('.cmd[data-cmd_id=#id#]').show();
                     $('.cmd[data-cmd_id=#id#] .iconCmd .autoonoffImg').attr('src','plugins/ChauffeEau/core/template/images/AutoOnOffCommut_ON.png');
-                    valeur=1;
-                }
-            } elseif (_options.display_value == '2' || _options.display_value == 2) {
-                if (jeedom.cmd.normalizeName('Désactiver') == 'auto') {
-                    $('.cmd[data-cmd_id=#id#]').hide();
-                }else{
+
+            } elseif ('#value#' == 2) {
                     $('.cmd[data-cmd_id=#id#]').show();
                     $('.cmd[data-cmd_id=#id#] .iconCmd .autoonoffImg').attr('src','plugins/ChauffeEau/core/template/images/AutoOnOffCommut_AUTO.png');
-                    valeur=2;
-                }
+
             } else {
-                if (jeedom.cmd.normalizeName('Désactiver') == 'off') {
-                    $('.cmd[data-cmd_id=#id#]').hide();
-                }else{
                     $('.cmd[data-cmd_id=#id#]').show();
                     $('.cmd[data-cmd_id=#id#] .iconCmd .autoonoffImg').attr('src','plugins/ChauffeEau/core/template/images/AutoOnOffCommut_OFF.png');
-                    valeur=3;
-                }
             }
         }
         jeedom.cmd.update['#id#']({display_value:'1'});
         $('.cmd[data-cmd_id=#id#] .iconCmd').off().on('click', function () {
-            jeedom.cmd.execute({id: '#id#', slider=valeur});
+            jeedom.cmd.execute({id: '#id#', slider: parsefloat('#value#')+1});
         });
     </script>
 </div>
