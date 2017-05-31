@@ -21,21 +21,23 @@ class ChauffeEau extends eqLogic {
 		if ($deamon_info['state'] == 'ok') 
 			return;
 		foreach(eqLogic::byType('ChauffeEau') as $ChauffeEau)
-			$ChauffeEau->save();
+			$ChauffeEau->ActiveMode();
 	}
 	public static function deamon_stop() {	
-		$cron = cron::byClassAndFunction('ChauffeEau', 'StartChauffe');
-		if (is_object($cron)) 	
-			$cron->remove();
-		$cron = cron::byClassAndFunction('ChauffeEau', 'EndChauffe');
-		if (is_object($cron)) 	
-			$cron->remove();
+		foreach(eqLogic::byType('ChauffeEau') as $ChauffeEau){
+			$cron = cron::byClassAndFunction('ChauffeEau', 'StartChauffe', array('id' => $ChauffeEau->getId()));
+			if (is_object($cron)) 	
+				$cron->remove();
+			$cron = cron::byClassAndFunction('ChauffeEau', 'EndChauffe', array('id' => $ChauffeEau->getId()));
+			if (is_object($cron)) 	
+				$cron->remove();
+		}
 	}
 	public static function StartChauffe($_options) {
 		$ChauffeEau=eqLogic::byId($_options['id']);
 		if (is_object($ChauffeEau) && $ChauffeEau->getIsEnable()) {
 			$Etat=$ChauffeEau->getCmd(null,'etatCommut');
-			if(is_object($Etat))
+			if(!is_object($Etat))
 				break;	
 			$State=$Etat->execCmd();
 			if($State == 3)
@@ -117,6 +119,36 @@ class ChauffeEau extends eqLogic {
 		}
 		return true;
 	}
+	public function ActiveMode(){
+		$Commande = $this->getCmd(null,'etatCommut');
+		if (!is_object($Commande))
+			break;
+		switch($Commande->execCmd()){
+			case '1':
+				log::add('ChauffeEau','info',$this->getHumanName().' : Passage en mode forcé');
+				$cron = cron::byClassAndFunction('ChauffeEau', 'StartChauffe', array('id' => $this->getId()));
+				if (is_object($cron)) 	
+					$cron->remove();
+				$cron = cron::byClassAndFunction('ChauffeEau', 'EndChauffe', array('id' => $this->getId()));
+				if (is_object($cron)) 	
+					$cron->remove();
+				ChauffeEau::StartChauffe(array('id' => $this->getId()));
+			break;				
+			case '2':
+				log::add('ChauffeEau','info',$this->getHumanName().' : Passage en mode automatique');
+	   			$this->CreateCron($this->getConfiguration('ScheduleCron'), 'StartChauffe');
+			break;
+			case '3':
+				log::add('ChauffeEau','info',$this->getHumanName().' : Désactivation du Chauffe eau');
+				$cron = cron::byClassAndFunction('ChauffeEau', 'StartChauffe', array('id' => $this->getId()));
+				if (is_object($cron)) 	
+					$cron->remove();
+				$cron = cron::byClassAndFunction('ChauffeEau', 'EndChauffe', array('id' => $this->getId()));
+				if (is_object($cron)) 	
+					$cron->remove();
+				ChauffeEau::EndChauffe(array('id' => $this->getId()));
+			break;
+	   	}}
 	public function CreateCron($Schedule, $logicalId) {
 		$cron =cron::byClassAndFunction('ChauffeEau', $logicalId);
 			if (!is_object($cron)) {
@@ -171,34 +203,14 @@ class ChauffeEau extends eqLogic {
 		$Auto=self::AddCommande($this,"Automatique","auto","action","slider",true,'Commutateur');
 		$Auto->setValue($isArmed->getId());
 		$Auto->save();
+		
+		$this->ActiveMode();
 	}
 }
 class ChauffeEauCmd extends cmd {
 	public function execute($_options = null) {
 		$this->getEqLogic()->checkAndUpdateCmd('etatCommut',$_options['slider']);
-		switch($_options['slider']){
-			case '1':
-				$cron = cron::byClassAndFunction('ChauffeEau', 'StartChauffe', array('id' => $this->getEqLogic()->getId()));
-				if (is_object($cron)) 	
-					$cron->remove();
-				$cron = cron::byClassAndFunction('ChauffeEau', 'EndChauffe', array('id' => $this->getEqLogic()->getId()));
-				if (is_object($cron)) 	
-					$cron->remove();
-				ChauffeEau::StartChauffe(array('id' => $this->getEqLogic()->getId()));
-			break;
-			case '3':
-				$cron = cron::byClassAndFunction('ChauffeEau', 'StartChauffe', array('id' => $this->getEqLogic()->getId()));
-				if (is_object($cron)) 	
-					$cron->remove();
-				$cron = cron::byClassAndFunction('ChauffeEau', 'EndChauffe', array('id' => $this->getEqLogic()->getId()));
-				if (is_object($cron)) 	
-					$cron->remove();
-				ChauffeEau::EndChauffe(array('id' => $this->getEqLogic()->getId()));
-			break;
-			case '2':
-	   			$this->getEqLogic()->CreateCron($this->getEqLogic()->getConfiguration('ScheduleCron'), 'StartChauffe');
-			break;
-	   	}
+		$this->getEqLogic()->ActiveMode();
 	}
 }
 ?>
