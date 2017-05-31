@@ -80,7 +80,7 @@ class ChauffeEau extends eqLogic {
 				continue;
 			$replace_eqLogic['#'.$cmd->getLogicalId().'#']= $cmd->toHtml($_version, $cmdColor);
 		}
-		return $this->postToHtml($_version, template_replace($replace_eqLogic, getTemplate('core', jeedom::versionAlias($version), 'eqLogic', 'reveil')));
+		return $this->postToHtml($_version, template_replace($replace_eqLogic, getTemplate('core', jeedom::versionAlias($version), 'eqLogic', 'ChauffeEau')));
 	}
 	public static $_widgetPossibility = array('custom' => array(
 	        'visibility' => true,
