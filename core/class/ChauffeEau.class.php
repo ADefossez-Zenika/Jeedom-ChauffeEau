@@ -37,7 +37,7 @@ class ChauffeEau extends eqLogic {
 		$ChauffeEau=eqLogic::byId($_options['id']);
 		if (is_object($ChauffeEau) && $ChauffeEau->getIsEnable()) {
 			$Etat=$ChauffeEau->getCmd(null,'etatCommut');
-			if(is_object($Etat))
+			if(!is_object($Etat))
 				break;	
 			$State=$Etat->execCmd();
 			if($State == 3)
