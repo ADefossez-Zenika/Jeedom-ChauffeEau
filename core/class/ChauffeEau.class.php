@@ -50,10 +50,10 @@ class ChauffeEau extends eqLogic {
 		$StartChauffe='';
 		$EndChauffe='';
 		$tempBallon='';
-		$cron = cron::byClassAndFunction('ChauffeEau', 'StartChauffe', array('id' => $ChauffeEau->getId()));
+		$cron = cron::byClassAndFunction('ChauffeEau', 'StartChauffe', array('id' => $this->getId()));
 		if (is_object($cron)) 	
 			$nextStart=$cron->getNextRunDate();
-		$cron = cron::byClassAndFunction('ChauffeEau', 'EndChauffe', array('id' => $ChauffeEau->getId()));
+		$cron = cron::byClassAndFunction('ChauffeEau', 'EndChauffe', array('id' => $this->getId()));
 		if (is_object($cron)) 	
 			$nextStart=$cron->getNextRunDate();
 		$Temp=$this->getConfiguration('TempActuel');
