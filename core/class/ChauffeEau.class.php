@@ -123,7 +123,7 @@ class ChauffeEau extends eqLogic {
 		$Commande = $this->getCmd(null,'etatCommut');
 		if (!is_object($Commande))
 			break;
-		switch($Commande){
+		switch($Commande->execCmd()){
 			case '1':
 				log::add('ChauffeEau','info',$this->getHumanName().' : Passage en mode forcé');
 				$cron = cron::byClassAndFunction('ChauffeEau', 'StartChauffe', array('id' => $this->getId()));
