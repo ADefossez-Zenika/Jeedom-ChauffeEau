@@ -33,7 +33,9 @@ class ChauffeEau extends eqLogic {
 				$cron->remove();
 		}
 	}
-	if ($this->getIsEnable() != 1) {
+	
+	public function toHtml($_version = 'dashboard') {
+		if ($this->getIsEnable() != 1) {
 			return '';
 		}
 		$version = jeedom::versionAlias($_version);
@@ -44,6 +46,22 @@ class ChauffeEau extends eqLogic {
 		if ($version == 'mobile') {
 			$vcolor = 'mcmdColor';
 		}
+		$cmdColor='';
+		$StartChauffe='';
+		$EndChauffe='';
+		$tempBallon='';
+		$cron = cron::byClassAndFunction('ChauffeEau', 'StartChauffe', array('id' => $ChauffeEau->getId()));
+		if (is_object($cron)) 	
+			$nextStart=$cron->getNextRunDate();
+		$cron = cron::byClassAndFunction('ChauffeEau', 'EndChauffe', array('id' => $ChauffeEau->getId()));
+		if (is_object($cron)) 	
+			$nextStart=$cron->getNextRunDate();
+		$Temp=$this->getConfiguration('TempActuel');
+		if(strrpos($Temp,'#')>0){
+			$Commande=cmd::byId(str_replace('#','',$Temp));
+			if(is_object($Commande))
+				$tempBallon=$Commande->exeCmd();
+		}
 		$cmdColor = ($this->getPrimaryCategory() == '') ? '' : jeedom::getConfiguration('eqLogic:category:' . $this->getPrimaryCategory() . ':' . $vcolor);
 		$replace_eqLogic = array(
 			'#id#' => $this->getId(),
@@ -53,6 +71,9 @@ class ChauffeEau extends eqLogic {
 			'#height#' => $this->getDisplay('height', 'auto'),
 			'#width#' => $this->getDisplay('width', 'auto'),
 			'#cmdColor#' => $cmdColor,
+			'#StartChauffe#' => $StartChauffe,
+			'#EndChauffe#' => $EndChauffe,
+			'#tempBallon#' => $tempBallon
 		);
 		foreach ($this->getCmd() as $cmd) {
 			if ($cmd->getDisplay('hideOn' . $version) == 1) 
