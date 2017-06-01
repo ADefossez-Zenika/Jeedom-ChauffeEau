@@ -47,20 +47,19 @@ class ChauffeEau extends eqLogic {
 			$vcolor = 'mcmdColor';
 		}
 		$cmdColor='';
-		$StartChauffe='';
-		$EndChauffe='';
+		$NextChauffe='';
 		$tempBallon='';
 		$cron = cron::byClassAndFunction('ChauffeEau', 'StartChauffe', array('id' => $this->getId()));
 		if (is_object($cron)) 	
-			$StartChauffe=$cron->getNextRunDate();
+			$NextChauffe='Début : '.$cron->getNextRunDate();
 		$cron = cron::byClassAndFunction('ChauffeEau', 'EndChauffe', array('id' => $this->getId()));
 		if (is_object($cron)) 	
-			$EndChauffe=$cron->getNextRunDate();
+			$NextChauffe='Fin : '.$cron->getNextRunDate();
 		$Temp=$this->getConfiguration('TempActuel');
 		if(strrpos($Temp,'#')>0){
 			$Commande=cmd::byId(str_replace('#','',$Temp));
 			if(is_object($Commande))
-				$tempBallon=$Commande->exeCmd();
+				$tempBallon=$Commande->exeCmd().'°C';
 		}
 		$cmdColor = ($this->getPrimaryCategory() == '') ? '' : jeedom::getConfiguration('eqLogic:category:' . $this->getPrimaryCategory() . ':' . $vcolor);
 		$replace_eqLogic = array(
@@ -71,8 +70,7 @@ class ChauffeEau extends eqLogic {
 			'#height#' => $this->getDisplay('height', 'auto'),
 			'#width#' => $this->getDisplay('width', 'auto'),
 			'#cmdColor#' => $cmdColor,
-			'#StartChauffe#' => $StartChauffe,
-			'#EndChauffe#' => $EndChauffe,
+			'#NextChauffe#' => $NextChauffe,
 			'#tempBallon#' => $tempBallon
 		);
 		foreach ($this->getCmd() as $cmd) {
