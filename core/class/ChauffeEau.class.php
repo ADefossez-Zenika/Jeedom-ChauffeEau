@@ -52,10 +52,10 @@ class ChauffeEau extends eqLogic {
 		$tempBallon='';
 		$cron = cron::byClassAndFunction('ChauffeEau', 'StartChauffe', array('id' => $this->getId()));
 		if (is_object($cron)) 	
-			$nextStart=$cron->getNextRunDate();
+			$StartChauffe=$cron->getNextRunDate();
 		$cron = cron::byClassAndFunction('ChauffeEau', 'EndChauffe', array('id' => $this->getId()));
 		if (is_object($cron)) 	
-			$nextStart=$cron->getNextRunDate();
+			$EndChauffe=$cron->getNextRunDate();
 		$Temp=$this->getConfiguration('TempActuel');
 		if(strrpos($Temp,'#')>0){
 			$Commande=cmd::byId(str_replace('#','',$Temp));
