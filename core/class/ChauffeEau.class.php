@@ -33,6 +33,60 @@ class ChauffeEau extends eqLogic {
 				$cron->remove();
 		}
 	}
+	
+	public function toHtml($_version = 'dashboard') {
+		if ($this->getIsEnable() != 1) {
+			return '';
+		}
+		$version = jeedom::versionAlias($_version);
+		if ($this->getDisplay('hideOn' . $version) == 1) {
+			return '';
+		}
+		$vcolor = 'cmdColor';
+		if ($version == 'mobile') {
+			$vcolor = 'mcmdColor';
+		}
+		$cmdColor='';
+		$StartChauffe='';
+		$EndChauffe='';
+		$tempBallon='';
+		$cron = cron::byClassAndFunction('ChauffeEau', 'StartChauffe', array('id' => $this->getId()));
+		if (is_object($cron)) 	
+			$StartChauffe=$cron->getNextRunDate();
+		$cron = cron::byClassAndFunction('ChauffeEau', 'EndChauffe', array('id' => $this->getId()));
+		if (is_object($cron)) 	
+			$EndChauffe=$cron->getNextRunDate();
+		$Temp=$this->getConfiguration('TempActuel');
+		if(strrpos($Temp,'#')>0){
+			$Commande=cmd::byId(str_replace('#','',$Temp));
+			if(is_object($Commande))
+				$tempBallon=$Commande->exeCmd();
+		}
+		$cmdColor = ($this->getPrimaryCategory() == '') ? '' : jeedom::getConfiguration('eqLogic:category:' . $this->getPrimaryCategory() . ':' . $vcolor);
+		$replace_eqLogic = array(
+			'#id#' => $this->getId(),
+			'#background_color#' => $this->getBackgroundColor(jeedom::versionAlias($_version)),
+			'#humanname#' => $this->getHumanName(),
+			'#name#' => $this->getName(),
+			'#height#' => $this->getDisplay('height', 'auto'),
+			'#width#' => $this->getDisplay('width', 'auto'),
+			'#cmdColor#' => $cmdColor,
+			'#StartChauffe#' => $StartChauffe,
+			'#EndChauffe#' => $EndChauffe,
+			'#tempBallon#' => $tempBallon
+		);
+		foreach ($this->getCmd() as $cmd) {
+			if ($cmd->getDisplay('hideOn' . $version) == 1) 
+				continue;
+			$replace_eqLogic['#'.$cmd->getLogicalId().'#']= $cmd->toHtml($_version, $cmdColor);
+		}
+		return $this->postToHtml($_version, template_replace($replace_eqLogic, getTemplate('core', jeedom::versionAlias($version), 'eqLogic', 'ChauffeEau')));
+	}
+	public static $_widgetPossibility = array('custom' => array(
+	        'visibility' => true,
+	        'displayName' => true,
+	        'optionalParameters' => true,
+	));
 	public static function StartChauffe($_options) {
 		$ChauffeEau=eqLogic::byId($_options['id']);
 		if (is_object($ChauffeEau) && $ChauffeEau->getIsEnable()) {
