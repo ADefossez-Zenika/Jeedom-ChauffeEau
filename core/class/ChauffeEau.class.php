@@ -266,10 +266,10 @@ class ChauffeEauCmd extends cmd {
 				$this->getEqLogic()->checkAndUpdateCmd('etatCommut',1);
 			break;
 			case 'released':
-				$this->getEqLogic()->checkAndUpdateCmd('etatCommut',2);
+				$this->getEqLogic()->checkAndUpdateCmd('etatCommut',3);
 			break;
 			case 'auto':
-				$this->getEqLogic()->checkAndUpdateCmd('etatCommut',3);
+				$this->getEqLogic()->checkAndUpdateCmd('etatCommut',2);
 			break;
 		}
 		$this->getEqLogic()->ActiveMode();
