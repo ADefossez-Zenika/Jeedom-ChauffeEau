@@ -225,13 +225,13 @@ class ChauffeEau extends eqLogic {
 		{
 			$Commande = new ChauffeEauCmd();
 			$Commande->setId(null);
-			$Commande->setName($Name);
-			$Commande->setIsVisible($visible);
 			$Commande->setLogicalId($_logicalId);
 			$Commande->setEqLogic_id($eqLogic->getId());
-			$Commande->setType($Type);
-			$Commande->setSubType($SubType);
 		}
+		$Commande->setName($Name);
+		$Commande->setIsVisible($visible);
+		$Commande->setType($Type);
+		$Commande->setSubType($SubType);
    		$Commande->setTemplate('dashboard',$Template );
 		$Commande->setTemplate('mobile', $Template);
 		$Commande->save();
@@ -246,13 +246,13 @@ class ChauffeEau extends eqLogic {
 		$isArmed->event(2);
 		$isArmed->setCollectDate(date('Y-m-d H:i:s'));
 		$isArmed->save();
-		$Armed=self::AddCommande($this,"Marche forcé","armed","action","slider",true,'Commutateur');
+		$Armed=self::AddCommande($this,"Marche forcé","armed","action","other",true,'Commutateur');
 		$Armed->setValue($isArmed->getId());
 		$Armed->save();
-		$Released=self::AddCommande($this,"Desactiver","released","action","slider",true,'Commutateur');
+		$Released=self::AddCommande($this,"Desactiver","released","action","other",true,'Commutateur');
 		$Released->setValue($isArmed->getId());
 		$Released->save();
-		$Auto=self::AddCommande($this,"Automatique","auto","action","slider",true,'Commutateur');
+		$Auto=self::AddCommande($this,"Automatique","auto","action","other",true,'Commutateur');
 		$Auto->setValue($isArmed->getId());
 		$Auto->save();
 		
@@ -261,7 +261,17 @@ class ChauffeEau extends eqLogic {
 }
 class ChauffeEauCmd extends cmd {
 	public function execute($_options = null) {
-		$this->getEqLogic()->checkAndUpdateCmd('etatCommut',$_options['slider']);
+		switch($this->getLogicalId()){
+			case 'armed':
+				$this->getEqLogic()->checkAndUpdateCmd('etatCommut',1);
+			break;
+			case 'released':
+				$this->getEqLogic()->checkAndUpdateCmd('etatCommut',2);
+			break;
+			case 'auto':
+				$this->getEqLogic()->checkAndUpdateCmd('etatCommut',3);
+			break;
+		}
 		$this->getEqLogic()->ActiveMode();
 	}
 }
