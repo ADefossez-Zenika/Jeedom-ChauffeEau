@@ -63,7 +63,11 @@ $eqLogics = eqLogic::byType('ChauffeEau');
 				<a href="#eqlogictab" aria-controls="home" role="tab" data-toggle="tab" aria-expanded="true">
 					<i class="fa fa-tachometer"></i> Equipement</a>
 			</li>
-			<li role="presentation" class="">
+			<li role="presentation">
+				<a href="#commandtab" aria-controls="profile" role="tab" data-toggle="tab" aria-expanded="false">
+					<i class="fa fa-list-alt"></i> Commandes</a>
+			</li>
+			<li role="presentation">
 				<a href="#conditiontab" aria-controls="profile" role="tab" data-toggle="tab" aria-expanded="false">
 					<i class="fa fa-list-alt"></i> {{Conditions d'exécution}}</a>
 			</li>
@@ -165,6 +169,17 @@ $eqLogics = eqLogic::byType('ChauffeEau');
 						</div>	
 					</fieldset>
 				</form>
+			</div>	
+			<div role="tabpanel" class="tab-pane" id="commandtab">	
+				<table id="table_cmd" class="table table-bordered table-condensed">
+				    <thead>
+					<tr>
+					    <th>Nom</th>
+					    <th>Paramètre</th>
+					</tr>
+				    </thead>
+				    <tbody></tbody>
+				</table>
 			</div>	
 			<div role="tabpanel" class="tab-pane" id="conditiontab">
 				<form class="form-horizontal">
