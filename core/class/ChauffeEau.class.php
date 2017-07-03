@@ -99,14 +99,15 @@ class ChauffeEau extends eqLogic {
 			if(is_object($Commande) && $ChauffeEau->EvaluateCondition()){
 				log::add('ChauffeEau','info','Execution de '.$Commande->getHumanName());
 				$Commande->execute();
-				$ChauffeEau->checkAndUpdateCmd('state',true);
+				$ChauffeEau->checkAndUpdateCmd('state',true);	
+				if($State == 2){
+					$PowerTime=$ChauffeEau->EvaluatePowerTime();
+					log::add('ChauffeEau','info','Estimation du temps d\'activation '.$PowerTime);
+					$Schedule= $ChauffeEau->TimeToShedule($PowerTime);
+					$ChauffeEau->CreateCron($Schedule, 'EndChauffe');
+				}
 			}   
 			if($State == 2){
-				$PowerTime=$ChauffeEau->EvaluatePowerTime();
-				log::add('ChauffeEau','info','Estimation du temps d\'activation '.$PowerTime);
-				$Schedule= $ChauffeEau->TimeToShedule($PowerTime);
-				$ChauffeEau->CreateCron($Schedule, 'EndChauffe');	
-				//Lancer le prochain chauffage
 				foreach(eqLogic::byType('ChauffeEau') as $ChauffeEau){
 					$ChauffeEau->CreateCron($ChauffeEau->getConfiguration('ScheduleCron'), 'StartChauffe');
 				}
