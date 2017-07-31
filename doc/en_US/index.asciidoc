@@ -16,10 +16,10 @@ image::../images/ConfigurationGeneral.jpg[]
 * Catégorie : déclare l'équipement dans une catégorie.		
 * Visible : permet de rendre l'équipement visible dans le Dashboard.		
 * Activer : permet d'activer l'équipement.		
-* Capacité du chauffe eau (Litre) : Indiquez le volume de votre chauffe-eau
-* Puissance du chauffe eau (Watt) : Indiquez la puissance de votre chauffe-eau
-* Température Souhaité (°C) : Indiquez la température a atteindre
-* Sélectionnez une commande ou estimez la temperature actuel de l'eau : Indiquer la temperature au moment de la chauffe ou choisisez un objet jeedom représantant la valeur
+* Capacité du chauffe-eau (Litre) : Indiquez le volume de votre chauffe-eau
+* Puissance du chauffe-eau (Watt) : Indiquez la puissance de votre chauffe-eau
+* Température Souhaitée (°C) : Indiquez la température à atteindre
+* Sélectionnez une commande ou estimez la température actuelle de l'eau : Indiquez la température au moment de la chauffe ou choisisez un objet jeedom représentant la valeur
 * Configurez le lancement de votre chauffage: Heure de départ de votre chauffe-eau, c'est au format cron.
 * Commande d'activation du chauffe eau : sélectionnez la commande on de votre chauffe-eau
 * Commande de désactivation du chauffe eau : sélectionnez la commande off de votre chauffe-eau

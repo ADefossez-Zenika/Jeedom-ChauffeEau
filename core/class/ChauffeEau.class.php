@@ -59,7 +59,7 @@ class ChauffeEau extends eqLogic {
 		if(strrpos($Temp,'#')>0){
 			$Commande=cmd::byId(str_replace('#','',$Temp));
 			if(is_object($Commande))
-				$tempBallon=$Commande->exeCmd().'°C';
+				$tempBallon=$Commande->execCmd().'°C';
 		}
 		$cmdColor = ($this->getPrimaryCategory() == '') ? '' : jeedom::getConfiguration('eqLogic:category:' . $this->getPrimaryCategory() . ':' . $vcolor);
 		$replace_eqLogic = array(
