@@ -90,10 +90,10 @@ class ChauffeEau extends eqLogic {
 		if (is_object($ChauffeEau) && $ChauffeEau->getIsEnable()) {
 			$Etat=$ChauffeEau->getCmd(null,'etatCommut');
 			if(!is_object($Etat))
-				quit;	
+				return;	
 			$State=$Etat->execCmd();
 			if($State == 3)
-				quit;
+				return;
 			log::add('ChauffeEau','info','Debut de l\'activation du chauffe eau '.$ChauffeEau->getHumanName());
 			$Commande=cmd::byId(str_replace('#','',$ChauffeEau->getConfiguration('Activation')));
 			if(is_object($Commande) && $ChauffeEau->EvaluateCondition()){
@@ -175,7 +175,7 @@ class ChauffeEau extends eqLogic {
 	public function ActiveMode(){
 		$Commande = $this->getCmd(null,'etatCommut');
 		if (!is_object($Commande))
-			quit;
+			return;
 		switch($Commande->execCmd()){
 			case '1':
 				log::add('ChauffeEau','info',$this->getHumanName().' : Passage en mode forcé');
