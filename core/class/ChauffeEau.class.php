@@ -141,7 +141,7 @@ class ChauffeEau extends eqLogic {
 		if(strrpos($DeltaTemp,'#')>0){
 			$Commande=cmd::byId(str_replace('#','',$DeltaTemp));
 			if(is_object($Commande))
-				$DeltaTemp=$Commande->exeCmd();
+				$DeltaTemp=$Commande->execCmd();
 		}
 		$DeltaTemp=$this->getConfiguration('TempSouhaite')-$DeltaTemp;
 		$Energie=$this->getConfiguration('Capacite')*$DeltaTemp*4185;
