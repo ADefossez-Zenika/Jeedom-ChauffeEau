@@ -6,9 +6,13 @@ class ChauffeEau extends eqLogic {
 		$return['log'] = 'ChauffeEau';
 		$return['launchable'] = 'ok';
 		$return['state'] = 'nok';
-		$cron = cron::byClassAndFunction('ChauffeEau', 'StartChauffe');
-		if (!is_object($cron)) 	
-			return $return;
+		foreach(eqLogic::byType('ChauffeEau') as $ChauffeEau){
+			if($ChauffeEau->getIsEnable()){
+				$cron = cron::byClassAndFunction('Volets', 'StartChauffe', array('id' => $ChauffeEau->getId()));
+				if (!is_object($cron)) 	
+					return $return;
+			}
+		}
 		$return['state'] = 'ok';
 		return $return;
 	}
@@ -203,21 +207,21 @@ class ChauffeEau extends eqLogic {
 			break;
 	   	}}
 	public function CreateCron($Schedule, $logicalId) {
-		$cron =cron::byClassAndFunction('ChauffeEau', $logicalId);
-			if (!is_object($cron)) {
-				$cron = new cron();
-				$cron->setClass('ChauffeEau');
-				$cron->setFunction($logicalId);
-				$cron->setOption(array('id' => $this->getId()));
-				$cron->setEnable(1);
-				$cron->setDeamon(0);
-				$cron->setSchedule($Schedule);
-				$cron->save();
-			}
-			else{
-				$cron->setSchedule($Schedule);
-				$cron->save();
-			}
+		$cron = cron::byClassAndFunction('ChauffeEau', $logicalId, array('id' => $this->getId()));
+		if (!is_object($cron)) {
+			$cron = new cron();
+			$cron->setClass('ChauffeEau');
+			$cron->setFunction($logicalId);
+			$cron->setOption(array('id' => $this->getId()));
+			$cron->setEnable(1);
+			$cron->setDeamon(0);
+			$cron->setSchedule($Schedule);
+			$cron->save();
+		}
+		else{
+			$cron->setSchedule($Schedule);
+			$cron->save();
+		}
 		return $cron;
 	}
 	public static function AddCommande($eqLogic,$Name,$_logicalId,$Type="info", $SubType='binary',$visible,$Template='') {
@@ -237,6 +241,9 @@ class ChauffeEau extends eqLogic {
 		$Commande->setTemplate('mobile', $Template);
 		$Commande->save();
 		return $Commande;
+	}
+	public function preRemove() {
+		self::deamon_stop();
 	}
 	public function postSave() {
 		$state=self::AddCommande($this,"Etat du chauffe-eau","state","info", 'binary',true);
