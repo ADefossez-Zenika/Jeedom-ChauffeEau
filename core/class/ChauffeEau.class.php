@@ -8,7 +8,7 @@ class ChauffeEau extends eqLogic {
 		$return['state'] = 'nok';
 		foreach(eqLogic::byType('ChauffeEau') as $ChauffeEau){
 			if($ChauffeEau->getIsEnable()){
-				$cron = cron::byClassAndFunction('Volets', 'StartChauffe', array('id' => $ChauffeEau->getId()));
+				$cron = cron::byClassAndFunction('ChauffeEau', 'StartChauffe', array('id' => $ChauffeEau->getId()));
 				if (!is_object($cron)) 	
 					return $return;
 			}
