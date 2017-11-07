@@ -87,11 +87,11 @@ function addCondition(_condition, _name, _el) {
         _el.find('.ConditionGroup:last').setValues(_condition, '.expressionAttr');
   
 }
-$('body').on('click','.conditionAttr[data-action=add]',function(){
+$('.conditionAttr[data-action=add]').off().on('click',function(){
 	addCondition({},  '{{Condition}}',$(this).closest('.form-horizontal').find('.div_Condition'));
-});
-$('body').on('click','.conditionAttr[data-action=remove]',function(){
-	$(this).closest('.ConditionGroup').remove();
+	$('.conditionAttr[data-action=remove]').off().on('click',function(){
+		$(this).closest('.ConditionGroup').remove();
+	});
 });
 $('body').on('click','.listCmdCondition',function(){
 	var el = $(this).closest('.form-group').find('.expressionAttr[data-l1key=expression]');	
