@@ -42,56 +42,113 @@ $('body').on( 'click','.bt_selectCmdExpression', function() {
 		 el.value(result.human);
 	});
 });  
-$('body').on('click','.ScheduleCron',function(){
-  var el = $(this).closest('.input-group').find('.eqLogicAttr');
-  jeedom.getCronSelectModal({},function (result) {
-    el.value(result.value);
-  });
-});
 function saveEqLogic(_eqLogic) {
+	_eqLogic.configuration.programation=new Object();
 	_eqLogic.configuration.condition=new Object();
-	_eqLogic.configuration.action=new Object();
+	var ProgramationArray= new Array();
 	var ConditionArray= new Array();
-	var OpenArray= new Array();
-	var CloseArray= new Array();
+	$('#programationtab .ProgramationGroup').each(function( index ) {
+		ProgramationArray.push($(this).getValues('.expressionAttr')[0])
+	});
 	$('#conditiontab .ConditionGroup').each(function( index ) {
 		ConditionArray.push($(this).getValues('.expressionAttr')[0])
 	});
+	_eqLogic.configuration.programation=ProgramationArray;
 	_eqLogic.configuration.condition=ConditionArray;
    	return _eqLogic;
 }
-function printEqLogic(_eqLogic) {
+function printEqLogic(_eqLogic) {	
+	$('.ProgramationGroup').remove();
 	$('.ConditionGroup').remove();
+	if (typeof(_eqLogic.configuration.programation) !== 'undefined') {
+		for(var index in _eqLogic.configuration.programation) {
+			if( (typeof _eqLogic.configuration.programation[index] === "object") && (_eqLogic.configuration.programation[index] !== null) )
+				addProgramation(_eqLogic.configuration.programation[index],$('#programationtab').find('table tbody'));
+		}
+	}
 	if (typeof(_eqLogic.configuration.condition) !== 'undefined') {
 		for(var index in _eqLogic.configuration.condition) { 
 			if( (typeof _eqLogic.configuration.condition[index] === "object") && (_eqLogic.configuration.condition[index] !== null) )
-				addCondition(_eqLogic.configuration.condition[index],  '{{Condition}}',$('#conditiontab').find('.div_Condition'));
+				addCondition(_eqLogic.configuration.condition[index], $('#conditiontab').find('.div_Condition'));
 		}
 	}
+}function addProgramation(_programation,  _el) {
+	var Heure=$('<select class="expressionAttr form-control" data-l1key="Heure" >');
+    var Minute=$('<select class="expressionAttr form-control" data-l1key="Minute" >');
+	var number = 0;
+    while (number < 24) {
+		Heure.append($('<option value="'+number+'">')
+			.text(number));
+    	number++;
+	}
+  	number = 0;
+    while (number < 60) {
+		Minute.append($('<option value="'+number+'">')
+			.text(number));
+    	number++;
+	}
+	var tr = $('<tr class="ProgramationGroup">')
+		.append($('<td>')
+			.append($('<span class="input-group-btn">')
+				.append($('<a class="btn btn-default ProgramationAttr btn-sm" data-action="remove">')
+					.append($('<i class="fa fa-minus-circle">')))))
+		.append($('<td>')
+			.append($('<label class="checkbox-inline">')
+				.append($('<input type="checkbox" class="expressionAttr" data-l1key="1">'))
+				.append('{{Lundi}}'))
+			.append($('<label class="checkbox-inline">')
+				.append($('<input type="checkbox" class="expressionAttr" data-l1key="2">'))
+				.append('{{Mardi}}'))
+			.append($('<label class="checkbox-inline">')
+				.append($('<input type="checkbox" class="expressionAttr" data-l1key="3">'))
+				.append('{{Mercredi}}'))
+			.append($('<label class="checkbox-inline">')
+				.append($('<input type="checkbox" class="expressionAttr" data-l1key="4">'))
+				.append('{{Jeudi}}'))
+			.append($('<label class="checkbox-inline">')
+				.append($('<input type="checkbox" class="expressionAttr" data-l1key="5">'))
+				.append('{{Vendredi}}'))
+			.append($('<label class="checkbox-inline">')
+				.append($('<input type="checkbox" class="expressionAttr" data-l1key="6">'))
+				.append('{{Samedi}}'))
+			.append($('<label class="checkbox-inline">')
+				.append($('<input type="checkbox" class="expressionAttr" data-l1key="0" />'))
+				.append('{{Dimanche}}')))
+		.append($('<td>')
+			.append(Heure)
+			.append(Minute));
+        _el.append(tr);
+        _el.find('tr:last').setValues(_programation, '.expressionAttr');
+	$('.ProgramationAttr[data-action=remove]').off().on('click',function(){
+		$(this).closest('tr').remove();
+	});
 }
-function addCondition(_condition, _name, _el) {
-	var div = $('<div class="form-group ConditionGroup">')
-		.append($('<label class="col-sm-1 control-label">')
-			.text('ET'))
-		.append($('<div class="col-sm-4 has-success">')
+function addCondition(_condition,_el) {
+	var tr = $('<tr class="ConditionGroup">')
+		.append($('<td>')
+			.append($('<input type="checkbox" class="expressionAttr" data-l1key="enable" checked/>')))
+		.append($('<td>')
 			.append($('<div class="input-group">')
 				.append($('<span class="input-group-btn">')
-					.append($('<input type="checkbox" class="expressionAttr" data-l1key="enable"/>'))
 					.append($('<a class="btn btn-default conditionAttr btn-sm" data-action="remove">')
 						.append($('<i class="fa fa-minus-circle">'))))
 				.append($('<input class="expressionAttr form-control input-sm cmdCondition" data-l1key="expression"/>'))
 				.append($('<span class="input-group-btn">')
 					.append($('<a class="btn btn-warning btn-sm listCmdCondition">')
 						.append($('<i class="fa fa-list-alt">'))))));
-        _el.append(div);
-        _el.find('.ConditionGroup:last').setValues(_condition, '.expressionAttr');
-  
-}
-$('.conditionAttr[data-action=add]').off().on('click',function(){
-	addCondition({},  '{{Condition}}',$(this).closest('.form-horizontal').find('.div_Condition'));
+
+        _el.append(tr);
+        _el.find('tr:last').setValues(_condition, '.expressionAttr');
 	$('.conditionAttr[data-action=remove]').off().on('click',function(){
-		$(this).closest('.ConditionGroup').remove();
-	});
+		$(this).closest('tr').remove();
+	});  
+}
+
+$('.ProgramationAttr[data-action=add]').off().on('click',function(){
+	addProgramation({},$(this).closest('.tab-pane').find('table'));
+});
+$('.conditionAttr[data-action=add]').off().on('click',function(){
+	addCondition({}, $(this).closest('.form-horizontal').find('.div_Condition'));
 });
 $('body').on('click','.listCmdCondition',function(){
 	var el = $(this).closest('.form-group').find('.expressionAttr[data-l1key=expression]');	

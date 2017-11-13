@@ -67,6 +67,10 @@ $eqLogics = eqLogic::byType('ChauffeEau');
 				<a href="#commandtab" aria-controls="profile" role="tab" data-toggle="tab" aria-expanded="false">
 					<i class="fa fa-list-alt"></i> Commandes</a>
 			</li>
+			<li role="presentation" class="">
+				<a href="#programationtab" aria-controls="profile" role="tab" data-toggle="tab" aria-expanded="false">
+					<i class="fa fa-map"></i> {{Programation}}</a>
+			</li>
 			<li role="presentation">
 				<a href="#conditiontab" aria-controls="profile" role="tab" data-toggle="tab" aria-expanded="false">
 					<i class="fa fa-list-alt"></i> {{Conditions d'exécution}}</a>
@@ -135,17 +139,6 @@ $eqLogics = eqLogic::byType('ChauffeEau');
 							</div>
 						</div>  
 						<div class="form-group">
-							<label class="col-sm-2 control-label" >{{Configurer le lancement de votre chauffage}}</label>
-							<div class=" col-sm-5 input-group">
-								<input class="eqLogicAttr form-control input-sm" data-l1key="configuration"  data-l2key="ScheduleCron" placeholder="{{Choisir a l'aide de l'assistant, l'heure de depart de votre chauffe eau}}">
-								<span class="input-group-btn">
-									<a class="btn btn-success btn-sm ScheduleCron" >
-										<i class="fa fa-list-alt"></i>
-									</a>
-								</span>
-							</div>
-						</div>
-						<div class="form-group">
 							<label class="col-sm-2 control-label" >{{Commande d'activation du chauffe eau}}</label>
 							<div class="col-sm-5 input-group">
 								<input class="eqLogicAttr form-control input-sm" data-l1key="configuration"  data-l2key="Activation" placeholder="{{Séléctioner l'objet de commande d'activation du chauffe eau}}">
@@ -181,6 +174,31 @@ $eqLogics = eqLogic::byType('ChauffeEau');
 				    <tbody></tbody>
 				</table>
 			</div>	
+			<div role="tabpanel" class="tab-pane" id="programationtab">
+				<form class="form-horizontal">
+					<fieldset>
+						<legend>{{Les programmations de la zone :}}
+							<sup>
+								<i class="fa fa-question-circle tooltips" title="Saisir toutes les programmations pour la zone"></i>
+							</sup>
+							<a class="btn btn-success btn-xs ProgramationAttr" data-action="add" style="margin-left: 5px;">
+								<i class="fa fa-plus-circle"></i>
+								{{Ajouter une programmation}}
+							</a>
+						</legend>
+					</fieldset>
+				</form>
+				<table id="table_programation" class="table table-bordered table-condensed">
+					<thead>
+						<tr>
+							<th></th>
+							<th>Jour actif</th>
+							<th>Heure</th>
+						</tr>
+					</thead>
+					<tbody></tbody>
+				</table>
+			</div>
 			<div role="tabpanel" class="tab-pane" id="conditiontab">
 				<form class="form-horizontal">
 					<fieldset>
