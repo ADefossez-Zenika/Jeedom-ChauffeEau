@@ -132,7 +132,7 @@ class ChauffeEau extends eqLogic {
 	} 
 	public function NextStart(){
 		$nextTime=0;
-		foreach($this->getConfiguration('Programation') as $ConigSchedule){
+		foreach($this->getConfiguration('programation') as $ConigSchedule){
 			$offset=0;
 			if(date('H') > $ConigSchedule["Heure"])
 				$offset++;
