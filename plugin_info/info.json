@@ -6,5 +6,8 @@
 	"author" : "Halbout Michael",
 	"require" : "3.0",
 	"category" : "automatisation",
-	"hasOwnDeamon" : true
+	"hasOwnDeamon" : true,
+	"issue" : "https://github.com/mika-nt28/Jeedom-ChauffeEau/issues",
+ 	"changelog" : "https://github.com/mika-nt28/Jeedom-ChauffeEau/commits/master",
+ 	"documentation" : "https://jeedom.github.io/documentation/third_plugin/ChauffeEau/fr_FR/index.html"
 }
