@@ -5,17 +5,17 @@ Ce plugin permet de gérer votre chauffe-eau.
 Il va estimer le temps nécessaire pour une chauffe complète de votre ballon.
 
 == Paramétrage
-Comme avec tous les plugins jeedom, nous allons commencer par créer un équipement.		
-Après l'avoir nommé, nous allons pouvoir le paramétrer.		
+Comme avec tous les plugins jeedom, nous allons commencer par créer un équipement.      
+Après l'avoir nommé, nous allons pouvoir le paramétrer.     
 
-=== Configuration générale Jeedom		
-		
-image::../images/ConfigurationGeneral.jpg[]		
-* `Nom` : le nom a déjà été paramétré, mais vous avez la possibilité de le changer.		
-* `Objet parent` : ce paramètre permet d'ajouter l'équipement dans un objet Jeedom.		
-* `Catégorie` : déclare l'équipement dans une catégorie.		
-* `Visible` : permet de rendre l'équipement visible dans le Dashboard.		
-* `Activer` : permet d'activer l'équipement.		
+=== Configuration générale Jeedom       
+
+image::../images/ConfigurationGeneral.jpg[]     
+* `Nom` : le nom a déjà été paramétré, mais vous avez la possibilité de le changer.     
+* `Objet parent` : ce paramètre permet d'ajouter l'équipement dans un objet Jeedom.     
+* `Catégorie` : déclare l'équipement dans une catégorie.        
+* `Visible` : permet de rendre l'équipement visible dans le Dashboard.      
+* `Activer` : permet d'activer l'équipement.        
 * `Capacité du chauffe-eau (Litre)` : indiquez le volume de votre chauffe-eau
 * `Puissance du chauffe-eau (Watt)` : indiquez la puissance de votre chauffe-eau
 * `Température Souhaitée (°C)` : indiquez la température à atteindre
