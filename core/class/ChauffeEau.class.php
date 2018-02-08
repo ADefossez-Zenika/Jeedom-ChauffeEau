@@ -65,7 +65,7 @@ class ChauffeEau extends eqLogic {
 			if(is_object($Commande))
 				$tempBallon=$Commande->execCmd().'°C';
 		}
-		$replace['#Next#'] = $tempBallon;
+		$replace['#tempBallon#'] = $tempBallon;
 		if ($_version == 'dview' || $_version == 'mview') {
 			$object = $this->getObject();
 			$replace['#name#'] = (is_object($object)) ? $object->getName() . ' - ' . $replace['#name#'] : $replace['#name#'];
