@@ -151,7 +151,7 @@ $('.conditionAttr[data-action=add]').off().on('click',function(){
 	addCondition({}, $(this).closest('.form-horizontal').find('.div_Condition'));
 });
 $('body').on('click','.listCmdCondition',function(){
-	var el = $(this).closest('.form-group').find('.expressionAttr[data-l1key=expression]');	
+	var el = $(this).closest('.input-group').find('.expressionAttr[data-l1key=expression]');	
 	jeedom.cmd.getSelectModal({cmd: {type: 'info'}}, function (result) {
 		var message = 'Aucun choix possible';
 		if(result.cmd.subType == 'numeric'){
