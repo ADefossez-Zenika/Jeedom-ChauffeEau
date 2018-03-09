@@ -128,8 +128,8 @@ class ChauffeEau extends eqLogic {
 					if(mktime() > $ChauffeEau->NextStart()-$ChauffeEau->EvaluatePowerTime()){
 						if(!$ChauffeEau->EvaluateCondition())
 							continue;
-						log::add('ChauffeEau','info','Execution de '.$Commande->getHumanName());
 						if($ChauffeEau->TempActuel() <=  $this->getConfiguration('TempSouhaite')){
+							log::add('ChauffeEau','info','Execution de '.$ChauffeEau->getHumanName());
 							$ChauffeEau->powerStart();
 							if(mktime() > $ChauffeEau->NextStart())
 								$ChauffeEau->powerStop();
@@ -213,9 +213,9 @@ class ChauffeEau extends eqLogic {
 			} else {
 				$message .= $result;
 			}
-			log::add('ChauffeEau','info',$this->getHumanName().' : '.$message);
+			log::add('ChauffeEau','debug',$this->getHumanName().' : '.$message);
 			if(!$result){
-				log::add('ChauffeEau','info',$this->getHumanName().' : Les conditions ne sont pas remplies');
+				log::add('ChauffeEau','debug',$this->getHumanName().' : Les conditions ne sont pas remplies');
 				return false;
 			}
 		}
