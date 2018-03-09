@@ -77,11 +77,12 @@ class ChauffeEau extends eqLogic {
 			$replace['#'.$cmd->getLogicalId().'#']= $cmd->toHtml($_version, $cmdColor);
 		}
 		$replace['#cmdColor#'] = ($this->getPrimaryCategory() == '') ? '' : jeedom::getConfiguration('eqLogic:category:' . $this->getPrimaryCategory() . ':' . $vcolor);
-		$PowerTime=$ChauffeEau->EvaluatePowerTime();
-		if(mktime() > $ChauffeEau->NextStart()-$PowerTime)
-			$replace['#Next#'] = "{{Début : }}" . date('d/m/Y H:i',$this->NextStart()-$PowerTime);
+		$PowerTime=$this->EvaluatePowerTime();
+		$NextStart=$this->NextStart();
+		if(mktime() > $NextStart-$PowerTime)
+			$replace['#Next#'] = "{{Début : }}" . date('d/m/Y H:i',$NextStart-$PowerTime);
 		else
-			$replace['#Next#'] = "{{Fin : }}" . date('d/m/Y H:i',$this->NextStart());
+			$replace['#Next#'] = "{{Fin : }}" . date('d/m/Y H:i',$NextStart);
 		$replace['#tempBallon#'] = $this->TempActuel();
 		if ($_version == 'dview' || $_version == 'mview') {
 			$object = $this->getObject();
