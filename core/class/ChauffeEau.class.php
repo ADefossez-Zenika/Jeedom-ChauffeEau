@@ -128,7 +128,7 @@ class ChauffeEau extends eqLogic {
 					if(mktime() > $ChauffeEau->NextStart()-$ChauffeEau->EvaluatePowerTime()){
 						if(!$ChauffeEau->EvaluateCondition())
 							continue;
-						if($ChauffeEau->TempActuel() <=  $this->getConfiguration('TempSouhaite')){
+						if($ChauffeEau->TempActuel() <=  $ChauffeEau->getConfiguration('TempSouhaite')){
 							log::add('ChauffeEau','info','Execution de '.$ChauffeEau->getHumanName());
 							$ChauffeEau->powerStart();
 							if(mktime() > $ChauffeEau->NextStart())
