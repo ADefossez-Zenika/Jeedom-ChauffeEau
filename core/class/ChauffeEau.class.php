@@ -274,6 +274,8 @@ class ChauffeEau extends eqLogic {
 		$cron->setSchedule('* * * * *');
 		$cron->setTimeout('999999');
 		$cron->save();
+		$cron->start();
+		$cron->run();
 		if ($this->getConfiguration('Etat') != ''){
 			$listener = listener::byClassAndFunction('ChauffeEau', 'pull', array('ChauffeEau_id' => $this->getId()));
 			if (!is_object($listener))
