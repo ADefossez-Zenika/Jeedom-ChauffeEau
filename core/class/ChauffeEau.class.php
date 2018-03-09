@@ -25,7 +25,7 @@ class ChauffeEau extends eqLogic {
 		if ($deamon_info['state'] == 'ok') 
 			return;
 		foreach(eqLogic::byType('ChauffeEau') as $ChauffeEau)
-			$ChauffeEau->save();
+			$ChauffeEau->createDeamon();
 	}
 	public static function deamon_stop() {	
 		foreach(eqLogic::byType('ChauffeEau') as $ChauffeEau){
@@ -260,6 +260,9 @@ class ChauffeEau extends eqLogic {
 		$Auto=self::AddCommande($this,"Automatique","auto","action","other",true,'Commutateur');
 		$Auto->setValue($isArmed->getId());
 		$Auto->save();
+		$this->createDeamon();
+	}
+	public function createDeamon() {
 		$cron = cron::byClassAndFunction('ChauffeEau', 'Chauffe', array('ChauffeEau_id' => $this->getId()));
 		if (!is_object($cron)) 
 			$cron = new cron();
