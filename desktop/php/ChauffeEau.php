@@ -161,7 +161,18 @@ $eqLogics = eqLogic::byType('ChauffeEau');
 						<div class="form-group">
 							<label class="col-sm-2 control-label" >{{Commande de desactivation du chauffe eau}}</label>
 							<div class="col-sm-5 input-group">
-								<input class="eqLogicAttr form-control input-sm" data-l1key="configuration"  data-l2key="Desactivation"placeholder="{{Séléctioner l'objet de commande de desactivation du chauffe eau}}">
+								<input class="eqLogicAttr form-control input-sm" data-l1key="configuration"  data-l2key="Desactivation" placeholder="{{Séléctioner l'objet de commande de desactivation du chauffe eau}}">
+								<span class="input-group-btn">
+									<a class="btn btn-success btn-sm bt_selectCmdExpression" >
+										<i class="fa fa-list-alt"></i>
+									</a>
+								</span>
+							</div>
+						</div>	
+						<div class="form-group">
+							<label class="col-sm-2 control-label" >{{Commande d'etat du chauffe eau}}</label>
+							<div class="col-sm-5 input-group">
+								<input class="eqLogicAttr form-control input-sm" data-l1key="configuration"  data-l2key="Etat" placeholder="{{Séléctioner l'objet de commande d'etat du chauffe eau}}">
 								<span class="input-group-btn">
 									<a class="btn btn-success btn-sm bt_selectCmdExpression" >
 										<i class="fa fa-list-alt"></i>
@@ -200,9 +211,10 @@ $eqLogics = eqLogic::byType('ChauffeEau');
 				<table id="table_programation" class="table table-bordered table-condensed">
 					<thead>
 						<tr>
-							<th></th>
-							<th>Jour actif</th>
-							<th>Heure</th>
+							<th style="width:30px;"></th>
+							<th style="width:600px;">{{Jour actif}}</th>
+							<th style="width:100px;">{{Heure}}</th>
+							<th>{{Reprogrammation}}</th>
 						</tr>
 					</thead>
 					<tbody></tbody>
