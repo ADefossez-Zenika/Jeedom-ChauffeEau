@@ -261,15 +261,14 @@ class ChauffeEau extends eqLogic {
 		$Auto->setValue($isArmed->getId());
 		$Auto->save();
 		$cron = cron::byClassAndFunction('ChauffeEau', 'Chauffe', array('ChauffeEau_id' => $this->getId()));
-		if (!is_object($cron)) {
+		if (!is_object($cron)) 
 			$cron = new cron();
-			$cron->setClass('ChauffeEau');
-			$cron->setFunction('Chauffe');
-			$cron->setOption(array('ChauffeEau_id' => $this->getId()));
-			$cron->setEnable(1);
-			$cron->setDeamon(1);
-			$cron->save();
-		}
+		$cron->setClass('ChauffeEau');
+		$cron->setFunction('Chauffe');
+		$cron->setOption(array('ChauffeEau_id' => $this->getId()));
+		$cron->setEnable(1);
+		$cron->setDeamon(1);
+		$cron->save();
 		if ($this->getConfiguration('Etat') != ''){
 			$listener = listener::byClassAndFunction('ChauffeEau', 'pull', array('ChauffeEau_id' => $this->getId()));
 			if (!is_object($listener))
