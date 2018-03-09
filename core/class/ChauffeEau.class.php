@@ -145,19 +145,23 @@ class ChauffeEau extends eqLogic {
 		}
 	}
 	public function powerStart(){
-		$Commande=cmd::byId(str_replace('#','',$this->getConfiguration('Activation')));
-		if(is_object($Commande)){
-			log::add('ChauffeEau','info','Execution de '.$Commande->getHumanName());
-			$Commande->execute();
-			$this->checkAndUpdateCmd('state',true);
+		if(!$this->getCmd(null,'state')->execCmd()){
+			$Commande=cmd::byId(str_replace('#','',$this->getConfiguration('Activation')));
+			if(is_object($Commande)){
+				log::add('ChauffeEau','info','Execution de '.$Commande->getHumanName());
+				$Commande->execute();
+				$this->checkAndUpdateCmd('state',true);
+			}
 		}
 	}
 	public function powerStop(){
-		$Commande=cmd::byId(str_replace('#','',$this->getConfiguration('Desactivation')));
-		if(is_object($Commande)){
-			log::add('ChauffeEau','info','Execution de '.$Commande->getHumanName());
-			$Commande->execute();
-			$this->checkAndUpdateCmd('state',false);
+		if($this->getCmd(null,'state')->execCmd()){
+			$Commande=cmd::byId(str_replace('#','',$this->getConfiguration('Desactivation')));
+			if(is_object($Commande)){
+				log::add('ChauffeEau','info','Execution de '.$Commande->getHumanName());
+				$Commande->execute();
+				$this->checkAndUpdateCmd('state',false);
+			}
 		}
 	}
 	public function TempActuel(){
