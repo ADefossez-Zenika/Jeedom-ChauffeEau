@@ -37,6 +37,36 @@ class ChauffeEau extends eqLogic {
 				$cron->remove();
 		}
 	}
+	public function preSave() {
+		$Programation=$this->getConfiguration('programation');
+		foreach($Programation as $key => $ConigSchedule){
+			if($ConigSchedule["id"] == ''){
+				$id=rand(0,32767);
+				//while(array_search($id, array_column($this->getConfiguration('programation'), 'id')) !== FALSE)
+				//	$id=rand(0,32767);
+				$ConigSchedule["id"]=$id;
+			}
+			$ConigSchedule["url"] = network::getNetworkAccess('external') . '/plugins/reveil/core/api/jeeReveil.php?apikey=' . jeedom::getApiKey('reveil') . '&id=' . $this->getId() . '&prog=' . $ConigSchedule["id"] . '&day=%DAY&heure=%H&minute=%M';
+			$Programation[$key]=$ConigSchedule;
+		}
+		$this->setConfiguration('programation', $Programation);
+	}
+	public function UpdateDynamic($id,$days,$heure,$minute){
+		$Programation=$this->getConfiguration('programation');
+		$key=array_search($id, array_column($Programation, 'id'));
+		if($key !== FALSE){		
+			for($day=0;$day<7;$day++)
+				$Programation[$key][$day]=false;
+			foreach(str_split($days) as $day)
+				$Programation[$key][$day]=true;
+			$Programation[$key]["Heure"]=$heure;
+			$Programation[$key]["Minute"]=$minute;
+			$this->setConfiguration('programation',$Programation);
+			$this->save();
+			$this->NextStart();
+      			$this->refreshWidget();
+		}
+	}
 	public function toHtml($_version = 'dashboard') {
 		$replace = $this->preToHtml($_version);
 		if (!is_array($replace)) 
