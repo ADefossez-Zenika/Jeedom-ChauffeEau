@@ -80,9 +80,9 @@ class ChauffeEau extends eqLogic {
 		$PowerTime=$this->EvaluatePowerTime();
 		$NextStart=$this->NextStart();
 		if(mktime() > $NextStart-$PowerTime)
-			$replace['#Next#'] = "{{Début : }}" . date('d/m/Y H:i',$NextStart-$PowerTime);
+			$replace['#Next#'] = "Début : " . date('d/m/Y H:i',$NextStart-$PowerTime);
 		else
-			$replace['#Next#'] = "{{Fin : }}" . date('d/m/Y H:i',$NextStart);
+			$replace['#Next#'] = "Fin : " . date('d/m/Y H:i',$NextStart);
 		$replace['#tempBallon#'] = $this->TempActuel();
 		if ($_version == 'dview' || $_version == 'mview') {
 			$object = $this->getObject();
