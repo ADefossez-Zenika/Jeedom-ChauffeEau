@@ -307,7 +307,29 @@ class ChauffeEau extends eqLogic {
 		$Auto->setValue($isArmed->getId());
 		$Auto->save();
 		
+		if ($this->getConfiguration('Etat') != ''){
+			$listener = listener::byClassAndFunction('ChauffeEau', 'pull', array('ChauffeEau_id' => $this->getId()));
+			if (!is_object($listener))
+			    $listener = new listener();
+			$listener->setClass('ChauffeEau');
+			$listener->setFunction('pull');
+			$listener->setOption(array('ChauffeEau_id' => $this->getId()));
+			$listener->emptyEvent();				
+			$listener->addEvent($this->getConfiguration('Etat'));
+			$listener->save();	
+		}
 		$this->ActiveMode();
+	}
+	public static function pull($_option) {
+		$ChauffeEau = Volets::byId($_option['ChauffeEau_id']);
+		if (is_object($ChauffeEau) && $ChauffeEau->getIsEnable()) {
+			if($_option['value'] && !$ChauffeEau->getCmd(null,'state')->execCmd())
+				$ChauffeEau->checkAndUpdateCmd('etatCommut',1);
+			if(!$_option['value'] && $ChauffeEau->getCmd(null,'state')->execCmd())
+				$ChauffeEau->checkAndUpdateCmd('etatCommut',3);
+			if($_option['value'] && $ChauffeEau->getCmd(null,'state')->execCmd())
+				$ChauffeEau->checkAndUpdateCmd('etatCommut',2);
+		}
 	}
 }
 class ChauffeEauCmd extends cmd {
