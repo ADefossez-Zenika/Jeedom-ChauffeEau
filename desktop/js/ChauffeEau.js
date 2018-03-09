@@ -72,7 +72,8 @@ function printEqLogic(_eqLogic) {
 				addCondition(_eqLogic.configuration.condition[index], $('#conditiontab').find('.div_Condition'));
 		}
 	}
-}function addProgramation(_programation,  _el) {
+}
+function addProgramation(_programation,  _el) {
 	var Heure=$('<select class="expressionAttr form-control" data-l1key="Heure" >');
     var Minute=$('<select class="expressionAttr form-control" data-l1key="Minute" >');
 	var number = 0;
@@ -91,7 +92,8 @@ function printEqLogic(_eqLogic) {
 		.append($('<td>')
 			.append($('<span class="input-group-btn">')
 				.append($('<a class="btn btn-default ProgramationAttr btn-sm" data-action="remove">')
-					.append($('<i class="fa fa-minus-circle">')))))
+					.append($('<i class="fa fa-minus-circle">'))))
+		       	.append($('<span class="expressionAttr" data-l1key="id">')))
 		.append($('<td>')
 			.append($('<label class="checkbox-inline">')
 				.append($('<input type="checkbox" class="expressionAttr" data-l1key="1">'))
@@ -116,7 +118,12 @@ function printEqLogic(_eqLogic) {
 				.append('{{Dimanche}}')))
 		.append($('<td>')
 			.append(Heure)
-			.append(Minute));
+			.append(Minute)
+			.append($('<label class="checkbox-inline">')
+				.append($('<input type="checkbox" class="expressionAttr" data-l1key="Anticiper" />'))
+				.append('{{Anticiper}}')))	
+		.append($('<td>')
+		       	.append($('<span class="expressionAttr" data-l1key="url">')));
         _el.append(tr);
         _el.find('tr:last').setValues(_programation, '.expressionAttr');
 	$('.ProgramationAttr[data-action=remove]').off().on('click',function(){
