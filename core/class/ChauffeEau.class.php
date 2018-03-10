@@ -103,17 +103,16 @@ class ChauffeEau extends eqLogic {
 	public static function pull($_option) {
 		$ChauffeEau = Volets::byId($_option['ChauffeEau_id']);
 		if (is_object($ChauffeEau) && $ChauffeEau->getIsEnable()) {
-			
-			if($_option['value'])
-				$this->checkAndUpdateCmd('state',true);
-			else
-				$this->checkAndUpdateCmd('state',false);
-			/*if($_option['value'] && !$ChauffeEau->getCmd(null,'state')->execCmd())
+			if($_option['value'] && !$ChauffeEau->getCmd(null,'state')->execCmd())
 				$ChauffeEau->checkAndUpdateCmd('etatCommut',1);
 			if(!$_option['value'] && $ChauffeEau->getCmd(null,'state')->execCmd())
 				$ChauffeEau->checkAndUpdateCmd('etatCommut',3);
-			if($_option['value'] && $ChauffeEau->getCmd(null,'state')->execCmd())
+			/*if($_option['value'] && $ChauffeEau->getCmd(null,'state')->execCmd())
 				$ChauffeEau->checkAndUpdateCmd('etatCommut',2);*/
+			if($_option['value'])
+				$ChauffeEau->checkAndUpdateCmd('state',true);
+			else
+				$ChauffeEau->checkAndUpdateCmd('state',false);
 		}
 	}
 	public static function Chauffe($_options) {
