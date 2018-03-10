@@ -139,7 +139,8 @@ class ChauffeEau extends eqLogic {
 								$ChauffeEau->powerStop();
 						}else
 							$ChauffeEau->powerStop();		
-					}
+					}else
+						$ChauffeEau->powerStop();	
 				break;
 				case 3:
 					// Mode Stope
