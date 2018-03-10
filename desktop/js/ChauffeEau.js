@@ -118,10 +118,7 @@ function addProgramation(_programation,  _el) {
 				.append('{{Dimanche}}')))
 		.append($('<td>')
 			.append(Heure)
-			.append(Minute)
-			.append($('<label class="checkbox-inline">')
-				.append($('<input type="checkbox" class="expressionAttr" data-l1key="Anticiper" />'))
-				.append('{{Anticiper}}')))	
+			.append(Minute))	
 		.append($('<td>')
 		       	.append($('<span class="expressionAttr" data-l1key="url">')));
         _el.append(tr);
