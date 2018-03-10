@@ -147,6 +147,7 @@ class ChauffeEau extends eqLogic {
 					$ChauffeEau->powerStop();
 				break;
 			}
+			sleep(60);
 		}
 	}
 	public function powerStart(){
