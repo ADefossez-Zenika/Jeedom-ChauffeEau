@@ -8,7 +8,7 @@ class ChauffeEau extends eqLogic {
 		$return['state'] = 'nok';
 		foreach(eqLogic::byType('ChauffeEau') as $ChauffeEau){
 			if($ChauffeEau->getIsEnable()){
-				$cron = cron::byClassAndFunction('ChauffeEau', 'StartChauffe', array('id' => $ChauffeEau->getId()));
+				$cron = cron::byClassAndFunction('ChauffeEau', 'Chauffe', array('ChauffeEau_id' => $ChauffeEau->getId()));
 				if (!is_object($cron)) 	
 					return $return;
 			}
@@ -25,16 +25,43 @@ class ChauffeEau extends eqLogic {
 		if ($deamon_info['state'] == 'ok') 
 			return;
 		foreach(eqLogic::byType('ChauffeEau') as $ChauffeEau)
-			$ChauffeEau->ActiveMode();
+			$ChauffeEau->createDeamon();
 	}
 	public static function deamon_stop() {	
 		foreach(eqLogic::byType('ChauffeEau') as $ChauffeEau){
-			$cron = cron::byClassAndFunction('ChauffeEau', 'StartChauffe', array('id' => $ChauffeEau->getId()));
+			$cron = cron::byClassAndFunction('ChauffeEau', 'Chauffe', array('ChauffeEau_id' => $ChauffeEau->getId()));
 			if (is_object($cron)) 	
 				$cron->remove();
-			$cron = cron::byClassAndFunction('ChauffeEau', 'EndChauffe', array('id' => $ChauffeEau->getId()));
-			if (is_object($cron)) 	
-				$cron->remove();
+		}
+	}
+	public function preSave() {
+		$Programation=$this->getConfiguration('programation');
+		foreach($Programation as $key => $ConigSchedule){
+			if($ConigSchedule["id"] == ''){
+				$id=rand(0,32767);
+				//while(array_search($id, array_column($this->getConfiguration('programation'), 'id')) !== FALSE)
+				//	$id=rand(0,32767);
+				$ConigSchedule["id"]=$id;
+			}
+			$ConigSchedule["url"] = network::getNetworkAccess('external') . '/plugins/reveil/core/api/jeeReveil.php?apikey=' . jeedom::getApiKey('reveil') . '&id=' . $this->getId() . '&prog=' . $ConigSchedule["id"] . '&day=%DAY&heure=%H&minute=%M';
+			$Programation[$key]=$ConigSchedule;
+		}
+		$this->setConfiguration('programation', $Programation);
+	}
+	public function UpdateDynamic($id,$days,$heure,$minute){
+		$Programation=$this->getConfiguration('programation');
+		$key=array_search($id, array_column($Programation, 'id'));
+		if($key !== FALSE){		
+			for($day=0;$day<7;$day++)
+				$Programation[$key][$day]=false;
+			foreach(str_split($days) as $day)
+				$Programation[$key][$day]=true;
+			$Programation[$key]["Heure"]=$heure;
+			$Programation[$key]["Minute"]=$minute;
+			$this->setConfiguration('programation',$Programation);
+			$this->save();
+			$this->NextStart();
+      			$this->refreshWidget();
 		}
 	}
 	public function toHtml($_version = 'dashboard') {
@@ -44,28 +71,19 @@ class ChauffeEau extends eqLogic {
 		$version = jeedom::versionAlias($_version);
 		if ($this->getDisplay('hideOn' . $version) == 1)
 			return '';
-		$Next='';
-		$tempBallon='';
 		foreach ($this->getCmd() as $cmd) {
 			if ($cmd->getDisplay('hideOn' . $version) == 1)
 				continue;
 			$replace['#'.$cmd->getLogicalId().'#']= $cmd->toHtml($_version, $cmdColor);
 		}
 		$replace['#cmdColor#'] = ($this->getPrimaryCategory() == '') ? '' : jeedom::getConfiguration('eqLogic:category:' . $this->getPrimaryCategory() . ':' . $vcolor);
-		$cron = cron::byClassAndFunction('ChauffeEau', 'StartChauffe', array('id' => $this->getId()));
-		if (is_object($cron)) 	
-			$Next='Début : '.$cron->getNextRunDate();
-		$cron = cron::byClassAndFunction('ChauffeEau', 'EndChauffe', array('id' => $this->getId()));
-		if (is_object($cron)) 	
-			$Next='Fin : '.$cron->getNextRunDate();
-		$replace['#Next#'] = $Next;
-		$Temp=$this->getConfiguration('TempActuel');
-		if(strrpos($Temp,'#')>0){
-			$Commande=cmd::byId(str_replace('#','',$Temp));
-			if(is_object($Commande))
-				$tempBallon=$Commande->execCmd().'°C';
-		}
-		$replace['#tempBallon#'] = $tempBallon;
+		$PowerTime=$this->EvaluatePowerTime();
+		$NextStart=$this->NextStart();
+		if(mktime() > $NextStart-$PowerTime)
+			$replace['#Next#'] = "Début : " . date('d/m/Y H:i',$NextStart-$PowerTime);
+		else
+			$replace['#Next#'] = "Fin : " . date('d/m/Y H:i',$NextStart);
+		$replace['#tempBallon#'] = $this->TempActuel();
 		if ($_version == 'dview' || $_version == 'mview') {
 			$object = $this->getObject();
 			$replace['#name#'] = (is_object($object)) ? $object->getName() . ' - ' . $replace['#name#'] : $replace['#name#'];
@@ -82,47 +100,85 @@ class ChauffeEau extends eqLogic {
 	        'border' => true,
 	        'border-radius' => true
 	));
-	public static function StartChauffe($_options) {
-		$ChauffeEau=eqLogic::byId($_options['id']);
+	public static function pull($_option) {
+		$ChauffeEau = Volets::byId($_option['ChauffeEau_id']);
 		if (is_object($ChauffeEau) && $ChauffeEau->getIsEnable()) {
-			$Etat=$ChauffeEau->getCmd(null,'etatCommut');
-			if(!is_object($Etat))
-				return;	
-			$State=$Etat->execCmd();
-			if($State == 3)
-				return;
-			log::add('ChauffeEau','info','Debut de l\'activation du chauffe eau '.$ChauffeEau->getHumanName());
-			$Commande=cmd::byId(str_replace('#','',$ChauffeEau->getConfiguration('Activation')));
-			if(is_object($Commande) && $ChauffeEau->EvaluateCondition()){
+			if($_option['value'] && !$ChauffeEau->getCmd(null,'state')->execCmd())
+				$ChauffeEau->checkAndUpdateCmd('etatCommut',1);
+			if(!$_option['value'] && $ChauffeEau->getCmd(null,'state')->execCmd())
+				$ChauffeEau->checkAndUpdateCmd('etatCommut',3);
+			/*if($_option['value'] && $ChauffeEau->getCmd(null,'state')->execCmd())
+				$ChauffeEau->checkAndUpdateCmd('etatCommut',2);*/
+			if($_option['value'])
+				$ChauffeEau->checkAndUpdateCmd('state',true);
+			else
+				$ChauffeEau->checkAndUpdateCmd('state',false);
+		}
+	}
+	public static function Chauffe($_options) {
+		$ChauffeEau=eqLogic::byId($_options['ChauffeEau_id']);
+		if (!is_object($ChauffeEau)) 
+			return;
+		if (!$ChauffeEau->getIsEnable()) 
+			return;
+		while(true){
+			switch($ChauffeEau->getCmd(null,'etatCommut')->execCmd()){
+				case 1:
+					// Mode Forcée
+					$ChauffeEau->powerStart();
+				break;
+				case 2:
+					//Mode automatique
+					if(mktime() > $ChauffeEau->NextStart()-$ChauffeEau->EvaluatePowerTime()){
+						if(!$ChauffeEau->EvaluateCondition())
+							continue;
+						if($ChauffeEau->TempActuel() <=  $ChauffeEau->getConfiguration('TempSouhaite')){
+							log::add('ChauffeEau','info','Execution de '.$ChauffeEau->getHumanName());
+							$ChauffeEau->powerStart();
+							if(mktime() > $ChauffeEau->NextStart())
+								$ChauffeEau->powerStop();
+						}else
+							$ChauffeEau->powerStop();		
+					}else
+						$ChauffeEau->powerStop();	
+				break;
+				case 3:
+					// Mode Stope
+					$ChauffeEau->powerStop();
+				break;
+			}
+			sleep(60);
+		}
+	}
+	public function powerStart(){
+		if(!$this->getCmd(null,'state')->execCmd()){
+			$Commande=cmd::byId(str_replace('#','',$this->getConfiguration('Activation')));
+			if(is_object($Commande)){
 				log::add('ChauffeEau','info','Execution de '.$Commande->getHumanName());
 				$Commande->execute();
-				$ChauffeEau->checkAndUpdateCmd('state',true);	
-				if($State == 2){
-					$PowerTime=$ChauffeEau->EvaluatePowerTime();
-					log::add('ChauffeEau','info','Estimation du temps d\'activation '.$PowerTime);
-					$Schedule= $ChauffeEau->TimeToShedule($PowerTime);
-					$ChauffeEau->CreateCron($Schedule, 'EndChauffe');
-				}
-			}   
-			if($State == 2){
-				foreach(eqLogic::byType('ChauffeEau') as $ChauffeEau){
-					$ChauffeEau->CreateCron($ChauffeEau->NextStart(), 'StartChauffe');
-				}
+				$this->checkAndUpdateCmd('state',true);
 			}
 		}
 	}
-	public static function EndChauffe($_options) {		
-		$ChauffeEau=eqLogic::byId($_options['id']);
-		if(is_object($ChauffeEau)){
-			log::add('ChauffeEau','info','Fin de l\'activation du chauffe eau '.$ChauffeEau->getHumanName());
-			$Commande=cmd::byId(str_replace('#','',$ChauffeEau->getConfiguration('Desactivation')));
-			if(is_object($Commande) /*&& $ChauffeEau->EvaluateCondition()*/){
+	public function powerStop(){
+		if($this->getCmd(null,'state')->execCmd()){
+			$Commande=cmd::byId(str_replace('#','',$this->getConfiguration('Desactivation')));
+			if(is_object($Commande)){
 				log::add('ChauffeEau','info','Execution de '.$Commande->getHumanName());
 				$Commande->execute();
-				$ChauffeEau->checkAndUpdateCmd('state',false);
+				$this->checkAndUpdateCmd('state',false);
 			}
 		}
-	} 
+	}
+	public function TempActuel(){
+		$TempActuel=$this->getConfiguration('TempActuel');
+		if(strrpos($TempActuel,'#')>0){
+			$Commande=cmd::byId(str_replace('#','',$TempActuel));
+			if(is_object($Commande))
+				$TempActuel=$Commande->execCmd();
+		}
+		return $TempActuel;
+	}
 	public function NextStart(){
 		$nextTime=null;
 		foreach($this->getConfiguration('programation') as $ConigSchedule){
@@ -141,28 +197,16 @@ class ChauffeEau extends eqLogic {
 			if($nextTime == null || $nextTime > $timestamp)
 				$nextTime=$timestamp;
 		}
-		return date('i H d m w Y',$nextTime);
+		return $nextTime;
 	}
-	public function TimeToShedule($Time) {
-		$Heure=round($Time/3600);
-		$Minute=round(($Time-($Heure*3600))/60);
-		$Shedule = new DateTime();
-		$Shedule->add(new DateInterval('PT'.$Time.'S'));
-		//$Shedule->setTime($Heure, $Minute);
-		// min heure jours mois année
-		return  $Shedule->format("i H d m *");
-	} 
 	public function EvaluatePowerTime() {
 		//Evaluation du temps necessaire au chauffage de l'eau
-		$DeltaTemp=$this->getConfiguration('TempActuel');
-		if(strrpos($DeltaTemp,'#')>0){
-			$Commande=cmd::byId(str_replace('#','',$DeltaTemp));
-			if(is_object($Commande))
-				$DeltaTemp=$Commande->execCmd();
-		}
+		$DeltaTemp=$this->TempActuel();
 		$DeltaTemp=$this->getConfiguration('TempSouhaite')-$DeltaTemp;
 		$Energie=$this->getConfiguration('Capacite')*$DeltaTemp*4185;
-		return round($Energie/ $this->getConfiguration('Puissance'));
+		$PowerTime = round($Energie/ $this->getConfiguration('Puissance'));
+		log::add('ChauffeEau','debug',$this->getHumanName().' : Temps de chauffage nececaire pour atteindre la temperature souhaté est de '.$PowerTime.' s');
+		return $PowerTime;
 	} 
 	public function EvaluateCondition(){
 		foreach($this->getConfiguration('condition') as $condition){		
@@ -181,61 +225,13 @@ class ChauffeEau extends eqLogic {
 			} else {
 				$message .= $result;
 			}
-			log::add('ChauffeEau','info',$this->getHumanName().' : '.$message);
+			log::add('ChauffeEau','debug',$this->getHumanName().' : '.$message);
 			if(!$result){
-				log::add('ChauffeEau','info',$this->getHumanName().' : Les conditions ne sont pas remplies');
+				log::add('ChauffeEau','debug',$this->getHumanName().' : Les conditions ne sont pas remplies');
 				return false;
 			}
 		}
 		return true;
-	}
-	public function ActiveMode(){
-		$Commande = $this->getCmd(null,'etatCommut');
-		if (!is_object($Commande))
-			return;
-		switch($Commande->execCmd()){
-			case '1':
-				log::add('ChauffeEau','info',$this->getHumanName().' : Passage en mode forcé');
-				$cron = cron::byClassAndFunction('ChauffeEau', 'StartChauffe', array('id' => $this->getId()));
-				if (is_object($cron)) 	
-					$cron->remove();
-				$cron = cron::byClassAndFunction('ChauffeEau', 'EndChauffe', array('id' => $this->getId()));
-				if (is_object($cron)) 	
-					$cron->remove();
-				ChauffeEau::StartChauffe(array('id' => $this->getId()));
-			break;				
-			case '2':
-				log::add('ChauffeEau','info',$this->getHumanName().' : Passage en mode automatique');
-	   			$this->CreateCron($this->NextStart(), 'StartChauffe');
-			break;
-			case '3':
-				log::add('ChauffeEau','info',$this->getHumanName().' : Désactivation du Chauffe eau');
-				$cron = cron::byClassAndFunction('ChauffeEau', 'StartChauffe', array('id' => $this->getId()));
-				if (is_object($cron)) 	
-					$cron->remove();
-				$cron = cron::byClassAndFunction('ChauffeEau', 'EndChauffe', array('id' => $this->getId()));
-				if (is_object($cron)) 	
-					$cron->remove();
-				ChauffeEau::EndChauffe(array('id' => $this->getId()));
-			break;
-	   	}}
-	public function CreateCron($Schedule, $logicalId) {
-		$cron = cron::byClassAndFunction('ChauffeEau', $logicalId, array('id' => $this->getId()));
-		if (!is_object($cron)) {
-			$cron = new cron();
-			$cron->setClass('ChauffeEau');
-			$cron->setFunction($logicalId);
-			$cron->setOption(array('id' => $this->getId()));
-			$cron->setEnable(1);
-			$cron->setDeamon(0);
-			$cron->setSchedule($Schedule);
-			$cron->save();
-		}
-		else{
-			$cron->setSchedule($Schedule);
-			$cron->save();
-		}
-		return $cron;
 	}
 	public static function AddCommande($eqLogic,$Name,$_logicalId,$Type="info", $SubType='binary',$visible,$Template='') {
 		$Commande = $eqLogic->getCmd(null,$_logicalId);
@@ -276,8 +272,33 @@ class ChauffeEau extends eqLogic {
 		$Auto=self::AddCommande($this,"Automatique","auto","action","other",true,'Commutateur');
 		$Auto->setValue($isArmed->getId());
 		$Auto->save();
-		
-		$this->ActiveMode();
+		$this->createDeamon();
+	}
+	public function createDeamon() {
+		$cron = cron::byClassAndFunction('ChauffeEau', 'Chauffe', array('ChauffeEau_id' => $this->getId()));
+		if (!is_object($cron)) 
+			$cron = new cron();
+		$cron->setClass('ChauffeEau');
+		$cron->setFunction('Chauffe');
+		$cron->setOption(array('ChauffeEau_id' => $this->getId()));
+		$cron->setEnable(1);
+		$cron->setDeamon(1);
+		$cron->setSchedule('* * * * *');
+		$cron->setTimeout('999999');
+		$cron->save();
+		$cron->start();
+		$cron->run();
+		if ($this->getConfiguration('Etat') != ''){
+			$listener = listener::byClassAndFunction('ChauffeEau', 'pull', array('ChauffeEau_id' => $this->getId()));
+			if (!is_object($listener))
+			    $listener = new listener();
+			$listener->setClass('ChauffeEau');
+			$listener->setFunction('pull');
+			$listener->setOption(array('ChauffeEau_id' => $this->getId()));
+			$listener->emptyEvent();				
+			$listener->addEvent($this->getConfiguration('Etat'));
+			$listener->save();	
+		}
 	}
 }
 class ChauffeEauCmd extends cmd {
@@ -293,7 +314,6 @@ class ChauffeEauCmd extends cmd {
 				$this->getEqLogic()->checkAndUpdateCmd('etatCommut',2);
 			break;
 		}
-		$this->getEqLogic()->ActiveMode();
 	}
 }
 ?>

@@ -1,4 +1,6 @@
 $("#table_cmd").sortable({axis: "y", cursor: "move", items: ".cmd", placeholder: "ui-state-highlight", tolerance: "intersect", forcePlaceholderSize: true});
+$("#table_programation").sortable({axis: "y", cursor: "move", items: ".ProgramationGroup", placeholder: "ui-state-highlight", tolerance: "intersect", forcePlaceholderSize: true});
+$("#table_condition").sortable({axis: "y", cursor: "move", items: ".ConditionGroup", placeholder: "ui-state-highlight", tolerance: "intersect", forcePlaceholderSize: true});
 function addCmdToTable(_cmd) {
 	var tr =$('<tr class="cmd" data-cmd_id="' + init(_cmd.id) + '">');
 	tr.append($('<td>')
@@ -69,10 +71,11 @@ function printEqLogic(_eqLogic) {
 	if (typeof(_eqLogic.configuration.condition) !== 'undefined') {
 		for(var index in _eqLogic.configuration.condition) { 
 			if( (typeof _eqLogic.configuration.condition[index] === "object") && (_eqLogic.configuration.condition[index] !== null) )
-				addCondition(_eqLogic.configuration.condition[index], $('#conditiontab').find('.div_Condition'));
+				addCondition(_eqLogic.configuration.condition[index],$('#conditiontab').find('table tbody'));
 		}
 	}
-}function addProgramation(_programation,  _el) {
+}
+function addProgramation(_programation,  _el) {
 	var Heure=$('<select class="expressionAttr form-control" data-l1key="Heure" >');
     var Minute=$('<select class="expressionAttr form-control" data-l1key="Minute" >');
 	var number = 0;
@@ -91,7 +94,8 @@ function printEqLogic(_eqLogic) {
 		.append($('<td>')
 			.append($('<span class="input-group-btn">')
 				.append($('<a class="btn btn-default ProgramationAttr btn-sm" data-action="remove">')
-					.append($('<i class="fa fa-minus-circle">')))))
+					.append($('<i class="fa fa-minus-circle">'))))
+		       	.append($('<span class="expressionAttr" data-l1key="id">')))
 		.append($('<td>')
 			.append($('<label class="checkbox-inline">')
 				.append($('<input type="checkbox" class="expressionAttr" data-l1key="1">'))
@@ -116,7 +120,9 @@ function printEqLogic(_eqLogic) {
 				.append('{{Dimanche}}')))
 		.append($('<td>')
 			.append(Heure)
-			.append(Minute));
+			.append(Minute))	
+		.append($('<td>')
+		       	.append($('<span class="expressionAttr" data-l1key="url">')));
         _el.append(tr);
         _el.find('tr:last').setValues(_programation, '.expressionAttr');
 	$('.ProgramationAttr[data-action=remove]').off().on('click',function(){
@@ -143,12 +149,11 @@ function addCondition(_condition,_el) {
 		$(this).closest('tr').remove();
 	});  
 }
-
 $('.ProgramationAttr[data-action=add]').off().on('click',function(){
 	addProgramation({},$(this).closest('.tab-pane').find('table'));
 });
 $('.conditionAttr[data-action=add]').off().on('click',function(){
-	addCondition({}, $(this).closest('.form-horizontal').find('.div_Condition'));
+	addCondition({},$(this).closest('.tab-pane').find('table'));
 });
 $('body').on('click','.listCmdCondition',function(){
 	var el = $(this).closest('.input-group').find('.expressionAttr[data-l1key=expression]');	
