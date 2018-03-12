@@ -88,100 +88,117 @@ $eqLogics = eqLogic::byType('ChauffeEau');
 		</ul>
 		<div class="tab-content" style="height:calc(100% - 50px);overflow:auto;overflow-x: hidden;">
 			<div role="tabpanel" class="tab-pane active" id="eqlogictab">
-				<form class="form-horizontal">
-					<fieldset>
-						<div class="form-group ">
-							<label class="col-sm-2 control-label">{{Nom de la Zone}}</label>
-							<div class="col-sm-5">
-								<input type="text" class="eqLogicAttr form-control" data-l1key="id" style="display : none;" />
-								<input type="text" class="eqLogicAttr form-control" data-l1key="name" placeholder="{{Nom du groupe de zones}}"/>
+				<div class="col-sm-6">
+					<form class="form-horizontal">
+						<legend>Général</legend>
+						<fieldset>
+							<div class="form-group ">
+								<label class="col-sm-2 control-label">{{Nom de la Zone}}</label>
+								<div class="col-sm-5">
+									<input type="text" class="eqLogicAttr form-control" data-l1key="id" style="display : none;" />
+									<input type="text" class="eqLogicAttr form-control" data-l1key="name" placeholder="{{Nom du groupe de zones}}"/>
+								</div>
 							</div>
-						</div>
-						<div class="form-group">
-							<label class="col-sm-2 control-label" >{{Objet parent}}</label>
-							<div class="col-sm-5">
-								<select id="sel_object" class="eqLogicAttr form-control" data-l1key="object_id">
-									<option value="">{{Aucun}}</option>
-									<?php
-										foreach (object::all() as $object) 
-											echo '<option value="' . $object->getId() . '">' . $object->getName() . '</option>';
-									?>
-								</select>
+							<div class="form-group">
+								<label class="col-sm-2 control-label" >{{Objet parent}}</label>
+								<div class="col-sm-5">
+									<select id="sel_object" class="eqLogicAttr form-control" data-l1key="object_id">
+										<option value="">{{Aucun}}</option>
+										<?php
+											foreach (object::all() as $object) 
+												echo '<option value="' . $object->getId() . '">' . $object->getName() . '</option>';
+										?>
+									</select>
+								</div>
 							</div>
-						</div>
-						<div class="form-group">
-							<label class="col-sm-2 control-label" ></label>
-							<div class="col-sm-5">
-								<label>{{Activer}}</label>
-								<input type="checkbox" class="eqLogicAttr" data-label-text="{{Activer}}" data-l1key="isEnable" checked/>
-								<label>{{Visible}}</label>
-								<input type="checkbox" class="eqLogicAttr" data-label-text="{{Visible}}" data-l1key="isVisible" checked/>
+							<div class="form-group">
+								<label class="col-sm-2 control-label" ></label>
+								<div class="col-sm-5">
+									<label>{{Activer}}</label>
+									<input type="checkbox" class="eqLogicAttr" data-label-text="{{Activer}}" data-l1key="isEnable" checked/>
+									<label>{{Visible}}</label>
+									<input type="checkbox" class="eqLogicAttr" data-label-text="{{Visible}}" data-l1key="isVisible" checked/>
+								</div>
 							</div>
-						</div>
-						<div class="form-group">
-							<label class="col-sm-2 control-label" >{{Capacité du chauffe eau (Litre)}}</label>
-							<div class="col-sm-5">
-								<input type="text" class="eqLogicAttr form-control" data-l1key="configuration"  data-l2key="Capacite" placeholder="{{Capacité du chauffe eau (Litre)}}"/>
+						</fieldset>
+					</form>
+				</div>
+				<div class="col-sm-6 Jour">
+					<form class="form-horizontal">
+						<legend>Parametre du chauffe eaux</legend>
+						<fieldset>
+							<div class="form-group">
+								<label class="col-sm-2 control-label" >{{Capacité du chauffe eau (Litre)}}</label>
+								<div class="col-sm-5">
+									<input type="text" class="eqLogicAttr form-control" data-l1key="configuration"  data-l2key="Capacite" placeholder="{{Capacité du chauffe eau (Litre)}}"/>
+								</div>
 							</div>
-						</div>
-						<div class="form-group">
-							<label class="col-sm-2 control-label" >{{Puissance du chauffe eau (Watt)}}</label>
-							<div class="col-sm-5">
-								<input type="text" class="eqLogicAttr form-control" data-l1key="configuration"  data-l2key="Puissance" placeholder="{{Puissance du chauffe eau (Watt)}}"/>
+							<div class="form-group">
+								<label class="col-sm-2 control-label" >{{Puissance du chauffe eau (Watt)}}</label>
+								<div class="col-sm-5">
+									<input type="text" class="eqLogicAttr form-control" data-l1key="configuration"  data-l2key="Puissance" placeholder="{{Puissance du chauffe eau (Watt)}}"/>
+								</div>
 							</div>
-						</div>
-						<div class="form-group">
-							<label class="col-sm-2 control-label" >{{Température Souhaité (°C)}}</label>
-							<div class="col-sm-5">
-								<input type="text" class="eqLogicAttr form-control" data-l1key="configuration"  data-l2key="TempSouhaite" placeholder="{{Température Souhaité (°C) - Valeur conseillé 60°C}}"/>
+							<div class="form-group">
+								<label class="col-sm-2 control-label" >{{Température Souhaité (°C)}}</label>
+								<div class="col-sm-5">
+									<input type="text" class="eqLogicAttr form-control" data-l1key="configuration"  data-l2key="TempSouhaite" placeholder="{{Température Souhaité (°C) - Valeur conseillé 60°C}}"/>
+								</div>
 							</div>
-						</div>
-						<div class="form-group">
-							<label class="col-sm-2 control-label" >{{Selectioner une commande ou estimer la temperature actuel de l'eau}}</label>
-							<div class="col-sm-5 input-group">
-								<input class="eqLogicAttr form-control input-sm" data-l1key="configuration"  data-l2key="TempActuel" placeholder="{{Selectionner un objet Jeedom de température, ou Saisissez une valeur par defaut}}">
-								<span class="input-group-btn">
-									<a class="btn btn-success btn-sm bt_selectCmdExpression" >
-										<i class="fa fa-list-alt"></i>
-									</a>
-								</span>
+							<div class="form-group">
+								<label class="col-sm-2 control-label" >{{Selectioner une commande ou estimer la temperature actuel de l'eau}}</label>
+								<div class="col-sm-5 input-group">
+									<input class="eqLogicAttr form-control input-sm" data-l1key="configuration"  data-l2key="TempActuel" placeholder="{{Selectionner un objet Jeedom de température, ou Saisissez une valeur par defaut}}">
+									<span class="input-group-btn">
+										<a class="btn btn-success btn-sm bt_selectCmdExpression" >
+											<i class="fa fa-list-alt"></i>
+										</a>
+									</span>
+								</div>
+							</div>  
+						</fieldset>
+					</form>
+				</div>
+				<div class="col-sm-6 Jour">
+					<form class="form-horizontal">
+						<legend>Controle du chauffe eau</legend>
+						<fieldset>
+							<div class="form-group">
+								<label class="col-sm-2 control-label" >{{Commande d'activation du chauffe eau}}</label>
+								<div class="col-sm-5 input-group">
+									<input class="eqLogicAttr form-control input-sm" data-l1key="configuration"  data-l2key="Activation" placeholder="{{Séléctioner l'objet de commande d'activation du chauffe eau}}">
+									<span class="input-group-btn">
+										<a class="btn btn-success btn-sm bt_selectCmdExpression" >
+											<i class="fa fa-list-alt"></i>
+										</a>
+									</span>
+								</div>
 							</div>
-						</div>  
-						<div class="form-group">
-							<label class="col-sm-2 control-label" >{{Commande d'activation du chauffe eau}}</label>
-							<div class="col-sm-5 input-group">
-								<input class="eqLogicAttr form-control input-sm" data-l1key="configuration"  data-l2key="Activation" placeholder="{{Séléctioner l'objet de commande d'activation du chauffe eau}}">
-								<span class="input-group-btn">
-									<a class="btn btn-success btn-sm bt_selectCmdExpression" >
-										<i class="fa fa-list-alt"></i>
-									</a>
-								</span>
-							</div>
-						</div>
-						<div class="form-group">
-							<label class="col-sm-2 control-label" >{{Commande de desactivation du chauffe eau}}</label>
-							<div class="col-sm-5 input-group">
-								<input class="eqLogicAttr form-control input-sm" data-l1key="configuration"  data-l2key="Desactivation" placeholder="{{Séléctioner l'objet de commande de desactivation du chauffe eau}}">
-								<span class="input-group-btn">
-									<a class="btn btn-success btn-sm bt_selectCmdExpression" >
-										<i class="fa fa-list-alt"></i>
-									</a>
-								</span>
-							</div>
-						</div>	
-						<div class="form-group">
-							<label class="col-sm-2 control-label" >{{Commande d'etat du chauffe eau}}</label>
-							<div class="col-sm-5 input-group">
-								<input class="eqLogicAttr form-control input-sm" data-l1key="configuration"  data-l2key="Etat" placeholder="{{Séléctioner l'objet de commande d'etat du chauffe eau}}">
-								<span class="input-group-btn">
-									<a class="btn btn-success btn-sm bt_selectCmdExpression" >
-										<i class="fa fa-list-alt"></i>
-									</a>
-								</span>
-							</div>
-						</div>	
-					</fieldset>
-				</form>
+							<div class="form-group">
+								<label class="col-sm-2 control-label" >{{Commande de desactivation du chauffe eau}}</label>
+								<div class="col-sm-5 input-group">
+									<input class="eqLogicAttr form-control input-sm" data-l1key="configuration"  data-l2key="Desactivation" placeholder="{{Séléctioner l'objet de commande de desactivation du chauffe eau}}">
+									<span class="input-group-btn">
+										<a class="btn btn-success btn-sm bt_selectCmdExpression" >
+											<i class="fa fa-list-alt"></i>
+										</a>
+									</span>
+								</div>
+							</div>	
+							<div class="form-group">
+								<label class="col-sm-2 control-label" >{{Commande d'etat du chauffe eau}}</label>
+								<div class="col-sm-5 input-group">
+									<input class="eqLogicAttr form-control input-sm" data-l1key="configuration"  data-l2key="Etat" placeholder="{{Séléctioner l'objet de commande d'etat du chauffe eau}}">
+									<span class="input-group-btn">
+										<a class="btn btn-success btn-sm bt_selectCmdExpression" >
+											<i class="fa fa-list-alt"></i>
+										</a>
+									</span>
+								</div>
+							</div>	
+						</fieldset>
+					</form>
+				</div>	
 			</div>	
 			<div role="tabpanel" class="tab-pane" id="commandtab">	
 				<table id="table_cmd" class="table table-bordered table-condensed">
