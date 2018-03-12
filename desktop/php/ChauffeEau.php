@@ -246,12 +246,20 @@ $eqLogics = eqLogic::byType('ChauffeEau');
 							</sup>
 							<a class="btn btn-success btn-xs conditionAttr" data-action="add" style="margin-left: 5px;">
 								<i class="fa fa-plus-circle"></i>
-								{{Ajouter Condition}}
+								{{Ajouter une Condition}}
 							</a>
 						</legend>
-						<div class="div_Condition"></div>
 					</fieldset>
-				</form>
+				</form>			
+				<table id="table_condition" class="table table-bordered table-condensed">
+					<thead>
+						<tr>
+							<th></th>
+							<th>Condition</th>
+						</tr>
+					</thead>
+					<tbody></tbody>
+				</table>
 			</div>
 		</div>
 	</div>
