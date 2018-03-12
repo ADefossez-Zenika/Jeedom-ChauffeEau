@@ -69,7 +69,7 @@ function printEqLogic(_eqLogic) {
 	if (typeof(_eqLogic.configuration.condition) !== 'undefined') {
 		for(var index in _eqLogic.configuration.condition) { 
 			if( (typeof _eqLogic.configuration.condition[index] === "object") && (_eqLogic.configuration.condition[index] !== null) )
-				addCondition(_eqLogic.configuration.condition[index], $('#conditiontab').find('.div_Condition'));
+				addCondition(_eqLogic.configuration.Conditions[index],$('#conditiontab').find('table tbody'));
 		}
 	}
 }
@@ -147,12 +147,11 @@ function addCondition(_condition,_el) {
 		$(this).closest('tr').remove();
 	});  
 }
-
 $('.ProgramationAttr[data-action=add]').off().on('click',function(){
 	addProgramation({},$(this).closest('.tab-pane').find('table'));
 });
 $('.conditionAttr[data-action=add]').off().on('click',function(){
-	addCondition({}, $(this).closest('.form-horizontal').find('.div_Condition'));
+	addCondition({},$(this).closest('.tab-pane').find('table'));
 });
 $('body').on('click','.listCmdCondition',function(){
 	var el = $(this).closest('.input-group').find('.expressionAttr[data-l1key=expression]');	
