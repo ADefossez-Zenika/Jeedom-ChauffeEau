@@ -71,7 +71,7 @@ function printEqLogic(_eqLogic) {
 	if (typeof(_eqLogic.configuration.condition) !== 'undefined') {
 		for(var index in _eqLogic.configuration.condition) { 
 			if( (typeof _eqLogic.configuration.condition[index] === "object") && (_eqLogic.configuration.condition[index] !== null) )
-				addCondition(_eqLogic.configuration.Conditions[index],$('#conditiontab').find('table tbody'));
+				addCondition(_eqLogic.configuration.condition[index],$('#conditiontab').find('table tbody'));
 		}
 	}
 }
