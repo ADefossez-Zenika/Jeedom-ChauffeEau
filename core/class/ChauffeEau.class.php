@@ -152,21 +152,21 @@ class ChauffeEau extends eqLogic {
 	}
 	public function powerStart(){
 		if(!$this->getCmd(null,'state')->execCmd()){
+			$this->checkAndUpdateCmd('state',true);
 			$Commande=cmd::byId(str_replace('#','',$this->getConfiguration('Activation')));
 			if(is_object($Commande)){
 				log::add('ChauffeEau','info','Execution de '.$Commande->getHumanName());
 				$Commande->execute();
-				$this->checkAndUpdateCmd('state',true);
 			}
 		}
 	}
 	public function powerStop(){
 		if($this->getCmd(null,'state')->execCmd()){
+			$this->checkAndUpdateCmd('state',false);
 			$Commande=cmd::byId(str_replace('#','',$this->getConfiguration('Desactivation')));
 			if(is_object($Commande)){
 				log::add('ChauffeEau','info','Execution de '.$Commande->getHumanName());
 				$Commande->execute();
-				$this->checkAndUpdateCmd('state',false);
 			}
 		}
 	}
