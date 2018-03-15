@@ -83,7 +83,7 @@ class ChauffeEau extends eqLogic {
 			$replace['#Next#'] = "Début : " . date('d/m/Y H:i',$NextStart-$PowerTime);
 		else
 			$replace['#Next#'] = "Fin : " . date('d/m/Y H:i',$NextStart);
-		$replace['#tempBallon#'] = $this->TempActuel();
+		$replace['#tempBallon#'] = "Temperature " . $this->TempActuel() . "°C";
 		if ($_version == 'dview' || $_version == 'mview') {
 			$object = $this->getObject();
 			$replace['#name#'] = (is_object($object)) ? $object->getName() . ' - ' . $replace['#name#'] : $replace['#name#'];
