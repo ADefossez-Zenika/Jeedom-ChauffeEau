@@ -83,7 +83,7 @@ class ChauffeEau extends eqLogic {
 			$replace['#Next#'] = "Début : " . date('d/m/Y H:i',$NextStart-$PowerTime);
 		else
 			$replace['#Next#'] = "Fin : " . date('d/m/Y H:i',$NextStart);
-		$replace['#tempBallon#'] = $this->TempActuel();
+		$replace['#tempBallon#'] = "Temperature " . $this->TempActuel() . "°C";
 		if ($_version == 'dview' || $_version == 'mview') {
 			$object = $this->getObject();
 			$replace['#name#'] = (is_object($object)) ? $object->getName() . ' - ' . $replace['#name#'] : $replace['#name#'];
@@ -152,21 +152,21 @@ class ChauffeEau extends eqLogic {
 	}
 	public function powerStart(){
 		if(!$this->getCmd(null,'state')->execCmd()){
+			$this->checkAndUpdateCmd('state',true);
 			$Commande=cmd::byId(str_replace('#','',$this->getConfiguration('Activation')));
 			if(is_object($Commande)){
 				log::add('ChauffeEau','info','Execution de '.$Commande->getHumanName());
 				$Commande->execute();
-				$this->checkAndUpdateCmd('state',true);
 			}
 		}
 	}
 	public function powerStop(){
 		if($this->getCmd(null,'state')->execCmd()){
+			$this->checkAndUpdateCmd('state',false);
 			$Commande=cmd::byId(str_replace('#','',$this->getConfiguration('Desactivation')));
 			if(is_object($Commande)){
 				log::add('ChauffeEau','info','Execution de '.$Commande->getHumanName());
 				$Commande->execute();
-				$this->checkAndUpdateCmd('state',false);
 			}
 		}
 	}
@@ -205,7 +205,7 @@ class ChauffeEau extends eqLogic {
 		$DeltaTemp=$this->getConfiguration('TempSouhaite')-$DeltaTemp;
 		$Energie=$this->getConfiguration('Capacite')*$DeltaTemp*4185;
 		$PowerTime = round($Energie/ $this->getConfiguration('Puissance'));
-		log::add('ChauffeEau','debug',$this->getHumanName().' : Temps de chauffage nececaire pour atteindre la temperature souhaté est de '.$PowerTime.' s');
+		log::add('ChauffeEau','debug',$this->getHumanName().' : Temps de chauffage nécessaire pour atteindre la température souhaité est de '.$PowerTime.' s');
 		return $PowerTime;
 	} 
 	public function EvaluateCondition(){
