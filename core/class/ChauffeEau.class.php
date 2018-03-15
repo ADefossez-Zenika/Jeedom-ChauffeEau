@@ -205,7 +205,7 @@ class ChauffeEau extends eqLogic {
 		$DeltaTemp=$this->getConfiguration('TempSouhaite')-$DeltaTemp;
 		$Energie=$this->getConfiguration('Capacite')*$DeltaTemp*4185;
 		$PowerTime = round($Energie/ $this->getConfiguration('Puissance'));
-		log::add('ChauffeEau','debug',$this->getHumanName().' : Temps de chauffage nececaire pour atteindre la temperature souhaté est de '.$PowerTime.' s');
+		log::add('ChauffeEau','debug',$this->getHumanName().' : Temps de chauffage nécessaire pour atteindre la température souhaité est de '.$PowerTime.' s');
 		return $PowerTime;
 	} 
 	public function EvaluateCondition(){
