@@ -25,8 +25,8 @@ Parametre du chauffe eaux
 
 * Capacité du chauffe-eau (Litre) : indiquez le volume de votre chauffe-eau
 * Puissance du chauffe-eau (Watt) : indiquez la puissance de votre chauffe-eau
-* Température Souhaitée (°C) : indiquez la température à atteindre
-* Sélectionnez une commande ou estimez la température actuelle de l'eau : indiquez la température au moment de la chauffe ou choisissez un objet Jeedom représentant la valeur
+* Température Souhaitée (°C) : indiquez la température à atteindre, ou saisiez une formule
+* Sélectionnez une commande ou estimez la température actuelle de l'eau : indiquez la température au moment de la chauffe ou choisissez un objet Jeedom représentant la valeur, ou saisiez une formule
 
 Controle du chauffe eau
 ---
