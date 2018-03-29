@@ -79,10 +79,13 @@ class ChauffeEau extends eqLogic {
 		$replace['#cmdColor#'] = ($this->getPrimaryCategory() == '') ? '' : jeedom::getConfiguration('eqLogic:category:' . $this->getPrimaryCategory() . ':' . $vcolor);
 		$PowerTime=$this->EvaluatePowerTime();
 		$NextStart=$this->NextStart();
-		if(mktime() > $NextStart-$PowerTime)
-			$replace['#Next#'] = "Début : " . date('d/m/Y H:i',$NextStart-$PowerTime);
-		else
-			$replace['#Next#'] = "Fin : " . date('d/m/Y H:i',$NextStart);
+		if($NextStart != null){
+			if(mktime() > $NextStart-$PowerTime)
+				$replace['#Next#'] = "Début : " . date('d/m/Y H:i',$NextStart-$PowerTime);
+			else
+				$replace['#Next#'] = "Fin : " . date('d/m/Y H:i',$NextStart);
+		}else
+			$replace['#Next#']='';
 		$replace['#tempBallon#'] = "Temperature " . $this->TempActuel() . "°C";
 		if ($_version == 'dview' || $_version == 'mview') {
 			$object = $this->getObject();
@@ -129,18 +132,23 @@ class ChauffeEau extends eqLogic {
 				break;
 				case 2:
 					//Mode automatique
-					if(mktime() > $ChauffeEau->NextStart()-$ChauffeEau->EvaluatePowerTime()){
-						if(!$ChauffeEau->EvaluateCondition())
-							continue;
-						if($ChauffeEau->TempActuel() <=  $ChauffeEau->getConfiguration('TempSouhaite')){
-							log::add('ChauffeEau','info','Execution de '.$ChauffeEau->getHumanName());
-							$ChauffeEau->powerStart();
-							if(mktime() > $ChauffeEau->NextStart())
+					$NextStart=$ChauffeEau->NextStart();
+					if($NextStart != null){
+						if(mktime() > $NextStart-$ChauffeEau->EvaluatePowerTime()){
+							if(mktime() > $NextStart){
 								$ChauffeEau->powerStop();
-						}else
-							$ChauffeEau->powerStop();		
-					}else
-						$ChauffeEau->powerStop();	
+								break;
+							}
+							if($ChauffeEau->EvaluateCondition()){
+								if($ChauffeEau->TempActuel() <=  $ChauffeEau->getConfiguration('TempSouhaite')){
+									log::add('ChauffeEau','info','Execution de '.$ChauffeEau->getHumanName());
+									$ChauffeEau->powerStart();
+								}else
+									$ChauffeEau->powerStop();	
+							}else
+								$ChauffeEau->powerStop();		
+						}
+					}	
 				break;
 				case 3:
 					// Mode Stope
