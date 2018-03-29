@@ -144,11 +144,13 @@ class ChauffeEau extends eqLogic {
 									log::add('ChauffeEau','info','Execution de '.$ChauffeEau->getHumanName());
 									$ChauffeEau->powerStart();
 								}else
-									$ChauffeEau->powerStop();	
+									$ChauffeEau->powerStop();
 							}else
-								$ChauffeEau->powerStop();		
-						}
-					}	
+								$ChauffeEau->powerStop();	
+						}else
+							$ChauffeEau->powerStop();
+					}else
+						$ChauffeEau->powerStop();
 				break;
 				case 3:
 					// Mode Stope
