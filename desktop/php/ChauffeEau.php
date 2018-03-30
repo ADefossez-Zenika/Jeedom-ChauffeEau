@@ -84,13 +84,20 @@ $eqLogics = eqLogic::byType('ChauffeEau');
 			</li>
 			<li role="presentation" class="">
 				<a href="#programationtab" aria-controls="profile" role="tab" data-toggle="tab" aria-expanded="false">
-					<i class="fa fa-map"></i> {{Programation}}</a>
+					<i class="fa fa-map"></i> {{Programmation}}</a>
 			</li>
 			<li role="presentation">
 				<a href="#conditiontab" aria-controls="profile" role="tab" data-toggle="tab" aria-expanded="false">
 					<i class="fa fa-list-alt"></i> {{Conditions d'exécution}}</a>
 			</li>
-
+			<li role="presentation">
+				<a href="#actionOnTab" aria-controls="profile" role="tab" data-toggle="tab" aria-expanded="false">
+					<i class="fa fa-list-alt"></i> {{Actions d'activation}}</a>
+			</li>
+			<li role="presentation">
+				<a href="#actionOffTab" aria-controls="profile" role="tab" data-toggle="tab" aria-expanded="false">
+					<i class="fa fa-list-alt"></i> {{Actions d'extinction}}</a>
+			</li>
 		</ul>
 		<div class="tab-content" style="height:calc(100% - 50px);overflow:auto;overflow-x: hidden;">
 			<div role="tabpanel" class="tab-pane active" id="eqlogictab">
@@ -129,9 +136,9 @@ $eqLogics = eqLogic::byType('ChauffeEau');
 						</fieldset>
 					</form>
 				</div>
-				<div class="col-sm-6 Jour">
+				<div class="col-sm-6">
 					<form class="form-horizontal">
-						<legend>Parametre du chauffe eaux</legend>
+						<legend>Paramètre du chauffe-eau</legend>
 						<fieldset>
 							<div class="form-group">
 								<label class="col-sm-2 control-label" >{{Capacité du chauffe eau (Litre)}}</label>
@@ -146,15 +153,15 @@ $eqLogics = eqLogic::byType('ChauffeEau');
 								</div>
 							</div>
 							<div class="form-group">
-								<label class="col-sm-2 control-label" >{{Température Souhaité (°C)}}</label>
+								<label class="col-sm-2 control-label" >{{Température Souhaitée (°C)}}</label>
 								<div class="col-sm-5">
 									<input type="text" class="eqLogicAttr form-control" data-l1key="configuration"  data-l2key="TempSouhaite" placeholder="{{Température Souhaité (°C) - Valeur conseillé 60°C}}"/>
 								</div>
 							</div>
 							<div class="form-group">
-								<label class="col-sm-2 control-label" >{{Selectioner une commande ou estimer la temperature actuel de l'eau}}</label>
+								<label class="col-sm-2 control-label" >{{Sélectionner une commande ou estimer la température actuelle de l'eau}}</label>
 								<div class="col-sm-5 input-group">
-									<input class="eqLogicAttr form-control input-sm" data-l1key="configuration"  data-l2key="TempActuel" placeholder="{{Selectionner un objet Jeedom de température, ou Saisissez une valeur par defaut}}">
+									<input class="eqLogicAttr form-control input-sm" data-l1key="configuration"  data-l2key="TempActuel" placeholder="{{Sélectionner un objet Jeedom de température, ou Saisisser une valeur par defaut}}">
 									<span class="input-group-btn">
 										<a class="btn btn-success btn-sm bt_selectCmdExpression" >
 											<i class="fa fa-list-alt"></i>
@@ -165,11 +172,11 @@ $eqLogics = eqLogic::byType('ChauffeEau');
 						</fieldset>
 					</form>
 				</div>
-				<div class="col-sm-6 Jour">
+				<div class="col-sm-6">
 					<form class="form-horizontal">
 						<legend>Controle du chauffe eau</legend>
 						<fieldset>
-							<div class="form-group">
+							<!--div class="form-group">
 								<label class="col-sm-2 control-label" >{{Commande d'activation du chauffe eau}}</label>
 								<div class="col-sm-5 input-group">
 									<input class="eqLogicAttr form-control input-sm" data-l1key="configuration"  data-l2key="Activation" placeholder="{{Séléctioner l'objet de commande d'activation du chauffe eau}}">
@@ -181,7 +188,7 @@ $eqLogics = eqLogic::byType('ChauffeEau');
 								</div>
 							</div>
 							<div class="form-group">
-								<label class="col-sm-2 control-label" >{{Commande de desactivation du chauffe eau}}</label>
+								<label class="col-sm-2 control-label" >{{Commande de désactivation du chauffe eau}}</label>
 								<div class="col-sm-5 input-group">
 									<input class="eqLogicAttr form-control input-sm" data-l1key="configuration"  data-l2key="Desactivation" placeholder="{{Séléctioner l'objet de commande de desactivation du chauffe eau}}">
 									<span class="input-group-btn">
@@ -190,9 +197,9 @@ $eqLogics = eqLogic::byType('ChauffeEau');
 										</a>
 									</span>
 								</div>
-							</div>	
+							</div-->	
 							<div class="form-group">
-								<label class="col-sm-2 control-label" >{{Commande d'etat du chauffe eau}}</label>
+								<label class="col-sm-2 control-label" >{{ Commande d’état du chauffe-eau}}</label>
 								<div class="col-sm-5 input-group">
 									<input class="eqLogicAttr form-control input-sm" data-l1key="configuration"  data-l2key="Etat" placeholder="{{Séléctioner l'objet de commande d'etat du chauffe eau}}">
 									<span class="input-group-btn">
@@ -267,6 +274,54 @@ $eqLogics = eqLogic::byType('ChauffeEau');
 					<tbody></tbody>
 				</table>
 			</div>
+			<div role="tabpanel" class="tab-pane" id="actionOnTab">
+				<form class="form-horizontal">
+					<fieldset>
+						<legend>{{Les actions:}}
+							<sup>
+								<i class="fa fa-question-circle tooltips" title="Saisir toutes les actions à mener à l'ouverture"></i>
+							</sup>
+							<a class="btn btn-success btn-xs ActionAttr" data-action="add" style="margin-left: 5px;">
+								<i class="fa fa-plus-circle"></i>
+								{{Ajouter une Action}}
+							</a>
+						</legend>
+					</fieldset>
+				</form>					
+				<table id="table_action" class="table table-bordered table-condensed">
+					<thead>
+						<tr>
+							<th></th>
+							<th>Action</th>
+						</tr>
+					</thead>
+					<tbody></tbody>
+				</table>
+			</div>		
+			<div role="tabpanel" class="tab-pane" id="actionOffTab">
+				<form class="form-horizontal">
+					<fieldset>
+						<legend>{{Les actions:}}
+							<sup>
+								<i class="fa fa-question-circle tooltips" title="Saisir toutes les actions à mener à l'ouverture"></i>
+							</sup>
+							<a class="btn btn-success btn-xs ActionAttr" data-action="add" style="margin-left: 5px;">
+								<i class="fa fa-plus-circle"></i>
+								{{Ajouter une Action}}
+							</a>
+						</legend>
+					</fieldset>
+				</form>					
+				<table id="table_action" class="table table-bordered table-condensed">
+					<thead>
+						<tr>
+							<th></th>
+							<th>Action</th>
+						</tr>
+					</thead>
+					<tbody></tbody>
+				</table>
+			</div>		
 		</div>
 	</div>
 </div>
