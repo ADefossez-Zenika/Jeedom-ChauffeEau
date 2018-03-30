@@ -251,7 +251,7 @@ class ChauffeEau extends eqLogic {
 			if (isset($cmd['options'])) 
 				$options = $cmd['options'];
 			scenarioExpression::createAndExec('action', $cmd['cmd'], $options);
-			log::add('ChauffeEau','debug','Exécution de '.$Commande->getHumanName());
+			log::add('ChauffeEau','debug','Exécution de '.$cmd['cmd']);
 		} catch (Exception $e) {
 			log::add('ChauffeEau', 'error', __('Erreur lors de l\'éxecution de ', __FILE__) . $action['cmd'] . __('. Détails : ', __FILE__) . $e->getMessage());
 		}		
