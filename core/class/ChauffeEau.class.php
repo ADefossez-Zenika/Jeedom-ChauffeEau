@@ -259,14 +259,14 @@ class ChauffeEau extends eqLogic {
 			$Commande->setId(null);
 			$Commande->setLogicalId($_logicalId);
 			$Commande->setEqLogic_id($eqLogic->getId());
-		}
-		$Commande->setName($Name);
-		$Commande->setIsVisible($visible);
-		$Commande->setType($Type);
-		$Commande->setSubType($SubType);
-   		$Commande->setTemplate('dashboard',$Template );
-		$Commande->setTemplate('mobile', $Template);
-		$Commande->save();
+			$Commande->setName($Name);
+			$Commande->setIsVisible($visible);
+			$Commande->setType($Type);
+			$Commande->setSubType($SubType);
+			$Commande->setTemplate('dashboard',$Template );
+			$Commande->setTemplate('mobile', $Template);
+			$Commande->save()
+		};
 		return $Commande;
 	}
 	public function preRemove() {
