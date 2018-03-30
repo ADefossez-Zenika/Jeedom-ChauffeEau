@@ -60,7 +60,7 @@ class ChauffeEau extends eqLogic {
 			$Programation[$key]["Minute"]=$minute;
 			$this->setConfiguration('programation',$Programation);
 			$this->save();
-			$this->NextStart();
+			$this->NextProg();
       			$this->refreshWidget();
 		}
 	}
@@ -78,14 +78,9 @@ class ChauffeEau extends eqLogic {
 		}
 		$replace['#cmdColor#'] = ($this->getPrimaryCategory() == '') ? '' : jeedom::getConfiguration('eqLogic:category:' . $this->getPrimaryCategory() . ':' . $vcolor);
 		$PowerTime=$this->EvaluatePowerTime();
-		$NextStart=$this->NextStart();
-		if($NextStart != null){
-			if(mktime() > $NextStart-$PowerTime)
-				$replace['#Next#'] = "Début : " . date('d/m/Y H:i',$NextStart-$PowerTime);
-			else
-				$replace['#Next#'] = "Fin : " . date('d/m/Y H:i',$NextStart);
-		}else
-			$replace['#Next#']='';
+		$NextProg=$this->NextProg();
+		$replace['#NextStart#'] = "Début : " . date('d/m/Y H:i',$NextProg-$PowerTime);
+		$replace['#NextStop#'] = "Fin : " . date('d/m/Y H:i',$NextProg);
 		$replace['#tempBallon#'] = "Température " . scenarioExpression::setTags($this->getConfiguration('TempActuel')) . "°C";
 		if ($_version == 'dview' || $_version == 'mview') {
 			$object = $this->getObject();
@@ -132,10 +127,10 @@ class ChauffeEau extends eqLogic {
 				break;
 				case 2:
 					//Mode automatique
-					$NextStart=$ChauffeEau->NextStart();
-					if($NextStart != null){
-						if(mktime() > $NextStart-$ChauffeEau->EvaluatePowerTime()){
-							if(mktime() > $NextStart){
+					$NextProg=$ChauffeEau->NextProg();
+					if($NextProg != null){
+						if(mktime() > $NextProg-$ChauffeEau->EvaluatePowerTime()){
+							if(mktime() > $NextProg){
 								$ChauffeEau->powerStop();
 								break;
 							}
@@ -189,7 +184,7 @@ class ChauffeEau extends eqLogic {
 			}
 		}
 	}
-	public function NextStart(){
+	public function NextProg(){
 		$nextTime=null;
 		foreach($this->getConfiguration('programation') as $ConigSchedule){
 			$offset=0;
