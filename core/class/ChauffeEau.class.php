@@ -82,7 +82,7 @@ class ChauffeEau extends eqLogic {
 		$replace['#NextStart#'] = "Début : " . date('d/m/Y H:i',$NextProg-$PowerTime);
 		$replace['#NextStop#'] = "Fin : " . date('d/m/Y H:i',$NextProg);
 		$_scenario = null;
-		$replace['#tempBallon#'] = "Température du ballon " . scenarioExpression::setTags($this->getConfiguration('TempActuel'),$_scenario,true) . "°C";
+		$replace['#tempBallon#'] = "Température du ballon " . jeedom::evaluateExpression($this->getConfiguration('TempActuel')) . "°C";
 		if ($_version == 'dview' || $_version == 'mview') {
 			$object = $this->getObject();
 			$replace['#name#'] = (is_object($object)) ? $object->getName() . ' - ' . $replace['#name#'] : $replace['#name#'];
@@ -136,9 +136,8 @@ class ChauffeEau extends eqLogic {
 								break;
 							}
 							if($ChauffeEau->EvaluateCondition()){
-								$_scenario = null;
-								$TempSouhaite = scenarioExpression::setTags($ChauffeEau->getConfiguration('TempSouhaite'),$_scenario,true);
-								$TempActuel= scenarioExpression::setTags($ChauffeEau->getConfiguration('TempActuel'),$_scenario,true);
+								$TempSouhaite = jeedom::evaluateExpression($ChauffeEau->getConfiguration('TempSouhaite'));
+								$TempActuel= jeedom::evaluateExpression($ChauffeEau->getConfiguration('TempActuel'));
 								if($TempActuel <=  $TempSouhaite){
 									log::add('ChauffeEau','info','Execution de '.$ChauffeEau->getHumanName());
 									$ChauffeEau->powerStart();
@@ -208,9 +207,8 @@ class ChauffeEau extends eqLogic {
 	}
 	public function EvaluatePowerTime() {
 		//Evaluation du temps necessaire au chauffage de l'eau
-		$_scenario = null;
-		$DeltaTemp = scenarioExpression::setTags($this->getConfiguration('TempSouhaite'), $_scenario, true);
-		$DeltaTemp-= scenarioExpression::setTags($this->getConfiguration('TempActuel'), $_scenario, true);
+		$DeltaTemp = jeedom::evaluateExpression($this->getConfiguration('TempSouhaite'));
+		$DeltaTemp-= jeedom::evaluateExpression($this->getConfiguration('TempActuel'));
 		$Energie=$this->getConfiguration('Capacite')*$DeltaTemp*4185;
 		$PowerTime = round($Energie/ $this->getConfiguration('Puissance'));
 		log::add('ChauffeEau','debug',$this->getHumanName().' : Temps de chauffage nécessaire pour atteindre la température souhaité est de '.$PowerTime.' s');
@@ -221,7 +219,7 @@ class ChauffeEau extends eqLogic {
 			if (isset($condition['enable']) && $condition['enable'] == 0)
 				continue;
 			$_scenario = null;
-			$expression = scenarioExpression::setTags($condition['expression'], $_scenario, true);
+			$expression = jeedom::evaluateExpression($condition['expression']);
 			$message = __('Evaluation de la condition : [', __FILE__) . trim($expression) . '] = ';
 			$result = evaluate($expression);
 			if (is_bool($result)) {
