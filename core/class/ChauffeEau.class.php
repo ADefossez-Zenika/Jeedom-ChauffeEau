@@ -265,8 +265,8 @@ class ChauffeEau extends eqLogic {
 			$Commande->setSubType($SubType);
 			$Commande->setTemplate('dashboard',$Template );
 			$Commande->setTemplate('mobile', $Template);
-			$Commande->save()
-		};
+			$Commande->save();
+		}
 		return $Commande;
 	}
 	public function preRemove() {
