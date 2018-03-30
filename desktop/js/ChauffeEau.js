@@ -210,6 +210,24 @@ $('.ProgramationAttr[data-action=add]').off().on('click',function(){
 $('.conditionAttr[data-action=add]').off().on('click',function(){
 	addCondition({},$(this).closest('.tab-pane').find('table'));
 });
+$("body").on('click', ".listAction", function() {
+	var el = $(this).closest('tr').find('.expressionAttr[data-l1key=cmd]');
+	jeedom.getSelectActionModal({}, function (result) {
+		el.value(result.human);
+		jeedom.cmd.displayActionOption(el.value(), '', function (html) {
+			el.closest('td').find('.actionOptions').html(html);
+		});
+	});
+}); 
+$("body").on('click', ".listCmdAction", function() {
+	var el = $(this).closest('tr').find('.expressionAttr[data-l1key=cmd]');
+	jeedom.cmd.getSelectModal({cmd: {type: 'action'}}, function (result) {
+		el.value(result.human);
+		jeedom.cmd.displayActionOption(el.value(), '', function (html) {
+			el.closest('td').find('.actionOptions').html(html);
+		});
+	});
+});
 $('body').on('click','.listCmdCondition',function(){
 	var el = $(this).closest('.input-group').find('.expressionAttr[data-l1key=expression]');	
 	jeedom.cmd.getSelectModal({cmd: {type: 'info'}}, function (result) {
