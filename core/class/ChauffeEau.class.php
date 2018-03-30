@@ -81,7 +81,8 @@ class ChauffeEau extends eqLogic {
 		$NextProg=$this->NextProg();
 		$replace['#NextStart#'] = "Début : " . date('d/m/Y H:i',$NextProg-$PowerTime);
 		$replace['#NextStop#'] = "Fin : " . date('d/m/Y H:i',$NextProg);
-		$replace['#tempBallon#'] = "Température du ballon " . scenarioExpression::setTags($this->getConfiguration('TempActuel'),null,true) . "°C";
+		$_scenario = null;
+		$replace['#tempBallon#'] = "Température du ballon " . scenarioExpression::setTags($this->getConfiguration('TempActuel'),$_scenario,true) . "°C";
 		if ($_version == 'dview' || $_version == 'mview') {
 			$object = $this->getObject();
 			$replace['#name#'] = (is_object($object)) ? $object->getName() . ' - ' . $replace['#name#'] : $replace['#name#'];
@@ -135,8 +136,9 @@ class ChauffeEau extends eqLogic {
 								break;
 							}
 							if($ChauffeEau->EvaluateCondition()){
-								$TempSouhaite = scenarioExpression::setTags($ChauffeEau->getConfiguration('TempSouhaite'),null,true);
-								$TempActuel= scenarioExpression::setTags($ChauffeEau->getConfiguration('TempActuel'),null,true);
+								$_scenario = null;
+								$TempSouhaite = scenarioExpression::setTags($ChauffeEau->getConfiguration('TempSouhaite'),$_scenario,true);
+								$TempActuel= scenarioExpression::setTags($ChauffeEau->getConfiguration('TempActuel'),$_scenario,true);
 								if($TempActuel <=  $TempSouhaite){
 									log::add('ChauffeEau','info','Execution de '.$ChauffeEau->getHumanName());
 									$ChauffeEau->powerStart();
@@ -206,8 +208,9 @@ class ChauffeEau extends eqLogic {
 	}
 	public function EvaluatePowerTime() {
 		//Evaluation du temps necessaire au chauffage de l'eau
-		$DeltaTemp = scenarioExpression::setTags($this->getConfiguration('TempSouhaite'),null,true);
-		$DeltaTemp-= scenarioExpression::setTags($this->getConfiguration('TempActuel'),null,true);
+		$_scenario = null;
+		$DeltaTemp = scenarioExpression::setTags($this->getConfiguration('TempSouhaite'), $_scenario, true);
+		$DeltaTemp-= scenarioExpression::setTags($this->getConfiguration('TempActuel'), $_scenario, true);
 		$Energie=$this->getConfiguration('Capacite')*$DeltaTemp*4185;
 		$PowerTime = round($Energie/ $this->getConfiguration('Puissance'));
 		log::add('ChauffeEau','debug',$this->getHumanName().' : Temps de chauffage nécessaire pour atteindre la température souhaité est de '.$PowerTime.' s');
