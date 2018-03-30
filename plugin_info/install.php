@@ -14,7 +14,7 @@ function ChauffeEau_update(){
     if($eqLogic->getConfiguration('Desactivation')!=''){
       $ActionOff[]['cmd']=$eqLogic->getConfiguration('Desactivation');
       $ActionOff[]['enable']=true;
-      $eqLogic->setConfiguration('ActionOff',$ActionOn);
+      $eqLogic->setConfiguration('ActionOff',$ActionOff);
       $eqLogic->setConfiguration('Desactivation','');
     }
 		$eqLogic->save();
