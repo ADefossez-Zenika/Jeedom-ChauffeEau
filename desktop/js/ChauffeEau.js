@@ -51,16 +51,28 @@ $('body').on( 'click','.bt_selectCmdExpression', function() {
 function saveEqLogic(_eqLogic) {
 	_eqLogic.configuration.programation=new Object();
 	_eqLogic.configuration.condition=new Object();
+	_eqLogic.configuration.ActionOn=new Object();
+	_eqLogic.configuration.ActionOff=new Object();
 	var ProgramationArray= new Array();
 	var ConditionArray= new Array();
+	var ActionOnArray= new Array();
+	var ActionOffArray= new Array();
 	$('#programationtab .ProgramationGroup').each(function( index ) {
 		ProgramationArray.push($(this).getValues('.expressionAttr')[0])
 	});
 	$('#conditiontab .ConditionGroup').each(function( index ) {
 		ConditionArray.push($(this).getValues('.expressionAttr')[0])
 	});
+	$('#actionOnTab .ActionGroup').each(function( index ) {
+		ActionOnArray.push($(this).getValues('.expressionAttr')[0])
+	});
+	$('#actionOffTab .ActionGroup').each(function( index ) {
+		ActionOffArray.push($(this).getValues('.expressionAttr')[0])
+	});
 	_eqLogic.configuration.programation=ProgramationArray;
 	_eqLogic.configuration.condition=ConditionArray;
+	_eqLogic.configuration.ActionOn=ActionOnArray;
+	_eqLogic.configuration.ActionOff=ActionOffArray;
    	return _eqLogic;
 }
 function printEqLogic(_eqLogic) {	
@@ -76,6 +88,18 @@ function printEqLogic(_eqLogic) {
 		for(var index in _eqLogic.configuration.condition) { 
 			if( (typeof _eqLogic.configuration.condition[index] === "object") && (_eqLogic.configuration.condition[index] !== null) )
 				addCondition(_eqLogic.configuration.condition[index],$('#conditiontab').find('table tbody'));
+		}
+	}
+	if (typeof(_eqLogic.configuration.ActionOn) !== 'undefined') {
+		for(var index in _eqLogic.configuration.ActionOn) { 
+			if( (typeof _eqLogic.configuration.ActionOn[index] === "object") && (_eqLogic.configuration.ActionOn[index] !== null) )
+				addAction(_eqLogic.configuration.ActionOn[index],$('#actionOnTab').find('table tbody'));
+		}
+	}
+	if (typeof(_eqLogic.configuration.ActionOff) !== 'undefined') {
+		for(var index in _eqLogic.configuration.ActionOff) { 
+			if( (typeof _eqLogic.configuration.ActionOff[index] === "object") && (_eqLogic.configuration.ActionOff[index] !== null) )
+				addAction(_eqLogic.configuration.ActionOff[index],$('#actionOffTab').find('table tbody'));
 		}
 	}
 }
@@ -153,11 +177,56 @@ function addCondition(_condition,_el) {
 		$(this).closest('tr').remove();
 	});  
 }
+function addAction(_action,  _el) {
+	var tr = $('<tr class="ActionGroup">');
+	tr.append($('<td>')
+		.append($('<input type="checkbox" class="expressionAttr" data-l1key="enable" checked/>')));		
+	tr.append($('<td>')
+		.append($('<div class="input-group">')
+			.append($('<span class="input-group-btn">')
+				.append($('<a class="btn btn-default ActionAttr btn-sm" data-action="remove">')
+					.append($('<i class="fa fa-minus-circle">'))))
+			.append($('<input class="expressionAttr form-control input-sm cmdAction" data-l1key="cmd"/>'))
+			.append($('<span class="input-group-btn">')
+				.append($('<a class="btn btn-success btn-sm listAction" title="Sélectionner un mot-clé">')
+					.append($('<i class="fa fa-tasks">')))
+				.append($('<a class="btn btn-success btn-sm listCmdAction data-type="action"">')
+					.append($('<i class="fa fa-list-alt">')))))	
+		.append($('<div class="actionOptions">')
+	       		.append($(jeedom.cmd.displayActionOption(init(_action.cmd, ''), _action.options)))));
+	_el.append(tr);
+        _el.find('tr:last').setValues(_action, '.expressionAttr');
+	_el.find('tr:last .DawnSimulatorEngine').hide();
+	$('.ActionAttr[data-action=remove]').off().on('click',function(){
+		$(this).closest('tr').remove();
+	});
+}
+$('.ActionAttr[data-action=add]').off().on('click',function(){
+	addAction({},$(this).closest('.tab-pane').find('table'));
+});
 $('.ProgramationAttr[data-action=add]').off().on('click',function(){
 	addProgramation({},$(this).closest('.tab-pane').find('table'));
 });
 $('.conditionAttr[data-action=add]').off().on('click',function(){
 	addCondition({},$(this).closest('.tab-pane').find('table'));
+});
+$("body").on('click', ".listAction", function() {
+	var el = $(this).closest('tr').find('.expressionAttr[data-l1key=cmd]');
+	jeedom.getSelectActionModal({}, function (result) {
+		el.value(result.human);
+		jeedom.cmd.displayActionOption(el.value(), '', function (html) {
+			el.closest('td').find('.actionOptions').html(html);
+		});
+	});
+}); 
+$("body").on('click', ".listCmdAction", function() {
+	var el = $(this).closest('tr').find('.expressionAttr[data-l1key=cmd]');
+	jeedom.cmd.getSelectModal({cmd: {type: 'action'}}, function (result) {
+		el.value(result.human);
+		jeedom.cmd.displayActionOption(el.value(), '', function (html) {
+			el.closest('td').find('.actionOptions').html(html);
+		});
+	});
 });
 $('body').on('click','.listCmdCondition',function(){
 	var el = $(this).closest('.input-group').find('.expressionAttr[data-l1key=expression]');	

@@ -60,7 +60,7 @@ class ChauffeEau extends eqLogic {
 			$Programation[$key]["Minute"]=$minute;
 			$this->setConfiguration('programation',$Programation);
 			$this->save();
-			$this->NextStart();
+			$this->NextProg();
       			$this->refreshWidget();
 		}
 	}
@@ -78,15 +78,10 @@ class ChauffeEau extends eqLogic {
 		}
 		$replace['#cmdColor#'] = ($this->getPrimaryCategory() == '') ? '' : jeedom::getConfiguration('eqLogic:category:' . $this->getPrimaryCategory() . ':' . $vcolor);
 		$PowerTime=$this->EvaluatePowerTime();
-		$NextStart=$this->NextStart();
-		if($NextStart != null){
-			if(mktime() > $NextStart-$PowerTime)
-				$replace['#Next#'] = "Début : " . date('d/m/Y H:i',$NextStart-$PowerTime);
-			else
-				$replace['#Next#'] = "Fin : " . date('d/m/Y H:i',$NextStart);
-		}else
-			$replace['#Next#']='';
-		$replace['#tempBallon#'] = "Temperature " . scenarioExpression::setTags($this->getConfiguration('TempActuel')) . "°C";
+		$NextProg=$this->NextProg();
+		$replace['#NextStart#'] = "Début : " . date('d/m/Y H:i',$NextProg-$PowerTime);
+		$replace['#NextStop#'] = "Fin : " . date('d/m/Y H:i',$NextProg);
+		$replace['#tempBallon#'] = "Température " . scenarioExpression::setTags($this->getConfiguration('TempActuel')) . "°C";
 		if ($_version == 'dview' || $_version == 'mview') {
 			$object = $this->getObject();
 			$replace['#name#'] = (is_object($object)) ? $object->getName() . ' - ' . $replace['#name#'] : $replace['#name#'];
@@ -132,10 +127,10 @@ class ChauffeEau extends eqLogic {
 				break;
 				case 2:
 					//Mode automatique
-					$NextStart=$ChauffeEau->NextStart();
-					if($NextStart != null){
-						if(mktime() > $NextStart-$ChauffeEau->EvaluatePowerTime()){
-							if(mktime() > $NextStart){
+					$NextProg=$ChauffeEau->NextProg();
+					if($NextProg != null){
+						if(mktime() > $NextProg-$ChauffeEau->EvaluatePowerTime()){
+							if(mktime() > $NextProg){
 								$ChauffeEau->powerStop();
 								break;
 							}
@@ -165,24 +160,31 @@ class ChauffeEau extends eqLogic {
 	public function powerStart(){
 		if(!$this->getCmd(null,'state')->execCmd()){
 			$this->checkAndUpdateCmd('state',true);
-			$Commande=cmd::byId(str_replace('#','',$this->getConfiguration('Activation')));
+			/*$Commande=cmd::byId(str_replace('#','',$this->getConfiguration('Activation')));
 			if(is_object($Commande)){
 				log::add('ChauffeEau','info','Execution de '.$Commande->getHumanName());
 				$Commande->execute();
+			}*/
+			log::add('ChauffeEau','info',$this->getHumanName().' : Alimentation électrique du chauffe-eau');
+			foreach($this->getConfiguration('ActionOn') as $cmd){
+				$this->ExecuteAction($cmd);
 			}
 		}
 	}
 	public function powerStop(){
 		if($this->getCmd(null,'state')->execCmd()){
 			$this->checkAndUpdateCmd('state',false);
-			$Commande=cmd::byId(str_replace('#','',$this->getConfiguration('Desactivation')));
+			/*$Commande=cmd::byId(str_replace('#','',$this->getConfiguration('Desactivation')));
 			if(is_object($Commande)){
-				log::add('ChauffeEau','info','Execution de '.$Commande->getHumanName());
 				$Commande->execute();
+			}*/
+			log::add('ChauffeEau','info',$this->getHumanName().' : Coupure de l\'alimentation électrique du chauffe-eau');
+			foreach($this->getConfiguration('ActionOff') as $cmd){
+				$this->ExecuteAction($cmd);
 			}
 		}
 	}
-	public function NextStart(){
+	public function NextProg(){
 		$nextTime=null;
 		foreach($this->getConfiguration('programation') as $ConigSchedule){
 			$offset=0;
@@ -236,6 +238,19 @@ class ChauffeEau extends eqLogic {
 		}
 		return true;
 	}
+	public function ExecuteAction($cmd) {
+		if (isset($cmd['enable']) && $cmd['enable'] == 0)
+			return;
+		try {
+			$options = array();
+			if (isset($cmd['options'])) 
+				$options = $cmd['options'];
+			scenarioExpression::createAndExec('action', $cmd['cmd'], $options);
+			log::add('ChauffeEau','debug','Exécution de '.$cmd['cmd']);
+		} catch (Exception $e) {
+			log::add('ChauffeEau', 'error', __('Erreur lors de l\'éxecution de ', __FILE__) . $action['cmd'] . __('. Détails : ', __FILE__) . $e->getMessage());
+		}		
+	}
 	public static function AddCommande($eqLogic,$Name,$_logicalId,$Type="info", $SubType='binary',$visible,$Template='') {
 		$Commande = $eqLogic->getCmd(null,$_logicalId);
 		if (!is_object($Commande))
@@ -244,14 +259,14 @@ class ChauffeEau extends eqLogic {
 			$Commande->setId(null);
 			$Commande->setLogicalId($_logicalId);
 			$Commande->setEqLogic_id($eqLogic->getId());
-		}
-		$Commande->setName($Name);
-		$Commande->setIsVisible($visible);
-		$Commande->setType($Type);
-		$Commande->setSubType($SubType);
-   		$Commande->setTemplate('dashboard',$Template );
-		$Commande->setTemplate('mobile', $Template);
-		$Commande->save();
+			$Commande->setName($Name);
+			$Commande->setIsVisible($visible);
+			$Commande->setType($Type);
+			$Commande->setSubType($SubType);
+			$Commande->setTemplate('dashboard',$Template );
+			$Commande->setTemplate('mobile', $Template);
+			$Commande->save()
+		};
 		return $Commande;
 	}
 	public function preRemove() {
@@ -266,10 +281,10 @@ class ChauffeEau extends eqLogic {
 		$isArmed->event(2);
 		$isArmed->setCollectDate(date('Y-m-d H:i:s'));
 		$isArmed->save();
-		$Armed=self::AddCommande($this,"Marche forcé","armed","action","other",true,'Commutateur');
+		$Armed=self::AddCommande($this,"Marche forcée","armed","action","other",true,'Commutateur');
 		$Armed->setValue($isArmed->getId());
 		$Armed->save();
-		$Released=self::AddCommande($this,"Desactiver","released","action","other",true,'Commutateur');
+		$Released=self::AddCommande($this,"Désactiver","released","action","other",true,'Commutateur');
 		$Released->setValue($isArmed->getId());
 		$Released->save();
 		$Auto=self::AddCommande($this,"Automatique","auto","action","other",true,'Commutateur');
