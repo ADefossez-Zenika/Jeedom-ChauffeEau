@@ -86,7 +86,7 @@ class ChauffeEau extends eqLogic {
 				$replace['#Next#'] = "Fin : " . date('d/m/Y H:i',$NextStart);
 		}else
 			$replace['#Next#']='';
-		$replace['#tempBallon#'] = "Temperature " . scenarioExpression::setTags($this->getConfiguration('TempActuel')) . "°C";
+		$replace['#tempBallon#'] = "Température " . scenarioExpression::setTags($this->getConfiguration('TempActuel')) . "°C";
 		if ($_version == 'dview' || $_version == 'mview') {
 			$object = $this->getObject();
 			$replace['#name#'] = (is_object($object)) ? $object->getName() . ' - ' . $replace['#name#'] : $replace['#name#'];
@@ -286,10 +286,10 @@ class ChauffeEau extends eqLogic {
 		$isArmed->event(2);
 		$isArmed->setCollectDate(date('Y-m-d H:i:s'));
 		$isArmed->save();
-		$Armed=self::AddCommande($this,"Marche forcé","armed","action","other",true,'Commutateur');
+		$Armed=self::AddCommande($this,"Marche forcée","armed","action","other",true,'Commutateur');
 		$Armed->setValue($isArmed->getId());
 		$Armed->save();
-		$Released=self::AddCommande($this,"Desactiver","released","action","other",true,'Commutateur');
+		$Released=self::AddCommande($this,"Désactiver","released","action","other",true,'Commutateur');
 		$Released->setValue($isArmed->getId());
 		$Released->save();
 		$Auto=self::AddCommande($this,"Automatique","auto","action","other",true,'Commutateur');
