@@ -165,20 +165,27 @@ class ChauffeEau extends eqLogic {
 	public function powerStart(){
 		if(!$this->getCmd(null,'state')->execCmd()){
 			$this->checkAndUpdateCmd('state',true);
-			$Commande=cmd::byId(str_replace('#','',$this->getConfiguration('Activation')));
+			/*$Commande=cmd::byId(str_replace('#','',$this->getConfiguration('Activation')));
 			if(is_object($Commande)){
 				log::add('ChauffeEau','info','Execution de '.$Commande->getHumanName());
 				$Commande->execute();
+			}*/
+			log::add('ChauffeEau','info',$this->getHumanName().' : Alimentation électrique du chauffe-eau');
+			foreach($this->getConfiguration('ActionOn') as $cmd){
+				$this->ExecuteAction($cmd);
 			}
 		}
 	}
 	public function powerStop(){
 		if($this->getCmd(null,'state')->execCmd()){
 			$this->checkAndUpdateCmd('state',false);
-			$Commande=cmd::byId(str_replace('#','',$this->getConfiguration('Desactivation')));
+			/*$Commande=cmd::byId(str_replace('#','',$this->getConfiguration('Desactivation')));
 			if(is_object($Commande)){
-				log::add('ChauffeEau','info','Execution de '.$Commande->getHumanName());
 				$Commande->execute();
+			}*/
+			log::add('ChauffeEau','info',$this->getHumanName().' : Coupure de l\'alimentation électrique du chauffe-eau');
+			foreach($this->getConfiguration('ActionOff') as $cmd){
+				$this->ExecuteAction($cmd);
 			}
 		}
 	}
@@ -235,6 +242,19 @@ class ChauffeEau extends eqLogic {
 			}
 		}
 		return true;
+	}
+	public function ExecuteAction($cmd) {
+		if (isset($cmd['enable']) && $cmd['enable'] == 0)
+			return;
+		try {
+			$options = array();
+			if (isset($cmd['options'])) 
+				$options = $cmd['options'];
+			scenarioExpression::createAndExec('action', $cmd['cmd'], $options);
+			log::add('ChauffeEau','debug','Exécution de '.$Commande->getHumanName());
+		} catch (Exception $e) {
+			log::add('ChauffeEau', 'error', __('Erreur lors de l\'éxecution de ', __FILE__) . $action['cmd'] . __('. Détails : ', __FILE__) . $e->getMessage());
+		}		
 	}
 	public static function AddCommande($eqLogic,$Name,$_logicalId,$Type="info", $SubType='binary',$visible,$Template='') {
 		$Commande = $eqLogic->getCmd(null,$_logicalId);
