@@ -6,7 +6,7 @@ Il va estimer le temps nécessaire pour une chauffe complète de votre ballon.
 Si votre installation est equipé d'une sonde de température, le plugin stopera la chauffe des qu'il attendra sa température désiré.
 Aprés l'heure programmée, le plugin stopera le chauffage et attendera le prochain crénaux reduit du temps de chauffage calculé.
 
-Paramettrage d'un chauffe-eau
+Paramètrage du plugin
 ==========  
 
 ![introduction01](../images/ConfigurationGeneral.jpg)   
@@ -62,4 +62,11 @@ Par exemple je suis en vacance, je ne veux donc pas que le chauffe-eau se declan
 Cliquer sur "Ajouter une condition" et configurer votre condition
 Chaque condition de la liste formera un ET
 
+Actions
+==========
 
+Il est possible de configurer le séquencement des actions a réaliser pour chaque phases de la commande de chauffage.
+Chaque action configurée sera exécutée dans l'ordre choisi.
+Nous pouvons aussi bien ajouter une commande qu'un scénario
+
+![introduction01](../images/ConfigurationAction.jpg)

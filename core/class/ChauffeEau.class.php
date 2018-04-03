@@ -249,7 +249,7 @@ class ChauffeEau extends eqLogic {
 			scenarioExpression::createAndExec('action', $cmd['cmd'], $options);
 			log::add('ChauffeEau','debug','Exécution de '.$cmd['cmd']);
 		} catch (Exception $e) {
-			log::add('ChauffeEau', 'error', __('Erreur lors de l\'éxecution de ', __FILE__) . $action['cmd'] . __('. Détails : ', __FILE__) . $e->getMessage());
+			log::add('ChauffeEau', 'error', __('Erreur lors de l\'éxecution de ', __FILE__) . $cmd['cmd'] . __('. Détails : ', __FILE__) . $e->getMessage());
 		}		
 	}
 	public static function AddCommande($eqLogic,$Name,$_logicalId,$Type="info", $SubType='binary',$visible,$Template='') {
