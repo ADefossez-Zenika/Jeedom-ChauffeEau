@@ -138,6 +138,10 @@ class ChauffeEau extends eqLogic {
 							if($ChauffeEau->EvaluateCondition()){
 								$TempSouhaite = jeedom::evaluateExpression($ChauffeEau->getConfiguration('TempSouhaite'));
 								$TempActuel= jeedom::evaluateExpression($ChauffeEau->getConfiguration('TempActuel'));
+								$cache = cache::byKey('ChauffeEau::NextTemp::'.$this->getId());		
+								if($cache->getValue(false) !== FALSE)
+									$ChauffeEau->Inertie($TempActuel-$cache->getValue(0));
+								cache::set('ChauffeEau::NextTemp::'.$this->getId(),$TempActuel, 0);
 								if($TempActuel <=  $TempSouhaite){
 									log::add('ChauffeEau','info','Execution de '.$ChauffeEau->getHumanName());
 									$ChauffeEau->powerStart();
@@ -207,12 +211,18 @@ class ChauffeEau extends eqLogic {
 	}
 	public function EvaluatePowerTime() {
 		//Evaluation du temps necessaire au chauffage de l'eau
+		$Inertie = cache::byKey('ChauffeEau::Inertie::'.$this->getId())->getValue(4185);
 		$DeltaTemp = jeedom::evaluateExpression($this->getConfiguration('TempSouhaite'));
 		$DeltaTemp-= jeedom::evaluateExpression($this->getConfiguration('TempActuel'));
-		$Energie=$this->getConfiguration('Capacite')*$DeltaTemp*4185;
+		$Energie=$this->getConfiguration('Capacite')*$DeltaTemp*$Inertie;
 		$PowerTime = round($Energie/ $this->getConfiguration('Puissance'));
 		log::add('ChauffeEau','debug',$this->getHumanName().' : Temps de chauffage nécessaire pour atteindre la température souhaité est de '.$PowerTime.' s');
 		return $PowerTime;
+	} 
+	public function Inertie($DeltaTemp) {
+		$Inertie=(60*$this->getConfiguration('Puissance'))/($this->getConfiguration('Capacite')*$DeltaTemp);
+		log::add('ChauffeEau','debug',$this->getHumanName().' : Capacité calorifique de l’eau dans le ballon est de '.$Inertie);
+		//cache::set('ChauffeEau::Inertie::'.$this->getId(),$Inertie, 0);
 	} 
 	public function EvaluateCondition(){
 		foreach($this->getConfiguration('condition') as $condition){		
@@ -292,6 +302,9 @@ class ChauffeEau extends eqLogic {
 		$Auto->setValue($isArmed->getId());
 		$Auto->save();
 		$this->createDeamon();
+		$cache = cache::byKey('ChauffeEau::Inertie::'.$this->getId());		
+		if(!$cache->getValue(false))
+			cache::set('ChauffeEau::Inertie::'.$this->getId(),4185, 0);
 	}
 	public function createDeamon() {
 		$cron = cron::byClassAndFunction('ChauffeEau', 'Chauffe', array('ChauffeEau_id' => $this->getId()));
