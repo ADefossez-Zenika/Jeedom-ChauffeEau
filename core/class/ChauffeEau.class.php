@@ -179,7 +179,7 @@ class ChauffeEau extends eqLogic {
 	public function NextProg(){
 		$nextTime=null;
 		foreach($this->getConfiguration('programation') as $ConigSchedule){
-			if($ConigSchedule["isSeuil"]){
+			if($ConigSchedule["isSeuil"] && $ConigSchedule[date('w')]){
 				if(jeedom::evaluateExpression($this->getConfiguration('TempActuel')) < $ConigSchedule["seuil"])
 					$nextTime=mktime();
 			}
