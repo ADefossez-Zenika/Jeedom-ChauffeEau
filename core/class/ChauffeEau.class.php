@@ -1,7 +1,7 @@
 <?php
 require_once dirname(__FILE__) . '/../../../../core/php/core.inc.php';
 class ChauffeEau extends eqLogic {
-	public static function deamon_info() {
+	/*public static function deamon_info() {
 		$return = array();
 		$return['log'] = 'ChauffeEau';
 		$return['launchable'] = 'ok';
@@ -32,6 +32,50 @@ class ChauffeEau extends eqLogic {
 			$cron = cron::byClassAndFunction('ChauffeEau', 'Chauffe', array('ChauffeEau_id' => $ChauffeEau->getId()));
 			if (is_object($cron)) 	
 				$cron->remove();
+		}
+	}*/
+	public static function cron() {	
+		foreach(eqLogic::byType('ChauffeEau') as $ChauffeEau){
+			if (!$ChauffeEau->getIsEnable()) 
+				return;
+			switch($ChauffeEau->getCmd(null,'etatCommut')->execCmd()){
+				case 1:
+					// Mode Forcée
+					$ChauffeEau->powerStart();
+				break;
+				case 2:
+					//Mode automatique
+					$NextProg=$ChauffeEau->NextProg();
+					if($NextProg != null){
+						if(mktime() > $NextProg-$ChauffeEau->EvaluatePowerTime()){
+							if(mktime() > $NextProg){
+								$ChauffeEau->powerStop();
+								break;
+							}
+							if($ChauffeEau->EvaluateCondition()){
+								$TempSouhaite = jeedom::evaluateExpression($ChauffeEau->getConfiguration('TempSouhaite'));
+								$TempActuel= jeedom::evaluateExpression($ChauffeEau->getConfiguration('TempActuel'));
+								$cache = cache::byKey('ChauffeEau::NextTemp::'.$ChauffeEau->getId());		
+								if($cache->getValue(false) !== FALSE && $TempActuel-$cache->getValue(0) > 0)
+									$ChauffeEau->Inertie($TempActuel-$cache->getValue(0));
+								cache::set('ChauffeEau::NextTemp::'.$ChauffeEau->getId(),$TempActuel, 0);
+								if($TempActuel <=  $TempSouhaite){
+									log::add('ChauffeEau','info','Execution de '.$ChauffeEau->getHumanName());
+									$ChauffeEau->powerStart();
+								}else
+									$ChauffeEau->powerStop();
+							}else
+								$ChauffeEau->powerStop();	
+						}else
+							$ChauffeEau->powerStop();
+					}else
+						$ChauffeEau->powerStop();
+				break;
+				case 3:
+					// Mode Stope
+					$ChauffeEau->powerStop();
+				break;
+			}
 		}
 	}
 	public function preSave() {
@@ -114,7 +158,7 @@ class ChauffeEau extends eqLogic {
 				$ChauffeEau->checkAndUpdateCmd('state',false);
 		}
 	}
-	public static function Chauffe($_options) {
+	/*public static function Chauffe($_options) {
 		$ChauffeEau=eqLogic::byId($_options['ChauffeEau_id']);
 		if (!is_object($ChauffeEau)) 
 			return;
@@ -138,6 +182,10 @@ class ChauffeEau extends eqLogic {
 							if($ChauffeEau->EvaluateCondition()){
 								$TempSouhaite = jeedom::evaluateExpression($ChauffeEau->getConfiguration('TempSouhaite'));
 								$TempActuel= jeedom::evaluateExpression($ChauffeEau->getConfiguration('TempActuel'));
+								$cache = cache::byKey('ChauffeEau::NextTemp::'.$ChauffeEau->getId());		
+								if($cache->getValue(false) !== FALSE)
+									$ChauffeEau->Inertie($TempActuel-$cache->getValue(0));
+								cache::set('ChauffeEau::NextTemp::'.$ChauffeEau->getId(),$TempActuel, 0);
 								if($TempActuel <=  $TempSouhaite){
 									log::add('ChauffeEau','info','Execution de '.$ChauffeEau->getHumanName());
 									$ChauffeEau->powerStart();
@@ -157,7 +205,7 @@ class ChauffeEau extends eqLogic {
 			}
 			sleep(60);
 		}
-	}
+	}*/
 	public function powerStart(){
 		if(!$this->getCmd(null,'state')->execCmd()){
 			$this->checkAndUpdateCmd('state',true);
@@ -207,12 +255,18 @@ class ChauffeEau extends eqLogic {
 	}
 	public function EvaluatePowerTime() {
 		//Evaluation du temps necessaire au chauffage de l'eau
+		$Inertie = cache::byKey('ChauffeEau::Inertie::'.$this->getId())->getValue(4185);
 		$DeltaTemp = jeedom::evaluateExpression($this->getConfiguration('TempSouhaite'));
 		$DeltaTemp-= jeedom::evaluateExpression($this->getConfiguration('TempActuel'));
-		$Energie=$this->getConfiguration('Capacite')*$DeltaTemp*4185;
+		$Energie=$this->getConfiguration('Capacite')*$DeltaTemp*$Inertie;
 		$PowerTime = round($Energie/ $this->getConfiguration('Puissance'));
 		log::add('ChauffeEau','debug',$this->getHumanName().' : Temps de chauffage nécessaire pour atteindre la température souhaité est de '.$PowerTime.' s');
 		return $PowerTime;
+	} 
+	public function Inertie($DeltaTemp) {
+		$Inertie=(60*$this->getConfiguration('Puissance'))/($this->getConfiguration('Capacite')*$DeltaTemp);
+		log::add('ChauffeEau','debug',$this->getHumanName().' : Capacité calorifique de l’eau dans le ballon est de '.$Inertie);
+		//cache::set('ChauffeEau::Inertie::'.$this->getId(),$Inertie, 0);
 	} 
 	public function EvaluateCondition(){
 		foreach($this->getConfiguration('condition') as $condition){		
@@ -292,6 +346,9 @@ class ChauffeEau extends eqLogic {
 		$Auto->setValue($isArmed->getId());
 		$Auto->save();
 		$this->createDeamon();
+		$cache = cache::byKey('ChauffeEau::Inertie::'.$this->getId());		
+		if(!$cache->getValue(false))
+			cache::set('ChauffeEau::Inertie::'.$this->getId(),4185, 0);
 	}
 	public function createDeamon() {
 		$cron = cron::byClassAndFunction('ChauffeEau', 'Chauffe', array('ChauffeEau_id' => $this->getId()));
