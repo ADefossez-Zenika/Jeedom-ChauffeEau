@@ -105,8 +105,8 @@ function printEqLogic(_eqLogic) {
 	}
 }
 function addProgramation(_programation,  _el) {
-	var Heure=$('<select class="expressionAttr form-control" data-l1key="Heure" >');
-    var Minute=$('<select class="expressionAttr form-control" data-l1key="Minute" >');
+	var Heure=$('<select class="expressionAttr form-control" data-l1key="Heure" >').hide();
+    var Minute=$('<select class="expressionAttr form-control" data-l1key="Minute" >').hide();
 	var number = 0;
     while (number < 24) {
 		Heure.append($('<option value="'+number+'">')
@@ -151,12 +151,12 @@ function addProgramation(_programation,  _el) {
 			.append($('<label class="checkbox-inline">')
 				.append($('<input type="checkbox" class="expressionAttr" data-l1key="isSeuil">'))
 				.append('{{Seuil de température}}'))
-			.append($('<input class="expressionAttr form-control input-sm" data-l1key="seuil"/>')).hide()
+			.append($('<input class="expressionAttr form-control input-sm" data-l1key="seuil"/>').hide())
 			.append($('<label class="checkbox-inline">')
 				.append($('<input type="checkbox" class="expressionAttr" data-l1key="isHoraire">'))
 				.append('{{Heure}}'))
-			.append(Heure).hide()
-			.append(Minute).hide())	
+			.append(Heure)
+			.append(Minute))	
 		.append($('<td>')
 		       	.append($('<span class="expressionAttr" data-l1key="url">')));
         _el.append(tr);
