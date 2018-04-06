@@ -8,7 +8,7 @@ class ChauffeEau extends eqLogic {
 		$return['state'] = 'nok';
 		foreach(eqLogic::byType('ChauffeEau') as $ChauffeEau){
 			if($ChauffeEau->getIsEnable()){
-				$listener = listener::byClassAndFunction('ChauffeEau', 'pull', array('ChauffeEau_id' => $this->getId()));
+				$listener = listener::byClassAndFunction('ChauffeEau', 'pull', array('ChauffeEau_id' => $ChauffeEau->getId()));
 				if (!is_object($listener))	
 					return $return;
 			}
@@ -29,7 +29,7 @@ class ChauffeEau extends eqLogic {
 	}
 	public static function deamon_stop() {	
 		foreach(eqLogic::byType('ChauffeEau') as $ChauffeEau){
-			$listener = listener::byClassAndFunction('ChauffeEau', 'pull', array('ChauffeEau_id' => $this->getId()));
+			$listener = listener::byClassAndFunction('ChauffeEau', 'pull', array('ChauffeEau_id' => $ChauffeEau->getId()));
 			if (is_object($listener)) 	
 				$listener->remove();
 		}
