@@ -105,8 +105,8 @@ function printEqLogic(_eqLogic) {
 	}
 }
 function addProgramation(_programation,  _el) {
-	var Heure=$('<select class="expressionAttr form-control" data-l1key="Heure" >').hide();
-    var Minute=$('<select class="expressionAttr form-control" data-l1key="Minute" >').hide();
+	var Heure=$('<select class="expressionAttr form-control" data-l1key="Heure" >');
+    var Minute=$('<select class="expressionAttr form-control" data-l1key="Minute" >');
 	var number = 0;
     while (number < 24) {
 		Heure.append($('<option value="'+number+'">')
@@ -151,7 +151,7 @@ function addProgramation(_programation,  _el) {
 			.append($('<label class="checkbox-inline">')
 				.append($('<input type="checkbox" class="expressionAttr" data-l1key="isSeuil">'))
 				.append('{{Seuil de température}}'))
-			.append($('<input class="expressionAttr form-control input-sm" data-l1key="seuil"/>').hide())
+			.append($('<input class="expressionAttr form-control input-sm" data-l1key="seuil"/>'))
 			.append($('<label class="checkbox-inline">')
 				.append($('<input type="checkbox" class="expressionAttr" data-l1key="isHoraire">'))
 				.append('{{Heure}}'))
@@ -159,8 +159,6 @@ function addProgramation(_programation,  _el) {
 			.append(Minute))	
 		.append($('<td>')
 		       	.append($('<span class="expressionAttr" data-l1key="url">')));
-        _el.append(tr);
-        _el.find('tr:last').setValues(_programation, '.expressionAttr');
 	$('.expressionAttr[data-l1key=isSeuil]').off().on('click',function(){
 		if($(this).is(':checked'))
 			$(this).closest('tr').find('.expressionAttr[data-l1key=seuil]').show();
@@ -179,6 +177,8 @@ function addProgramation(_programation,  _el) {
 	$('.ProgramationAttr[data-action=remove]').off().on('click',function(){
 		$(this).closest('tr').remove();
 	});
+        _el.append(tr);
+        _el.find('tr:last').setValues(_programation, '.expressionAttr');
 }
 function addCondition(_condition,_el) {
 	var tr = $('<tr class="ConditionGroup">')
