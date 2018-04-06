@@ -18,6 +18,10 @@ function ChauffeEau_update(){
 			$eqLogic->setConfiguration('Desactivation','');
 		}
 		$eqLogic->save();
+		$cron = cron::byClassAndFunction('ChauffeEau', 'Chauffe', array('ChauffeEau_id' => $eqLogic->getId()));
+		if (is_object($cron)) 	
+			$cron->remove();
+		
 	}
 	log::add('ChauffeEau','debug','Fin du script de mise a jours');
 }
