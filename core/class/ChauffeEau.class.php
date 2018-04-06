@@ -1,7 +1,7 @@
 <?php
 require_once dirname(__FILE__) . '/../../../../core/php/core.inc.php';
 class ChauffeEau extends eqLogic {
-	public static function deamon_info() {
+	/*public static function deamon_info() {
 		$return = array();
 		$return['log'] = 'ChauffeEau';
 		$return['launchable'] = 'ok';
@@ -32,6 +32,50 @@ class ChauffeEau extends eqLogic {
 			$cron = cron::byClassAndFunction('ChauffeEau', 'Chauffe', array('ChauffeEau_id' => $ChauffeEau->getId()));
 			if (is_object($cron)) 	
 				$cron->remove();
+		}
+	}*/
+	public static function cron() {	
+		foreach(eqLogic::byType('ChauffeEau') as $ChauffeEau){
+			if (!$ChauffeEau->getIsEnable()) 
+				return;
+			switch($ChauffeEau->getCmd(null,'etatCommut')->execCmd()){
+				case 1:
+					// Mode Forcée
+					$ChauffeEau->powerStart();
+				break;
+				case 2:
+					//Mode automatique
+					$NextProg=$ChauffeEau->NextProg();
+					if($NextProg != null){
+						if(mktime() > $NextProg-$ChauffeEau->EvaluatePowerTime()){
+							if(mktime() > $NextProg){
+								$ChauffeEau->powerStop();
+								break;
+							}
+							if($ChauffeEau->EvaluateCondition()){
+								$TempSouhaite = jeedom::evaluateExpression($ChauffeEau->getConfiguration('TempSouhaite'));
+								$TempActuel= jeedom::evaluateExpression($ChauffeEau->getConfiguration('TempActuel'));
+								$cache = cache::byKey('ChauffeEau::NextTemp::'.$ChauffeEau->getId());		
+								if($cache->getValue(false) !== FALSE && $TempActuel-$cache->getValue(0) > 0)
+									$ChauffeEau->Inertie($TempActuel-$cache->getValue(0));
+								cache::set('ChauffeEau::NextTemp::'.$ChauffeEau->getId(),$TempActuel, 0);
+								if($TempActuel <=  $TempSouhaite){
+									log::add('ChauffeEau','info','Execution de '.$ChauffeEau->getHumanName());
+									$ChauffeEau->powerStart();
+								}else
+									$ChauffeEau->powerStop();
+							}else
+								$ChauffeEau->powerStop();	
+						}else
+							$ChauffeEau->powerStop();
+					}else
+						$ChauffeEau->powerStop();
+				break;
+				case 3:
+					// Mode Stope
+					$ChauffeEau->powerStop();
+				break;
+			}
 		}
 	}
 	public function preSave() {
@@ -114,7 +158,7 @@ class ChauffeEau extends eqLogic {
 				$ChauffeEau->checkAndUpdateCmd('state',false);
 		}
 	}
-	public static function Chauffe($_options) {
+	/*public static function Chauffe($_options) {
 		$ChauffeEau=eqLogic::byId($_options['ChauffeEau_id']);
 		if (!is_object($ChauffeEau)) 
 			return;
@@ -161,7 +205,7 @@ class ChauffeEau extends eqLogic {
 			}
 			sleep(60);
 		}
-	}
+	}*/
 	public function powerStart(){
 		if(!$this->getCmd(null,'state')->execCmd()){
 			$this->checkAndUpdateCmd('state',true);
