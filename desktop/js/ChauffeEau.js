@@ -151,12 +151,12 @@ function addProgramation(_programation,  _el) {
 			.append($('<label class="checkbox-inline">')
 				.append($('<input type="checkbox" class="expressionAttr" data-l1key="isSeuil">'))
 				.append('{{Seuil de température}}'))
-			.append($('<input class="expressionAttr form-control input-sm" data-l1key="seuil"/>'))
+			.append($('<input class="expressionAttr form-control input-sm" data-l1key="seuil"/>')).hide()
 			.append($('<label class="checkbox-inline">')
 				.append($('<input type="checkbox" class="expressionAttr" data-l1key="isHoraire">'))
 				.append('{{Heure}}'))
-			.append(Heure)
-			.append(Minute))	
+			.append(Heure).hide()
+			.append(Minute).hide())	
 		.append($('<td>')
 		       	.append($('<span class="expressionAttr" data-l1key="url">')));
         _el.append(tr);
