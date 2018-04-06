@@ -236,20 +236,26 @@ class ChauffeEau extends eqLogic {
 	public function NextProg(){
 		$nextTime=null;
 		foreach($this->getConfiguration('programation') as $ConigSchedule){
-			$offset=0;
-			if(date('H') > $ConigSchedule["Heure"])
-				$offset++;
-			if(date('H') == $ConigSchedule["Heure"] && date('i') >= $ConigSchedule["Minute"])	
-				$offset++;
-			for($day=0;$day<7;$day++){
-				if($ConigSchedule[date('w')+$day+$offset]){
-					$offset+=$day;
-					$timestamp=mktime ($ConigSchedule["Heure"], $ConigSchedule["Minute"], 0, date("n") , date("j") , date("Y"))+ (3600 * 24) * $offset;
-					break;
-				}
+			if($ConigSchedule["isSeuil"]){
+				if(jeedom::evaluateExpression($this->getConfiguration('TempActuel')) < $ConigSchedule["seuil"])
+					$nextTime=mktime();
 			}
-			if($nextTime == null || $nextTime > $timestamp)
-				$nextTime=$timestamp;
+			if($ConigSchedule["isHoraire"]){
+				$offset=0;
+				if(date('H') > $ConigSchedule["Heure"])
+					$offset++;
+				if(date('H') == $ConigSchedule["Heure"] && date('i') >= $ConigSchedule["Minute"])	
+					$offset++;
+				for($day=0;$day<7;$day++){
+					if($ConigSchedule[date('w')+$day+$offset]){
+						$offset+=$day;
+						$timestamp=mktime ($ConigSchedule["Heure"], $ConigSchedule["Minute"], 0, date("n") , date("j") , date("Y"))+ (3600 * 24) * $offset;
+						break;
+					}
+				}
+				if($nextTime == null || $nextTime > $timestamp)
+					$nextTime=$timestamp;
+			}
 		}
 		return $nextTime;
 	}
