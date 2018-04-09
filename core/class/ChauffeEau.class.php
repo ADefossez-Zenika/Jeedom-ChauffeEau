@@ -55,10 +55,12 @@ class ChauffeEau extends eqLogic {
 							if($ChauffeEau->EvaluateCondition()){
 								$TempSouhaite = jeedom::evaluateExpression($ChauffeEau->getConfiguration('TempSouhaite'));
 								$TempActuel= jeedom::evaluateExpression($ChauffeEau->getConfiguration('TempActuel'));
-								$cache = cache::byKey('ChauffeEau::NextTemp::'.$ChauffeEau->getId());		
-								if($cache->getValue(false) !== FALSE && $TempActuel-$cache->getValue(0) > 0)
-									$ChauffeEau->Inertie($TempActuel-$cache->getValue(0));
-								cache::set('ChauffeEau::NextTemp::'.$ChauffeEau->getId(),$TempActuel, 0);
+								$cache = cache::byKey('ChauffeEau::OldTemp::'.$ChauffeEau->getId());		
+								if($cache->getValue(false) !== FALSE){
+									$DeltaTemp=$TempActuel-$cache->getValue(0);
+									$ChauffeEau->Inertie($DeltaTemp);
+								}
+								cache::set('ChauffeEau::OldTemp::'.$ChauffeEau->getId(),$TempActuel, 0);
 								if($TempActuel <=  $TempSouhaite){
 									log::add('ChauffeEau','info','Execution de '.$ChauffeEau->getHumanName());
 									$ChauffeEau->powerStart();
