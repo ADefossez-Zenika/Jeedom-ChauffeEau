@@ -58,10 +58,18 @@ class ChauffeEau extends eqLogic {
 								$cache = cache::byKey('ChauffeEau::OldTemp::'.$ChauffeEau->getId());		
 								if($cache->getValue(false) !== FALSE){
 									$DeltaTemp=$TempActuel-$cache->getValue(0);
-									if($DeltaTemp > 0)
+									if($DeltaTemp > 1){
 										$ChauffeEau->Inertie($DeltaTemp);
-								}
-								cache::set('ChauffeEau::OldTemp::'.$ChauffeEau->getId(),$TempActuel, 0);
+										cache::set('ChauffeEau::OldTemp::'.$ChauffeEau->getId(),$TempActuel, 0);
+										cache::set('ChauffeEau::EvalTime::'.$ChauffeEau->getId(),0, 0);
+									}else{
+										$EvalTime = cache::byKey('ChauffeEau::OldTemp::'.$ChauffeEau->getId())->getValue(0);
+										$EvalTime +=60;
+										cache::set('ChauffeEau::EvalTime::'.$ChauffeEau->getId(),$EvalTime, 0);
+									}
+									
+								}else
+									cache::set('ChauffeEau::OldTemp::'.$ChauffeEau->getId(),$TempActuel, 0);
 								if($TempActuel <=  $TempSouhaite){
 									log::add('ChauffeEau','info','Execution de '.$ChauffeEau->getHumanName());
 									$ChauffeEau->powerStart();
@@ -216,7 +224,10 @@ class ChauffeEau extends eqLogic {
 		return $PowerTime;
 	} 
 	public function Inertie($DeltaTemp) {
-		$Inertie=(60*$this->getConfiguration('Puissance'))/($this->getConfiguration('Capacite')*$DeltaTemp);
+		$EvalTime = cache::byKey('ChauffeEau::OldTemp::'.$ChauffeEau->getId())->getValue(0);
+		if($EvalTime == 0)
+			return;
+		$Inertie=($EvalTime*$this->getConfiguration('Puissance'))/($this->getConfiguration('Capacite')*$DeltaTemp);
 		log::add('ChauffeEau','debug',$this->getHumanName().' : Capacité calorifique de l’eau dans le ballon est de '.$Inertie);
 		//cache::set('ChauffeEau::Inertie::'.$this->getId(),$Inertie, 0);
 	} 
