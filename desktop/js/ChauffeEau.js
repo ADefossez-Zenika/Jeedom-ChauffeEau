@@ -148,15 +148,37 @@ function addProgramation(_programation,  _el) {
 				.append($('<input type="checkbox" class="expressionAttr" data-l1key="0" />'))
 				.append('{{Dimanche}}')))
 		.append($('<td>')
+			.append($('<label class="checkbox-inline">')
+				.append($('<input type="checkbox" class="expressionAttr" data-l1key="isSeuil">'))
+				.append('{{Seuil de température}}'))
+			.append($('<input class="expressionAttr form-control input-sm" data-l1key="seuil"/>'))
+			.append($('<label class="checkbox-inline">')
+				.append($('<input type="checkbox" class="expressionAttr" data-l1key="isHoraire">'))
+				.append('{{Heure}}'))
 			.append(Heure)
 			.append(Minute))	
 		.append($('<td>')
 		       	.append($('<span class="expressionAttr" data-l1key="url">')));
-        _el.append(tr);
-        _el.find('tr:last').setValues(_programation, '.expressionAttr');
+	$('.expressionAttr[data-l1key=isSeuil]').off().on('click',function(){
+		if($(this).is(':checked'))
+			$(this).closest('tr').find('.expressionAttr[data-l1key=seuil]').show();
+		else			
+			$(this).closest('tr').find('.expressionAttr[data-l1key=seuil]').hide();
+	});
+	$('.expressionAttr[data-l1key=isHoraire]').off().on('click',function(){
+		if($(this).is(':checked')){
+			$(this).closest('tr').find('.expressionAttr[data-l1key=Heure]').show();
+			$(this).closest('tr').find('.expressionAttr[data-l1key=Minute]').show();
+		}else{			
+			$(this).closest('tr').find('.expressionAttr[data-l1key=Heure]').hide();
+			$(this).closest('tr').find('.expressionAttr[data-l1key=Minute]').hide();
+		}
+	});
 	$('.ProgramationAttr[data-action=remove]').off().on('click',function(){
 		$(this).closest('tr').remove();
 	});
+        _el.append(tr);
+        _el.find('tr:last').setValues(_programation, '.expressionAttr');
 }
 function addCondition(_condition,_el) {
 	var tr = $('<tr class="ConditionGroup">')
