@@ -58,8 +58,8 @@ class ChauffeEau extends eqLogic {
 								$cache = cache::byKey('ChauffeEau::OldTemp::'.$ChauffeEau->getId());		
 								if($cache->getValue(false) !== FALSE){
 									$DeltaTemp=$TempActuel-$cache->getValue(0);
-									if($DeltaTemp > 1){
-										$ChauffeEau->Inertie($DeltaTemp);
+									if($DeltaTemp > 10){
+										$ChauffeEau->Puissance($DeltaTemp);
 										cache::set('ChauffeEau::OldTemp::'.$ChauffeEau->getId(),$TempActuel, 0);
 										cache::set('ChauffeEau::EvalTime::'.$ChauffeEau->getId(),0, 0);
 									}else{
@@ -215,21 +215,22 @@ class ChauffeEau extends eqLogic {
 	}
 	public function EvaluatePowerTime() {
 		//Evaluation du temps necessaire au chauffage de l'eau
-		$Inertie = cache::byKey('ChauffeEau::Inertie::'.$this->getId())->getValue(4185);
 		$DeltaTemp = jeedom::evaluateExpression($this->getConfiguration('TempSouhaite'));
 		$DeltaTemp-= jeedom::evaluateExpression($this->getConfiguration('TempActuel'));
-		$Energie=$this->getConfiguration('Capacite')*$DeltaTemp*$Inertie;
+		$Energie=$this->getConfiguration('Capacite')*$DeltaTemp*4185;
 		$PowerTime = round($Energie/ $this->getConfiguration('Puissance'));
 		log::add('ChauffeEau','debug',$this->getHumanName().' : Temps de chauffage nécessaire pour atteindre la température souhaité est de '.$PowerTime.' s');
 		return $PowerTime;
 	} 
-	public function Inertie($DeltaTemp) {
+	public function Puissance($DeltaTemp) {
 		$EvalTime = cache::byKey('ChauffeEau::OldTemp::'.$ChauffeEau->getId())->getValue(0);
 		if($EvalTime == 0)
 			return;
-		$Inertie=($EvalTime*$this->getConfiguration('Puissance'))/($this->getConfiguration('Capacite')*$DeltaTemp);
-		log::add('ChauffeEau','debug',$this->getHumanName().' : Capacité calorifique de l’eau dans le ballon est de '.$Inertie);
-		//cache::set('ChauffeEau::Inertie::'.$this->getId(),$Inertie, 0);
+		$Energie=$this->getConfiguration('Capacite')*$DeltaTemp*4185;
+		$Puissance=$Energie/$DeltaTemp;
+		$this->setConfiguration('Puissance',$Puissance);
+		$this->save();
+		log::add('ChauffeEau','debug',$this->getHumanName().' : La puissance estimé du ballon est de '.$Puissance);
 	} 
 	public function EvaluateCondition(){
 		foreach($this->getConfiguration('condition') as $condition){		
@@ -309,9 +310,6 @@ class ChauffeEau extends eqLogic {
 		$Auto->setValue($isArmed->getId());
 		$Auto->save();
 		$this->createDeamon();
-		$cache = cache::byKey('ChauffeEau::Inertie::'.$this->getId());		
-		if(!$cache->getValue(false))
-			cache::set('ChauffeEau::Inertie::'.$this->getId(),4185, 0);
 	}
 	public function createDeamon() {
 		if ($this->getConfiguration('Etat') != ''){
