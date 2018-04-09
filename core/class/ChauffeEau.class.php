@@ -58,7 +58,8 @@ class ChauffeEau extends eqLogic {
 								$cache = cache::byKey('ChauffeEau::OldTemp::'.$ChauffeEau->getId());		
 								if($cache->getValue(false) !== FALSE){
 									$DeltaTemp=$TempActuel-$cache->getValue(0);
-									$ChauffeEau->Inertie($DeltaTemp);
+									if($DeltaTemp > 0)
+										$ChauffeEau->Inertie($DeltaTemp);
 								}
 								cache::set('ChauffeEau::OldTemp::'.$ChauffeEau->getId(),$TempActuel, 0);
 								if($TempActuel <=  $TempSouhaite){
