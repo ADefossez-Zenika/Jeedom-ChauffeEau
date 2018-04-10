@@ -164,8 +164,6 @@ function addProgramation(_programation,  _el) {
 	});
         _el.append(tr);
         _el.find('tr:last').setValues(_programation, '.expressionAttr');
-	$(".expressionAttr[data-l1key=isSeuil]").trigger('click');
-	$(".expressionAttr[data-l1key=isHoraire]").trigger('click');
 }
 function addCondition(_condition,_el) {
 	var tr = $('<tr class="ConditionGroup">')
@@ -220,13 +218,13 @@ $('.ProgramationAttr[data-action=add]').off().on('click',function(){
 $('.conditionAttr[data-action=add]').off().on('click',function(){
 	addCondition({},$(this).closest('.tab-pane').find('table'));
 });
-$("body").on('click',".expressionAttr[data-l1key=isSeuil]",function(){
+$("body").on('change',".expressionAttr[data-l1key=isSeuil]",function(){
 	if($(this).is(':checked'))
 		$(this).closest('td').find('.expressionAttr[data-l1key=seuil]').show();
 	else			
 		$(this).closest('td').find('.expressionAttr[data-l1key=seuil]').hide();
 });
-$("body").on('click',".expressionAttr[data-l1key=isHoraire]",function(){
+$("body").on('change',".expressionAttr[data-l1key=isHoraire]",function(){
 	if($(this).is(':checked')){
 		$(this).closest('td').find('.expressionAttr[data-l1key=Heure]').show();
 		$(this).closest('td').find('.expressionAttr[data-l1key=Minute]').show();
