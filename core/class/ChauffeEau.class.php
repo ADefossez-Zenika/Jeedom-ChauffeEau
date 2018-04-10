@@ -73,8 +73,10 @@ class ChauffeEau extends eqLogic {
 								if($TempActuel <=  $TempSouhaite){
 									log::add('ChauffeEau','info','Execution de '.$ChauffeEau->getHumanName());
 									$ChauffeEau->powerStart();
-								}else
+								}else{
+									cache::set('ChauffeEau::Hysteresis::'.$ChauffeEau->getId(),false, 0);
 									$ChauffeEau->powerStop();
+								}
 							}else
 								$ChauffeEau->powerStop();	
 						}else
@@ -188,12 +190,10 @@ class ChauffeEau extends eqLogic {
 		}
 	}
 	public function NextProg(){
+		if(cache::byKey('ChauffeEau::Hysteresis::'.$this->getId())->getValue(false))
+			return mktime()+100;
 		$nextTime=null;
 		foreach($this->getConfiguration('programation') as $ConigSchedule){
-			if($ConigSchedule["isSeuil"] && $ConigSchedule[date('w')]){
-				if(jeedom::evaluateExpression($this->getConfiguration('TempActuel')) < $ConigSchedule["seuil"])
-					$nextTime=mktime();
-			}
 			if($ConigSchedule["isHoraire"]){
 				$offset=0;
 				if(date('H') > $ConigSchedule["Heure"])
@@ -207,8 +207,20 @@ class ChauffeEau extends eqLogic {
 						break;
 					}
 				}
-				if($nextTime == null || $nextTime > $timestamp)
-					$nextTime=$timestamp;
+				if($nextTime == null || $nextTime > $timestamp){
+					if($ConigSchedule["isSeuil"]){
+						if(jeedom::evaluateExpression($this->getConfiguration('TempActuel')) < $ConigSchedule["seuil"]){
+							$nextTime=mktime()+100;
+							cache::set('ChauffeEau::Hysteresis::'.$this->getId(),true, 0);
+						}
+					}else
+						$nextTime=$timestamp;
+				}
+			}elseif($ConigSchedule["isSeuil"] && $ConigSchedule[date('w')]){
+				if(jeedom::evaluateExpression($this->getConfiguration('TempActuel')) < $ConigSchedule["seuil"]){
+					$nextTime=mktime()+100;
+					cache::set('ChauffeEau::Hysteresis::'.$this->getId(),true, 0);
+				}
 			}
 		}
 		return $nextTime;
@@ -310,6 +322,7 @@ class ChauffeEau extends eqLogic {
 		$Auto->setValue($isArmed->getId());
 		$Auto->save();
 		$this->createDeamon();
+		cache::set('ChauffeEau::Hysteresis::'.$this->getId(),false, 0);
 	}
 	public function createDeamon() {
 		if ($this->getConfiguration('Etat') != ''){

@@ -2,8 +2,8 @@ $("#table_cmd").sortable({axis: "y", cursor: "move", items: ".cmd", placeholder:
 $("#table_programation").sortable({axis: "y", cursor: "move", items: ".ProgramationGroup", placeholder: "ui-state-highlight", tolerance: "intersect", forcePlaceholderSize: true});
 $("#table_condition").sortable({axis: "y", cursor: "move", items: ".ConditionGroup", placeholder: "ui-state-highlight", tolerance: "intersect", forcePlaceholderSize: true});
 $('.bt_showExpressionTest').off('click').on('click', function () {
-  $('#md_modal').dialog({title: "{{Testeur d'expression}}"});
-  $("#md_modal").load('index.php?v=d&modal=expression.test').dialog('open');
+	$('#md_modal').dialog({title: "{{Testeur d'expression}}"});
+	$("#md_modal").load('index.php?v=d&modal=expression.test').dialog('open');
 });
 function addCmdToTable(_cmd) {
 	var tr =$('<tr class="cmd" data-cmd_id="' + init(_cmd.id) + '">');
@@ -159,21 +159,6 @@ function addProgramation(_programation,  _el) {
 			.append(Minute))	
 		.append($('<td>')
 		       	.append($('<span class="expressionAttr" data-l1key="url">')));
-	$('.expressionAttr[data-l1key=isSeuil]').off().on('click',function(){
-		if($(this).is(':checked'))
-			$(this).closest('tr').find('.expressionAttr[data-l1key=seuil]').show();
-		else			
-			$(this).closest('tr').find('.expressionAttr[data-l1key=seuil]').hide();
-	});
-	$('.expressionAttr[data-l1key=isHoraire]').off().on('click',function(){
-		if($(this).is(':checked')){
-			$(this).closest('tr').find('.expressionAttr[data-l1key=Heure]').show();
-			$(this).closest('tr').find('.expressionAttr[data-l1key=Minute]').show();
-		}else{			
-			$(this).closest('tr').find('.expressionAttr[data-l1key=Heure]').hide();
-			$(this).closest('tr').find('.expressionAttr[data-l1key=Minute]').hide();
-		}
-	});
 	$('.ProgramationAttr[data-action=remove]').off().on('click',function(){
 		$(this).closest('tr').remove();
 	});
@@ -232,6 +217,21 @@ $('.ProgramationAttr[data-action=add]').off().on('click',function(){
 });
 $('.conditionAttr[data-action=add]').off().on('click',function(){
 	addCondition({},$(this).closest('.tab-pane').find('table'));
+});
+$("body").on('change',".expressionAttr[data-l1key=isSeuil]",function(){
+	if($(this).is(':checked'))
+		$(this).closest('td').find('.expressionAttr[data-l1key=seuil]').show();
+	else			
+		$(this).closest('td').find('.expressionAttr[data-l1key=seuil]').hide();
+});
+$("body").on('change',".expressionAttr[data-l1key=isHoraire]",function(){
+	if($(this).is(':checked')){
+		$(this).closest('td').find('.expressionAttr[data-l1key=Heure]').show();
+		$(this).closest('td').find('.expressionAttr[data-l1key=Minute]').show();
+	}else{			
+		$(this).closest('td').find('.expressionAttr[data-l1key=Heure]').hide();
+		$(this).closest('td').find('.expressionAttr[data-l1key=Minute]').hide();
+	}
 });
 $("body").on('click', ".listAction", function() {
 	var el = $(this).closest('tr').find('.expressionAttr[data-l1key=cmd]');
