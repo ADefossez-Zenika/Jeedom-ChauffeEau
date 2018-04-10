@@ -162,6 +162,21 @@ function addProgramation(_programation,  _el) {
 	$('.ProgramationAttr[data-action=remove]').off().on('click',function(){
 		$(this).closest('tr').remove();
 	});
+	$(".expressionAttr[data-l1key=isSeuil]").off().on('click',function(){
+		if($(this).is(':checked'))
+			$(this).closest('td').find('.expressionAttr[data-l1key=seuil]').show();
+		else			
+			$(this).closest('td').find('.expressionAttr[data-l1key=seuil]').hide();
+	});
+	$(".expressionAttr[data-l1key=isHoraire]").off().on('click',function(){
+		if($(this).is(':checked')){
+			$(this).closest('td').find('.expressionAttr[data-l1key=Heure]').show();
+			$(this).closest('td').find('.expressionAttr[data-l1key=Minute]').show();
+		}else{			
+			$(this).closest('td').find('.expressionAttr[data-l1key=Heure]').hide();
+			$(this).closest('td').find('.expressionAttr[data-l1key=Minute]').hide();
+		}
+	});
         _el.append(tr);
         _el.find('tr:last').setValues(_programation, '.expressionAttr');
 }
@@ -209,21 +224,6 @@ function addAction(_action,  _el) {
 		$(this).closest('tr').remove();
 	});
 }
-$("body").on('click','.expressionAttr[data-l1key=isSeuil]',function(){
-	if($(this).is(':checked'))
-		$(this).closest('tr').find('.expressionAttr[data-l1key=seuil]').show();
-	else			
-		$(this).closest('tr').find('.expressionAttr[data-l1key=seuil]').hide();
-});
-$("body").on('click','.expressionAttr[data-l1key=isHoraire]',function(){
-	if($(this).is(':checked')){
-		$(this).closest('tr').find('.expressionAttr[data-l1key=Heure]').show();
-		$(this).closest('tr').find('.expressionAttr[data-l1key=Minute]').show();
-	}else{			
-		$(this).closest('tr').find('.expressionAttr[data-l1key=Heure]').hide();
-		$(this).closest('tr').find('.expressionAttr[data-l1key=Minute]').hide();
-	}
-});
 $('.ActionAttr[data-action=add]').off().on('click',function(){
 	addAction({},$(this).closest('.tab-pane').find('table'));
 });
