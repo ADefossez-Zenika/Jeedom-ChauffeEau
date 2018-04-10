@@ -322,6 +322,7 @@ class ChauffeEau extends eqLogic {
 		$Auto->setValue($isArmed->getId());
 		$Auto->save();
 		$this->createDeamon();
+		cache::set('ChauffeEau::Hysteresis::'.$this->getId(),false, 0);
 	}
 	public function createDeamon() {
 		if ($this->getConfiguration('Etat') != ''){
