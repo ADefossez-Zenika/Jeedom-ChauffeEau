@@ -105,7 +105,7 @@ class ChauffeEau extends eqLogic {
 		}
 		$this->setConfiguration('programation', $Programation);
 	}
-	public function UpdateDynamic($id,$days,$heure,$minute){
+	public function UpdateDynamic($id,$days,$heure,$minute,$seuil){
 		$Programation=$this->getConfiguration('programation');
 		$key=array_search($id, array_column($Programation, 'id'));
 		if($key !== FALSE){		
@@ -113,8 +113,17 @@ class ChauffeEau extends eqLogic {
 				$Programation[$key][$day]=false;
 			foreach(str_split($days) as $day)
 				$Programation[$key][$day]=true;
-			$Programation[$key]["Heure"]=$heure;
-			$Programation[$key]["Minute"]=$minute;
+			$Programation[$key]["isSeuil"]=false;
+			$Programation[$key]["isHoraire"]=false;
+			if($heure !='' && $minute !=''){
+				$Programation[$key]["Heure"]=$heure;
+				$Programation[$key]["Minute"]=$minute;
+				$Programation[$key]["isHoraire"]=true;
+			}
+			if($seuil !=''){
+				$Programation[$key]["seuil"]=$seuil;
+				$Programation[$key]["isSeuil"]=true;
+			}
 			$this->setConfiguration('programation',$Programation);
 			$this->save();
 			$this->NextProg();
