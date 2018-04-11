@@ -24,33 +24,51 @@ Parametre du chauffe eaux
 ---
 
 * Capacité du chauffe-eau (Litre) : indiquez le volume de votre chauffe-eau
-* Puissance du chauffe-eau (Watt) : indiquez la puissance de votre chauffe-eau
+* Puissance du chauffe-eau (Watt) : indiquez la puissance de votre chauffe-eau, cette puissance sera révalué en cours d'utilisation
 * Température Souhaitée (°C) : indiquez la température à atteindre, ou saisiez une formule
 * Sélectionnez une commande ou estimez la température actuelle de l'eau : indiquez la température au moment de la chauffe ou choisissez un objet Jeedom représentant la valeur, ou saisiez une formule
 
 Controle du chauffe eau
 ---
-
-* Commande d'activation du chauffe-eau : sélectionnez la commande _on_ de votre chauffe-eau
-* Commande de désactivation du chauffe-eau : sélectionnez la commande _off_ de votre chauffe-eau
 * Commande d'etat du chauffe-eau : sélectionnez la commande d'etat de votre chauffe-eau afin de permetre au plugin de se mettre a jours
 
-Programation
+Programmation
 ==========
-Nous avans la possibilité de cree plusieurs programation  de notre chauffe eau. 
-L'heure choisi correspondera a la fin maximal du chauffage de l'eau.
-Pour chaque programation une url de reconfiguration est disponible pour le liée avec d'autre equipement.
+Nous avans la possibilité de cree plusieurs programmation  de notre chauffe eau, en fonction des jours de la semaine, de l'heure de disponibilité de l'eau chaude ou d'un seuil de température. 
+![introduction02](../images/ConfigurationProgramation.jpg)  
 
-![introduction01](../images/ConfigurationProgramation.jpg)  
+Programmation hystérésis
+---
 
+Lorsque vous sélectionnez une programmation par seuil, vous allez créer une regulation par Hystérésis, la mise en route de votre chauffage se produit dès que la température est inférieure au seuil et il s’éteint dès que la température dépasse la consigne .
+
+### Principe du mode hystérésis
+
+Par exemple, si on règle l’hystérésis à 1°C et que la valeur de consigne vaut 19°C, alors le chauffage s’active lorsque la température passe en dessous de 18°C et s’arrête dès qu’il atteint 20°C.
+
+![introduction03](../images/PrincipeHysteresis.png) 
+
+Programmation Horaire
+---
+Lorsque vous sélectionnez une programmation horaire, le chauffage de l'eau sera autorisé uniquement dans la plage horaire :
+Heure Programmé - Temps de chauffe > Chauffe > Heure Programmé.
+
+Programmation dynamique
+---
+
+Pour chaque programmation une url de reconfiguration est disponible pour le liée avec d'autre equipement.
 L'url de reprogrammation se presente sous la forme
-URL_Jeedom/plugins/ChauffeEau/core/api/jeeChauffeEau.php?apikey=APIKEY&id=ID&prog=IDcmd&day=%DAY&heure=%H&minute=%M
+URL_Jeedom/plugins/ChauffeEau/core/api/jeeChauffeEau.php?apikey=APIKEY&id=ID&prog=IDcmd&day=%DAY&heure=%H&minute=%M&seuil=%S
 Les champs "URL_Jeedom, APIKEY, ID, IDcmd sont automatiquement complété pour chaque URL.
 Il sera imperatif de personlaiser cette url en remplace les parametre par les informations a complété :
 
 - %DAY : Les jours de declanchement (0 = Dimanche, 1 = Lundi, ...)
 - %H : L'heure de declanchement du reveil
 - %M : La minite de declanchement du reveil
+- %S : Le seuil a atteindre pour délencher
+
+Si les parametres heure=%H etminute=%M sont présent dans l'url alors le plugin activera la programmation horaire
+Si le parametre seuil=%S est présent dans l'url alors le plugin activera la programmation hystérésis
 
 Condition
 ==========
