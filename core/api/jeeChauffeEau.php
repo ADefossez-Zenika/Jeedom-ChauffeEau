@@ -12,6 +12,6 @@ if (!is_object($eqlogic)) {
 if ($eqlogic->getEqType_name() != 'ChauffeEau') {
 	throw new Exception(__('Cette commande n\'est pas de type ChauffeEau : ', __FILE__) . init('id'));
 }
-$eqlogic->UpdateDynamic(init('prog'),init('day'),init('heure'),init('minute'));
+$eqlogic->UpdateDynamic(init('prog'),init('day'),init('heure'),init('minute'),init('seuil'));
 return true;
 ?>
