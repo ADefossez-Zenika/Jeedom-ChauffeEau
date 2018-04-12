@@ -63,7 +63,7 @@ class ChauffeEau extends eqLogic {
 										cache::set('ChauffeEau::OldTemp::'.$ChauffeEau->getId(),$TempActuel, 0);
 										cache::set('ChauffeEau::EvalTime::'.$ChauffeEau->getId(),0, 0);
 									}else{
-										$EvalTime = cache::byKey('ChauffeEau::OldTemp::'.$ChauffeEau->getId())->getValue(0);
+										$EvalTime = cache::byKey('ChauffeEau::EvalTime::'.$ChauffeEau->getId())->getValue(0);
 										$EvalTime +=60;
 										cache::set('ChauffeEau::EvalTime::'.$ChauffeEau->getId(),$EvalTime, 0);
 									}
@@ -248,7 +248,7 @@ class ChauffeEau extends eqLogic {
 		if($EvalTime == 0)
 			return;
 		$Energie=$this->getConfiguration('Capacite')*$DeltaTemp*4185;
-		$Puissance=$Energie/$DeltaTemp;
+		$Puissance = round($Energie/$DeltaTemp);
 		$this->setConfiguration('Puissance',$Puissance);
 		$this->save();
 		log::add('ChauffeEau','debug',$this->getHumanName().' : La puissance estimé du ballon est de '.$Puissance);
