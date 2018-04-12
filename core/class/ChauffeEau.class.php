@@ -49,9 +49,11 @@ class ChauffeEau extends eqLogic {
 					if($NextProg != null){
 						if(mktime() > $NextProg-$ChauffeEau->EvaluatePowerTime()){
 							if(mktime() > $NextProg){
+								log::add('ChauffeEau','debug',$ChauffeEau->getHumanName().' : Temps supperieur a l\'heure programmée');
 								$ChauffeEau->powerStop();
 								break;
 							}
+							log::add('ChauffeEau','debug',$ChauffeEau->getHumanName().' : Nous somme dans le bon creaeaux horaire');
 							if($ChauffeEau->EvaluateCondition()){
 								$TempSouhaite = jeedom::evaluateExpression($ChauffeEau->getConfiguration('TempSouhaite'));
 								$TempActuel= jeedom::evaluateExpression($ChauffeEau->getConfiguration('TempActuel'));
@@ -200,8 +202,9 @@ class ChauffeEau extends eqLogic {
 		}
 	}
 	public function NextProg(){
+		$PowerTime=$this->EvaluatePowerTime();
 		if(cache::byKey('ChauffeEau::Hysteresis::'.$this->getId())->getValue(false))
-			return mktime()+100;
+			return mktime()+$PowerTime;
 		$nextTime=null;
 		foreach($this->getConfiguration('programation') as $ConigSchedule){
 			if($ConigSchedule["isHoraire"]){
@@ -220,7 +223,7 @@ class ChauffeEau extends eqLogic {
 				if($nextTime == null || $nextTime > $timestamp){
 					if($ConigSchedule["isSeuil"]){
 						if(jeedom::evaluateExpression($this->getConfiguration('TempActuel')) < $ConigSchedule["seuil"]){
-							$nextTime=mktime()+100;
+							$nextTime=mktime()+$PowerTime;
 							cache::set('ChauffeEau::Hysteresis::'.$this->getId(),true, 0);
 						}
 					}else
@@ -233,6 +236,7 @@ class ChauffeEau extends eqLogic {
 				}
 			}
 		}
+		log::add('ChauffeEau','debug',$this->getHumanName().' : Le prochain disponibilité est '. date("d/m/Y H:i", $nextTime));
 		return $nextTime;
 	}
 	public function EvaluatePowerTime() {
