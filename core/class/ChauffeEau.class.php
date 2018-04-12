@@ -184,6 +184,7 @@ class ChauffeEau extends eqLogic {
 		if(!$this->getCmd(null,'state')->execCmd()){
 			$this->checkAndUpdateCmd('state',true);
 			log::add('ChauffeEau','info',$this->getHumanName().' : Alimentation électrique du chauffe-eau');
+			cache::set('ChauffeEau::OldTemp::'.$this->getId(),jeedom::evaluateExpression($this->getConfiguration('TempActuel')), 0);
 			foreach($this->getConfiguration('ActionOn') as $cmd){
 				$this->ExecuteAction($cmd);
 			}
@@ -244,7 +245,7 @@ class ChauffeEau extends eqLogic {
 		return $PowerTime;
 	} 
 	public function Puissance($DeltaTemp) {
-		$EvalTime = cache::byKey('ChauffeEau::OldTemp::'.$ChauffeEau->getId())->getValue(0);
+		$EvalTime = cache::byKey('ChauffeEau::OldTemp::'.$this->getId())->getValue(0);
 		if($EvalTime == 0)
 			return;
 		$Energie=$this->getConfiguration('Capacite')*$DeltaTemp*4185;
