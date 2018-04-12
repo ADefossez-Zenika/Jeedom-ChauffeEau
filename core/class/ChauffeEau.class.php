@@ -63,7 +63,7 @@ class ChauffeEau extends eqLogic {
 										cache::set('ChauffeEau::OldTemp::'.$ChauffeEau->getId(),$TempActuel, 0);
 										cache::set('ChauffeEau::EvalTime::'.$ChauffeEau->getId(),0, 0);
 									}else{
-										$EvalTime = cache::byKey('ChauffeEau::OldTemp::'.$ChauffeEau->getId())->getValue(0);
+										$EvalTime = cache::byKey('ChauffeEau::EvalTime::'.$ChauffeEau->getId())->getValue(0);
 										$EvalTime +=60;
 										cache::set('ChauffeEau::EvalTime::'.$ChauffeEau->getId(),$EvalTime, 0);
 									}
@@ -100,12 +100,12 @@ class ChauffeEau extends eqLogic {
 				//	$id=rand(0,32767);
 				$ConigSchedule["id"]=$id;
 			}
-			$ConigSchedule["url"] = network::getNetworkAccess('external') . '/plugins/reveil/core/api/jeeReveil.php?apikey=' . jeedom::getApiKey('reveil') . '&id=' . $this->getId() . '&prog=' . $ConigSchedule["id"] . '&day=%DAY&heure=%H&minute=%M';
+			$ConigSchedule["url"] = network::getNetworkAccess('external') . '/plugins/reveil/core/api/jeeReveil.php?apikey=' . jeedom::getApiKey('reveil') . '&id=' . $this->getId() . '&prog=' . $ConigSchedule["id"] . '&day=%DAY&heure=%H&minute=%M&seuil=%S';
 			$Programation[$key]=$ConigSchedule;
 		}
 		$this->setConfiguration('programation', $Programation);
 	}
-	public function UpdateDynamic($id,$days,$heure,$minute){
+	public function UpdateDynamic($id,$days,$heure,$minute,$seuil){
 		$Programation=$this->getConfiguration('programation');
 		$key=array_search($id, array_column($Programation, 'id'));
 		if($key !== FALSE){		
@@ -113,8 +113,17 @@ class ChauffeEau extends eqLogic {
 				$Programation[$key][$day]=false;
 			foreach(str_split($days) as $day)
 				$Programation[$key][$day]=true;
-			$Programation[$key]["Heure"]=$heure;
-			$Programation[$key]["Minute"]=$minute;
+			$Programation[$key]["isSeuil"]=false;
+			$Programation[$key]["isHoraire"]=false;
+			if($heure !='' && $minute !=''){
+				$Programation[$key]["Heure"]=$heure;
+				$Programation[$key]["Minute"]=$minute;
+				$Programation[$key]["isHoraire"]=true;
+			}
+			if($seuil !=''){
+				$Programation[$key]["seuil"]=$seuil;
+				$Programation[$key]["isSeuil"]=true;
+			}
 			$this->setConfiguration('programation',$Programation);
 			$this->save();
 			$this->NextProg();
@@ -175,6 +184,7 @@ class ChauffeEau extends eqLogic {
 		if(!$this->getCmd(null,'state')->execCmd()){
 			$this->checkAndUpdateCmd('state',true);
 			log::add('ChauffeEau','info',$this->getHumanName().' : Alimentation électrique du chauffe-eau');
+			cache::set('ChauffeEau::OldTemp::'.$this->getId(),jeedom::evaluateExpression($this->getConfiguration('TempActuel')), 0);
 			foreach($this->getConfiguration('ActionOn') as $cmd){
 				$this->ExecuteAction($cmd);
 			}
@@ -235,11 +245,11 @@ class ChauffeEau extends eqLogic {
 		return $PowerTime;
 	} 
 	public function Puissance($DeltaTemp) {
-		$EvalTime = cache::byKey('ChauffeEau::OldTemp::'.$ChauffeEau->getId())->getValue(0);
+		$EvalTime = cache::byKey('ChauffeEau::OldTemp::'.$this->getId())->getValue(0);
 		if($EvalTime == 0)
 			return;
 		$Energie=$this->getConfiguration('Capacite')*$DeltaTemp*4185;
-		$Puissance=$Energie/$DeltaTemp;
+		$Puissance = round($Energie/$DeltaTemp);
 		$this->setConfiguration('Puissance',$Puissance);
 		$this->save();
 		log::add('ChauffeEau','debug',$this->getHumanName().' : La puissance estimé du ballon est de '.$Puissance);
