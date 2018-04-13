@@ -22,6 +22,12 @@ function ChauffeEau_update(){
 		if (is_object($cron)) 	
 			$cron->remove();*/
 		
+		$cache = cache::byKey('ChauffeEau::OldTemp::'.$this->getId());
+		if (is_object($cache)) 	
+			$cache->remove();
+		$cache = cache::byKey('ChauffeEau::EvalTime::'.$this->getId());
+		if (is_object($cache)) 	
+			$cache->remove();
 	}
 	log::add('ChauffeEau','debug','Fin du script de mise a jours');
 }
