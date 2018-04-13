@@ -67,9 +67,9 @@ class ChauffeEau extends eqLogic {
 									$ChauffeEau->EvaluatePowerStop($DeltaTemp);
 								}
 							}else
-								$ChauffeEau->>EvaluatePowerStop($DeltaTemp);	
+								$ChauffeEau->EvaluatePowerStop($DeltaTemp);	
 						}else
-							$ChauffeEau->>EvaluatePowerStop($DeltaTemp);;
+							$ChauffeEau->EvaluatePowerStop($DeltaTemp);
 					}else
 						$ChauffeEau->PowerStop();
 				break;
@@ -191,10 +191,8 @@ class ChauffeEau extends eqLogic {
 	}
 	public function EvaluatePowerStop($DeltaTemp){
 		$StartTime = cache::byKey('ChauffeEau::Start::Time::'.$this->getId());		
-		if($StartTime->getValue(false) !== FALSE)
-			return false;
 		if($DeltaTemp > 1){
-			$DeltaTime=time()-$StartTime;
+			$DeltaTime=time()-$StartTime->getValue(0);
 			$this->Puissance($DeltaTemp,$DeltaTime);
 		}	
 		$this->PowerStop();
