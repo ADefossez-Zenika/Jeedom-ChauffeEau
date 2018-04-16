@@ -47,48 +47,35 @@ class ChauffeEau extends eqLogic {
 					//Mode automatique
 					$NextProg=$ChauffeEau->NextProg();
 					if($NextProg != null){
+						$TempSouhaite = jeedom::evaluateExpression($ChauffeEau->getConfiguration('TempSouhaite'));
+						$TempActuel= jeedom::evaluateExpression($ChauffeEau->getConfiguration('TempActuel'));
+						$StartTemps = cache::byKey('ChauffeEau::Start::Temps::'.$ChauffeEau->getId());
+						$DeltaTemp=$StartTemps->getValue(0)-$TempActuel;
 						if(mktime() > $NextProg-$ChauffeEau->EvaluatePowerTime()){
 							if(mktime() > $NextProg){
 								log::add('ChauffeEau','debug',$ChauffeEau->getHumanName().' : Temps supperieur a l\'heure programmée');
-								$ChauffeEau->powerStop();
+								$ChauffeEau->PowerStop();
 								break;
 							}
 							log::add('ChauffeEau','debug',$ChauffeEau->getHumanName().' : Nous somme dans le bon creaeaux horaire');
 							if($ChauffeEau->EvaluateCondition()){
-								$TempSouhaite = jeedom::evaluateExpression($ChauffeEau->getConfiguration('TempSouhaite'));
-								$TempActuel= jeedom::evaluateExpression($ChauffeEau->getConfiguration('TempActuel'));
-								$cache = cache::byKey('ChauffeEau::OldTemp::'.$ChauffeEau->getId());		
-								if($cache->getValue(false) !== FALSE){
-									$DeltaTemp=$TempActuel-$cache->getValue(0);
-									if($DeltaTemp > 10){
-										$ChauffeEau->Puissance($DeltaTemp);
-										cache::set('ChauffeEau::OldTemp::'.$ChauffeEau->getId(),$TempActuel, 0);
-										cache::set('ChauffeEau::EvalTime::'.$ChauffeEau->getId(),0, 0);
-									}else{
-										$EvalTime = cache::byKey('ChauffeEau::EvalTime::'.$ChauffeEau->getId())->getValue(0);
-										$EvalTime +=60;
-										cache::set('ChauffeEau::EvalTime::'.$ChauffeEau->getId(),$EvalTime, 0);
-									}
-									
-								}else
-									cache::set('ChauffeEau::OldTemp::'.$ChauffeEau->getId(),$TempActuel, 0);
 								if($TempActuel <=  $TempSouhaite){
 									log::add('ChauffeEau','info','Execution de '.$ChauffeEau->getHumanName());
 									$ChauffeEau->powerStart();
 								}else{
 									cache::set('ChauffeEau::Hysteresis::'.$ChauffeEau->getId(),false, 0);
-									$ChauffeEau->powerStop();
+									$ChauffeEau->EvaluatePowerStop($DeltaTemp);
 								}
 							}else
-								$ChauffeEau->powerStop();	
+								$ChauffeEau->EvaluatePowerStop($DeltaTemp);	
 						}else
-							$ChauffeEau->powerStop();
+							$ChauffeEau->EvaluatePowerStop($DeltaTemp);
 					}else
-						$ChauffeEau->powerStop();
+						$ChauffeEau->PowerStop();
 				break;
 				case 3:
 					// Mode Stope
-					$ChauffeEau->powerStop();
+					$ChauffeEau->PowerStop();
 				break;
 			}
 		}
@@ -186,13 +173,14 @@ class ChauffeEau extends eqLogic {
 		if(!$this->getCmd(null,'state')->execCmd()){
 			$this->checkAndUpdateCmd('state',true);
 			log::add('ChauffeEau','info',$this->getHumanName().' : Alimentation électrique du chauffe-eau');
-			cache::set('ChauffeEau::OldTemp::'.$this->getId(),jeedom::evaluateExpression($this->getConfiguration('TempActuel')), 0);
+			cache::set('ChauffeEau::Start::Temps::'.$this->getId(),jeedom::evaluateExpression($this->getConfiguration('TempActuel')), 0);
+			cache::set('ChauffeEau::Start::Time::'.$this->getId(),time(), 0);
 			foreach($this->getConfiguration('ActionOn') as $cmd){
 				$this->ExecuteAction($cmd);
 			}
 		}
 	}
-	public function powerStop(){
+	public function PowerStop(){
 		if($this->getCmd(null,'state')->execCmd()){
 			$this->checkAndUpdateCmd('state',false);
 			log::add('ChauffeEau','info',$this->getHumanName().' : Coupure de l\'alimentation électrique du chauffe-eau');
@@ -201,10 +189,17 @@ class ChauffeEau extends eqLogic {
 			}
 		}
 	}
+	public function EvaluatePowerStop($DeltaTemp){
+		$StartTime = cache::byKey('ChauffeEau::Start::Time::'.$this->getId());		
+		if($DeltaTemp > 1){
+			$DeltaTime=time()-$StartTime->getValue(0);
+			$this->Puissance($DeltaTemp,$DeltaTime);
+		}	
+		$this->PowerStop();
+	}
 	public function NextProg(){
-		$PowerTime=$this->EvaluatePowerTime();
 		if(cache::byKey('ChauffeEau::Hysteresis::'.$this->getId())->getValue(false))
-			return mktime()+$PowerTime;
+			return mktime()+$this->EvaluatePowerTime();
 		$nextTime=null;
 		foreach($this->getConfiguration('programation') as $ConigSchedule){
 			if($ConigSchedule["isHoraire"]){
@@ -217,18 +212,16 @@ class ChauffeEau extends eqLogic {
 					if($ConigSchedule[date('w')+$day+$offset]){
 						$offset+=$day;
 						$timestamp=mktime ($ConigSchedule["Heure"], $ConigSchedule["Minute"], 0, date("n") , date("j") , date("Y"))+ (3600 * 24) * $offset;
+						if($ConigSchedule["isSeuil"]){
+							if(jeedom::evaluateExpression($this->getConfiguration('TempActuel')) > $ConigSchedule["seuil"])
+								return mktime()-60;
+							cache::set('ChauffeEau::Hysteresis::'.$this->getId(),true, 0);
+						}
 						break;
 					}
 				}
-				if($nextTime == null || $nextTime > $timestamp){
-					if($ConigSchedule["isSeuil"]){
-						if(jeedom::evaluateExpression($this->getConfiguration('TempActuel')) < $ConigSchedule["seuil"]){
-							$nextTime=mktime()+$PowerTime;
-							cache::set('ChauffeEau::Hysteresis::'.$this->getId(),true, 0);
-						}
-					}else
-						$nextTime=$timestamp;
-				}
+				if($nextTime == null || $nextTime > $timestamp)
+					$nextTime=$timestamp;
 			}elseif($ConigSchedule["isSeuil"] && $ConigSchedule[date('w')]){
 				if(jeedom::evaluateExpression($this->getConfiguration('TempActuel')) < $ConigSchedule["seuil"]){
 					$nextTime=mktime()+100;
@@ -244,20 +237,34 @@ class ChauffeEau extends eqLogic {
 		$DeltaTemp = jeedom::evaluateExpression($this->getConfiguration('TempSouhaite'));
 		$DeltaTemp-= jeedom::evaluateExpression($this->getConfiguration('TempActuel'));
 		$Energie=$this->getConfiguration('Capacite')*$DeltaTemp*4185;
-		$PowerTime = round($Energie/ $this->getConfiguration('Puissance'));
+		$PowerTime = round($Energie/ $this->getPuissance());
 		log::add('ChauffeEau','debug',$this->getHumanName().' : Temps de chauffage nécessaire pour atteindre la température souhaité est de '.$PowerTime.' s');
 		return $PowerTime;
 	} 
-	public function Puissance($DeltaTemp) {
-		$EvalTime = cache::byKey('ChauffeEau::OldTemp::'.$this->getId())->getValue(0);
-		if($EvalTime == 0)
-			return;
+	public function Puissance($DeltaTemp,$DeltaTime) {
 		$Energie=$this->getConfiguration('Capacite')*$DeltaTemp*4185;
-		$Puissance = round($Energie/$DeltaTemp);
-		$this->setConfiguration('Puissance',$Puissance);
-		$this->save();
+		$Puissance = round($Energie/$DeltaTime);
+		$this->setPuissance($Puissance);
+		/*$this->setConfiguration('Puissance',$Puissance);
+		$this->save();*/
 		log::add('ChauffeEau','debug',$this->getHumanName().' : La puissance estimé du ballon est de '.$Puissance);
 	} 
+	public function setPuissance($Puissance) {
+		$cache = cache::byKey('ChauffeEau::Puissance::'.$this->getId());
+		$value = json_decode($cache->getValue('[]'), true);
+		$ecart=$Puissance *30/100;
+		$moyenne=$this->getPuissance();
+		if($moyenne > $Puissance-$ecart && $moyenne < $Puissance+$ecart){
+			$value[] =$Puissance;
+			cache::set('ChauffeEau::Puissance::'.$this->getId(), json_encode(array_slice($value, -10, 10)), 0);
+		}
+	}
+	public function getPuissance() {
+		$cache = cache::byKey('ChauffeEau::Puissance::'.$this->getId());
+		$value = json_decode($cache->getValue('[]'), true);
+		$value[] = $this->getConfiguration('Puissance');
+		return array_sum($value)/count($value);
+	}
 	public function EvaluateCondition(){
 		foreach($this->getConfiguration('condition') as $condition){		
 			if (isset($condition['enable']) && $condition['enable'] == 0)
