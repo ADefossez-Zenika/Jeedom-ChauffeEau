@@ -212,18 +212,16 @@ class ChauffeEau extends eqLogic {
 					if($ConigSchedule[date('w')+$day+$offset]){
 						$offset+=$day;
 						$timestamp=mktime ($ConigSchedule["Heure"], $ConigSchedule["Minute"], 0, date("n") , date("j") , date("Y"))+ (3600 * 24) * $offset;
+						if($ConigSchedule["isSeuil"]){
+							if(jeedom::evaluateExpression($this->getConfiguration('TempActuel')) > $ConigSchedule["seuil"])
+								return mktime()-60;
+							cache::set('ChauffeEau::Hysteresis::'.$this->getId(),true, 0);
+						}
 						break;
 					}
 				}
-				if($nextTime == null || $nextTime > $timestamp){
-					if($ConigSchedule["isSeuil"]){
-						if(jeedom::evaluateExpression($this->getConfiguration('TempActuel')) < $ConigSchedule["seuil"]){
-							$nextTime=mktime()+$this->EvaluatePowerTime();
-							cache::set('ChauffeEau::Hysteresis::'.$this->getId(),true, 0);
-						}
-					}else
-						$nextTime=$timestamp;
-				}
+				if($nextTime == null || $nextTime > $timestamp)
+					$nextTime=$timestamp;
 			}elseif($ConigSchedule["isSeuil"] && $ConigSchedule[date('w')]){
 				if(jeedom::evaluateExpression($this->getConfiguration('TempActuel')) < $ConigSchedule["seuil"]){
 					$nextTime=mktime()+100;
