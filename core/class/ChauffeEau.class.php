@@ -198,9 +198,8 @@ class ChauffeEau extends eqLogic {
 		$this->PowerStop();
 	}
 	public function NextProg(){
-		$PowerTime=$this->EvaluatePowerTime();
 		if(cache::byKey('ChauffeEau::Hysteresis::'.$this->getId())->getValue(false))
-			return mktime()+$PowerTime;
+			return mktime()+$this->EvaluatePowerTime();
 		$nextTime=null;
 		foreach($this->getConfiguration('programation') as $ConigSchedule){
 			if($ConigSchedule["isHoraire"]){
@@ -219,7 +218,7 @@ class ChauffeEau extends eqLogic {
 				if($nextTime == null || $nextTime > $timestamp){
 					if($ConigSchedule["isSeuil"]){
 						if(jeedom::evaluateExpression($this->getConfiguration('TempActuel')) < $ConigSchedule["seuil"]){
-							$nextTime=mktime()+$PowerTime;
+							$nextTime=mktime()+$this->EvaluatePowerTime();
 							cache::set('ChauffeEau::Hysteresis::'.$this->getId(),true, 0);
 						}
 					}else
@@ -240,17 +239,34 @@ class ChauffeEau extends eqLogic {
 		$DeltaTemp = jeedom::evaluateExpression($this->getConfiguration('TempSouhaite'));
 		$DeltaTemp-= jeedom::evaluateExpression($this->getConfiguration('TempActuel'));
 		$Energie=$this->getConfiguration('Capacite')*$DeltaTemp*4185;
-		$PowerTime = round($Energie/ $this->getConfiguration('Puissance'));
+		$PowerTime = round($Energie/ $this->getPuissance());
 		log::add('ChauffeEau','debug',$this->getHumanName().' : Temps de chauffage nécessaire pour atteindre la température souhaité est de '.$PowerTime.' s');
 		return $PowerTime;
 	} 
 	public function Puissance($DeltaTemp,$DeltaTime) {
 		$Energie=$this->getConfiguration('Capacite')*$DeltaTemp*4185;
 		$Puissance = round($Energie/$DeltaTime);
-		$this->setConfiguration('Puissance',$Puissance);
-		$this->save();
+		$this->setPuissance($Puissance);
+		/*$this->setConfiguration('Puissance',$Puissance);
+		$this->save();*/
 		log::add('ChauffeEau','debug',$this->getHumanName().' : La puissance estimé du ballon est de '.$Puissance);
 	} 
+	public function setPuissance($Puissance) {
+		$cache = cache::byKey('ChauffeEau::Puissance::'.$this->getId());
+		$value = json_decode($cache->getValue('[]'), true);
+		$ecart=$Puissance *30/100;
+		$moyenne=$this->getPuissance();
+		if($moyenne > $Puissance-$ecart && $moyenne < $Puissance+$ecart){
+			$value[] =$Puissance;
+			cache::set('ChauffeEau::Puissance::'.$this->getId(), json_encode(array_slice($value, -10, 10)), 0);
+		}
+	}
+	public function getPuissance() {
+		$cache = cache::byKey('ChauffeEau::Puissance::'.$this->getId());
+		$value = json_decode($cache->getValue('[]'), true);
+		$value[] = $this->getConfiguration('Puissance');
+		return array_sum($value)/count($value);
+	}
 	public function EvaluateCondition(){
 		foreach($this->getConfiguration('condition') as $condition){		
 			if (isset($condition['enable']) && $condition['enable'] == 0)
