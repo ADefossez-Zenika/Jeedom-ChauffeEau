@@ -29,8 +29,7 @@ foreach ($eqLogics as $eqLogic) {
 	echo '<td>';
 	echo $eqLogic->getPuissance() . 'W';
 	$cache = cache::byKey('ChauffeEau::Puissance::'.$eqLogic->getId());
-	$value = json_decode($cache->getValue('[]'), true);
-	echo '<div onload="Graph('.$value.');" ></div>';
+	echo '<div onload="Graph('.$cache->getValue('[]').');" ></div>';
 	echo '</td>';
 	echo '<td><span class="label label-info" style="font-size : 1em;cursor:default;">' . $eqLogic->getStatus('lastCommunication') . '</span></td>';
 	echo '<td><span class="label label-info" style="font-size : 1em;cursor:default;">' . $eqLogic->getConfiguration('createtime') . '</span></td></tr>';
