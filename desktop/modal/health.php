@@ -26,10 +26,74 @@ foreach ($eqLogics as $eqLogic) {
 		$status = '<span class="label label-danger" style="font-size : 1em;cursor:default;">{{NOK}}</span>';
 	}
 	echo '<td>' . $status . '</td>';
-	echo '<td>' . $eqLogic->getPuissance() . 'W</td>';
+	echo '<td>';
+	echo $eqLogic->getPuissance() . 'W';
+	$cache = cache::byKey('ChauffeEau::Puissance::'.$eqLogic->getId());
+	$value = json_decode($cache->getValue('[]'), true);
+	echo '<div onload="Graph('.$value.');" ></div>';
+	echo '</td>';
 	echo '<td><span class="label label-info" style="font-size : 1em;cursor:default;">' . $eqLogic->getStatus('lastCommunication') . '</span></td>';
 	echo '<td><span class="label label-info" style="font-size : 1em;cursor:default;">' . $eqLogic->getConfiguration('createtime') . '</span></td></tr>';
 }
 ?>
 	</tbody>
 </table>
+<script>
+
+function Graph(puissance) {
+	var Series = [{
+		step: true,
+		name: '{{Variation puissance}}',
+		data: puissance,
+		type: 'line',
+		marker: {
+			enabled: false
+		},
+		tooltip: {
+			valueDecimals: 2
+		},
+	}];
+	drawSimpleGraph('SeqLumGraph', Series);
+}
+function drawSimpleGraph(_el, _serie) {
+    new Highcharts.chart({
+      	title:{
+          text:"Simulation"
+        },
+        chart: {
+            zoomType: 'x',
+            renderTo: _el,
+            height: 350,
+            spacingTop: 0,
+            spacingLeft: 0,
+            spacingRight: 0,
+            spacingBottom: 0
+        },
+        credits: {
+            text: 'Copyright Jeedom',
+            href: 'http://jeedom.fr',
+        },
+        navigator: {
+            enabled: false
+        },
+        tooltip: {
+            pointFormat: '<span style="color:{series.color}">{series.name}</span>: <b>{point.y}</b><br/>',
+            valueDecimals: 2,
+        },
+	legend: {
+		enabled:false
+	},
+        yAxis: {
+            format: '{value}',
+            showEmpty: false,
+            showLastLabel: true,
+            min: 0,
+            labels: {
+                align: 'right',
+                x: -5
+            }
+        },
+        series: _serie
+    });
+}
+</script>
