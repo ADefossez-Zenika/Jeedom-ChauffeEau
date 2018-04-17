@@ -5,6 +5,10 @@ $('.bt_showExpressionTest').off('click').on('click', function () {
 	$('#md_modal').dialog({title: "{{Testeur d'expression}}"});
 	$("#md_modal").load('index.php?v=d&modal=expression.test').dialog('open');
 });
+$('#bt_healthChauffeEau').on('click', function () {
+	$('#md_modal').dialog({title: "{{Santé des Chauffe-Eau}}"});
+	$('#md_modal').load('index.php?v=d&plugin=ChauffeEau&modal=health').dialog('open');
+});
 function addCmdToTable(_cmd) {
 	var tr =$('<tr class="cmd" data-cmd_id="' + init(_cmd.id) + '">');
 	tr.append($('<td>')
