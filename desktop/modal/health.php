@@ -19,7 +19,7 @@ $eqLogics = ChauffeEau::byType('ChauffeEau');
 	<tbody>
 	 <?php
 foreach ($eqLogics as $eqLogic) {
-	cho '<td><span class="label label-info" style="font-size : 1em; cursor : default;">' . $eqLogic->getId() . '</span></td>';
+	echo '<td><span class="label label-info" style="font-size : 1em; cursor : default;">' . $eqLogic->getId() . '</span></td>';
 	echo '<td><span class="label label-info" style="font-size : 1em; cursor : default;">' . $eqLogic->getName() . '</span></td>';
 	$status = '<span class="label label-success" style="font-size : 1em;cursor:default;">{{OK}}</span>';
 	if ($eqLogic->getStatus('state') == 'nok') {
