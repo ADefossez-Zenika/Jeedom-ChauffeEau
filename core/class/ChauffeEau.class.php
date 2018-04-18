@@ -51,13 +51,14 @@ class ChauffeEau extends eqLogic {
 						$TempActuel= jeedom::evaluateExpression($ChauffeEau->getConfiguration('TempActuel'));
 						$StartTemps = cache::byKey('ChauffeEau::Start::Temps::'.$ChauffeEau->getId());
 						$DeltaTemp=$StartTemps->getValue(0)-$TempActuel;
-						if(mktime() > $NextProg-$ChauffeEau->EvaluatePowerTime()){
+						$PowerTime=$ChauffeEau->EvaluatePowerTime();
+						if(mktime() > $NextProg-$PowerTime){
 							if(mktime() > $NextProg){
 								log::add('ChauffeEau','debug',$ChauffeEau->getHumanName().' : Temps supperieur a l\'heure programmée');
 								$ChauffeEau->PowerStop();
 								break;
 							}
-							log::add('ChauffeEau','debug',$ChauffeEau->getHumanName().' : Nous somme dans le bon creaeaux horaire');
+							log::add('ChauffeEau','debug',$this->getHumanName().' : Temps de chauffage nécessaire pour atteindre la température souhaité est de '.$PowerTime.' s');
 							if($ChauffeEau->EvaluateCondition()){
 								if($TempActuel <=  $TempSouhaite){
 									log::add('ChauffeEau','info','Execution de '.$ChauffeEau->getHumanName());
@@ -190,12 +191,14 @@ class ChauffeEau extends eqLogic {
 		}
 	}
 	public function EvaluatePowerStop($DeltaTemp){
-		$StartTime = cache::byKey('ChauffeEau::Start::Time::'.$this->getId());		
-		if($DeltaTemp > 1){
-			$DeltaTime=time()-$StartTime->getValue(0);
-			$this->Puissance($DeltaTemp,$DeltaTime);
-		}	
-		$this->PowerStop();
+		if($this->getCmd(null,'state')->execCmd()){
+			$StartTime = cache::byKey('ChauffeEau::Start::Time::'.$this->getId());		
+			if($DeltaTemp > 1){
+				$DeltaTime=time()-$StartTime->getValue(0);
+				$this->Puissance($DeltaTemp,$DeltaTime);
+			}	
+			$this->PowerStop();
+		}
 	}
 	public function NextProg(){
 		if(cache::byKey('ChauffeEau::Hysteresis::'.$this->getId())->getValue(false))
@@ -238,7 +241,7 @@ class ChauffeEau extends eqLogic {
 		$DeltaTemp-= jeedom::evaluateExpression($this->getConfiguration('TempActuel'));
 		$Energie=$this->getConfiguration('Capacite')*$DeltaTemp*4185;
 		$PowerTime = round($Energie/ $this->getPuissance());
-		log::add('ChauffeEau','debug',$this->getHumanName().' : Temps de chauffage nécessaire pour atteindre la température souhaité est de '.$PowerTime.' s');
+		$this->refreshWidget();
 		return $PowerTime;
 	} 
 	public function Puissance($DeltaTemp,$DeltaTime) {
