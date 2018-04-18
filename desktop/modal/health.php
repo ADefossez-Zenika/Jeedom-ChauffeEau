@@ -40,11 +40,11 @@ foreach ($eqLogics as $eqLogic) {
 <script>
 $(function(){
 	$('.Graph').each(function(){
-		var data= $.parseJSON($(this).attr('data-graph'));
+		var json= $.parseJSON($(this).attr('data-graph'));
 		var Series = [{
 			step: true,
 			name: '{{Variation puissance}}',
-			data: data,
+			data: json,
 			type: 'line',
 			marker: {
 				enabled: false
@@ -53,7 +53,8 @@ $(function(){
 				valueDecimals: 2
 			},
 		}];
-		drawSimpleGraph($(this), Series);
+		if(json.length > 0)
+			drawSimpleGraph($(this), Series);
 	});
 });
 function drawSimpleGraph(_el, _serie) {
