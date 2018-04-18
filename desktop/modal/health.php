@@ -55,7 +55,7 @@ $(function(){
 		}];
 		drawSimpleGraph($(this), Series);
 	});
-}
+});
 function drawSimpleGraph(_el, _serie) {
     new Highcharts.chart({
       	title:{
