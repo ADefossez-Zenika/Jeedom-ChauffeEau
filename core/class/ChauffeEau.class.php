@@ -58,7 +58,7 @@ class ChauffeEau extends eqLogic {
 								$ChauffeEau->PowerStop();
 								break;
 							}
-							log::add('ChauffeEau','debug',$this->getHumanName().' : Temps de chauffage nécessaire pour atteindre la température souhaité est de '.$PowerTime.' s');
+							log::add('ChauffeEau','debug',$ChauffeEau->getHumanName().' : Temps de chauffage nécessaire pour atteindre la température souhaité est de '.$PowerTime.' s');
 							if($ChauffeEau->EvaluateCondition()){
 								if($TempActuel <=  $TempSouhaite){
 									log::add('ChauffeEau','info','Execution de '.$ChauffeEau->getHumanName());
@@ -347,6 +347,9 @@ class ChauffeEau extends eqLogic {
 		$Auto->save();
 		$this->createDeamon();
 		cache::set('ChauffeEau::Hysteresis::'.$this->getId(),false, 0);
+		$cache = cache::byKey('ChauffeEau::Puissance::'.$this->getId());
+		if(count(json_decode($cache->getValue('[]'), true)))
+			cache::set('ChauffeEau::Puissance::'.$this->getId(), json_encode(array_slice(array($this->getConfiguration('Puissance')), -10, 10)), 0);
 	}
 	public function createDeamon() {
 		if ($this->getConfiguration('Etat') != ''){
