@@ -29,7 +29,7 @@ foreach ($eqLogics as $eqLogic) {
 	echo '<td>';
 	echo $eqLogic->getPuissance() . 'W';
 	$cache = cache::byKey('ChauffeEau::Puissance::'.$eqLogic->getId());
-	echo '<div id="GraphPuissance" onload="Graph('.$cache->getValue('[]').');" ></div>';
+	echo '<div onload="Graph('.$cache->getValue('[]').');" ></div>';
 	echo '</td>';
 	echo '<td><span class="label label-info" style="font-size : 1em;cursor:default;">' . $eqLogic->getStatus('lastCommunication') . '</span></td>';
 	echo '<td><span class="label label-info" style="font-size : 1em;cursor:default;">' . $eqLogic->getConfiguration('createtime') . '</span></td></tr>';
@@ -40,6 +40,7 @@ foreach ($eqLogics as $eqLogic) {
 <script>
 
 function Graph(puissance) {
+	alert('test');
 	var Series = [{
 		step: true,
 		name: '{{Variation puissance}}',
@@ -52,7 +53,7 @@ function Graph(puissance) {
 			valueDecimals: 2
 		},
 	}];
-	drawSimpleGraph('GraphPuissance', Series);
+	drawSimpleGraph($(this), Series);
 }
 function drawSimpleGraph(_el, _serie) {
     new Highcharts.chart({
