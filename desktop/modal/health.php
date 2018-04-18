@@ -40,11 +40,11 @@ foreach ($eqLogics as $eqLogic) {
 <script>
 $(function(){
 	$('.Graph').each(function(){
-		alert('test');
+		var data= $.parseJSON($(this).attr('data-graph'));
 		var Series = [{
 			step: true,
 			name: '{{Variation puissance}}',
-			data: $(this).attr('data-graph'),
+			data: data,
 			type: 'line',
 			marker: {
 				enabled: false
