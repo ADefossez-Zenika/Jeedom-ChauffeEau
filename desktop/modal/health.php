@@ -11,7 +11,7 @@ $eqLogics = ChauffeEau::byType('ChauffeEau');
 			<th>{{ID}}</th>
 			<th>{{Nom}}</th>
 			<th>{{Statut}}</th>
-			<th>{{Puissance éstimé}}</th>
+			<th>{{Puissance estimée}}</th>
 			<th>{{Dernière communication}}</th>
 			<th>{{Date création}}</th>
 		</tr>
