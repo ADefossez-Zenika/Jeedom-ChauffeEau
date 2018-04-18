@@ -135,10 +135,10 @@ class ChauffeEau extends eqLogic {
 		$replace['#cmdColor#'] = ($this->getPrimaryCategory() == '') ? '' : jeedom::getConfiguration('eqLogic:category:' . $this->getPrimaryCategory() . ':' . $vcolor);
 		$PowerTime=$this->EvaluatePowerTime();
 		$NextProg=$this->NextProg();
-		$replace['#NextStart#'] = "Début : " . date('d/m/Y H:i',$NextProg-$PowerTime);
-		$replace['#NextStop#'] = "Fin : " . date('d/m/Y H:i',$NextProg);
-		$_scenario = null;
-		$replace['#tempBallon#'] = "Température du ballon " . jeedom::evaluateExpression($this->getConfiguration('TempActuel')) . "°C";
+		$replace['#NextStart#'] = date('d/m/Y H:i',$NextProg-$PowerTime);
+		$replace['#NextStop#'] = date('d/m/Y H:i',$NextProg);
+		$replace['#Consigne#'] = jeedom::evaluateExpression($this->getConfiguration('TempSouhaite'));
+		$replace['#tempBallon#'] = jeedom::evaluateExpression($this->getConfiguration('TempActuel'));
 		if ($_version == 'dview' || $_version == 'mview') {
 			$object = $this->getObject();
 			$replace['#name#'] = (is_object($object)) ? $object->getName() . ' - ' . $replace['#name#'] : $replace['#name#'];
@@ -273,7 +273,6 @@ class ChauffeEau extends eqLogic {
 		foreach($this->getConfiguration('condition') as $condition){		
 			if (isset($condition['enable']) && $condition['enable'] == 0)
 				continue;
-			$_scenario = null;
 			$expression = jeedom::evaluateExpression($condition['expression']);
 			$message = __('Evaluation de la condition : [', __FILE__) . trim($expression) . '] = ';
 			$result = evaluate($expression);
