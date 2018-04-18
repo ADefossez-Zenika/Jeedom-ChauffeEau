@@ -267,7 +267,7 @@ class ChauffeEau extends eqLogic {
 		$cache = cache::byKey('ChauffeEau::Puissance::'.$this->getId());
 		$value = json_decode($cache->getValue('[]'), true);
 		$value[] = $this->getConfiguration('Puissance');
-		return array_sum($value)/count($value);
+		return round(array_sum($value)/count($value),0);
 	}
 	public function EvaluateCondition(){
 		foreach($this->getConfiguration('condition') as $condition){		
