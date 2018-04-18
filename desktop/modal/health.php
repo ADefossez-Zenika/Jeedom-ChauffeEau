@@ -29,7 +29,7 @@ foreach ($eqLogics as $eqLogic) {
 	echo '<td>';
 	echo $eqLogic->getPuissance() . 'W';
 	$cache = cache::byKey('ChauffeEau::Puissance::'.$eqLogic->getId());
-	echo '<div onload="Graph('.$cache->getValue('[]').');" ></div>';
+	echo '<div class="Graph" data-graph="'.$cache->getValue('[]').'"></div>';
 	echo '</td>';
 	echo '<td><span class="label label-info" style="font-size : 1em;cursor:default;">' . $eqLogic->getStatus('lastCommunication') . '</span></td>';
 	echo '<td><span class="label label-info" style="font-size : 1em;cursor:default;">' . $eqLogic->getConfiguration('createtime') . '</span></td></tr>';
@@ -38,22 +38,25 @@ foreach ($eqLogics as $eqLogic) {
 	</tbody>
 </table>
 <script>
-
-function Graph(puissance) {
-	var Series = [{
-		step: true,
-		name: '{{Variation puissance}}',
-		data: puissance,
-		type: 'line',
-		marker: {
-			enabled: false
-		},
-		tooltip: {
-			valueDecimals: 2
-		},
-	}];
-	drawSimpleGraph('SeqLumGraph', Series);
-}
+$(function(){
+	$('.Graph').each(function(){
+		var json= $.parseJSON($(this).attr('data-graph'));
+		var Series = [{
+			step: true,
+			name: '{{Variation puissance}}',
+			data: json,
+			type: 'line',
+			marker: {
+				enabled: false
+			},
+			tooltip: {
+				valueDecimals: 2
+			},
+		}];
+		if(json.length > 0)
+			drawSimpleGraph($(this), Series);
+	});
+});
 function drawSimpleGraph(_el, _serie) {
     new Highcharts.chart({
       	title:{
@@ -62,7 +65,7 @@ function drawSimpleGraph(_el, _serie) {
         chart: {
             zoomType: 'x',
             renderTo: _el,
-            height: 350,
+            height: 100,
             spacingTop: 0,
             spacingLeft: 0,
             spacingRight: 0,
