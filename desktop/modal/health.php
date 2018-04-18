@@ -27,9 +27,8 @@ foreach ($eqLogics as $eqLogic) {
 	}
 	echo '<td>' . $status . '</td>';
 	echo '<td>';
-	echo $eqLogic->getPuissance() . 'W';
 	$cache = cache::byKey('ChauffeEau::Puissance::'.$eqLogic->getId());
-	echo '<div class="Graph" data-graph="'.$cache->getValue('[]').'"></div>';
+	echo '<div class="Graph" id="Graph_'. $eqLogic->getId().'" data-graph="'.$cache->getValue('[]').'" data-title="'.$eqLogic->getPuissance() . 'W"></div>';
 	echo '</td>';
 	echo '<td><span class="label label-info" style="font-size : 1em;cursor:default;">' . $eqLogic->getStatus('lastCommunication') . '</span></td>';
 	echo '<td><span class="label label-info" style="font-size : 1em;cursor:default;">' . $eqLogic->getConfiguration('createtime') . '</span></td></tr>';
@@ -42,8 +41,8 @@ $(function(){
 	$('.Graph').each(function(){
 		var json= $.parseJSON($(this).attr('data-graph'));
 		var Series = [{
-			step: true,
-			name: '{{Variation puissance}}',
+			step: false,
+			name: $(this).attr('data-title'),
 			data: json,
 			type: 'line',
 			marker: {
@@ -54,13 +53,13 @@ $(function(){
 			},
 		}];
 		if(json.length > 0)
-			drawSimpleGraph($(this), Series);
+			drawSimpleGraph($(this).attr('id'),$(this).attr('data-title'), Series);
 	});
 });
-function drawSimpleGraph(_el, _serie) {
+function drawSimpleGraph(_el,_name, _serie) {
     new Highcharts.chart({
       	title:{
-          text:"Simulation"
+          text:_name
         },
         chart: {
             zoomType: 'x',
@@ -78,6 +77,11 @@ function drawSimpleGraph(_el, _serie) {
         navigator: {
             enabled: false
         },
+        navigation:{
+          buttonOptions:{
+          	enabled:false
+          }
+        },
         tooltip: {
             pointFormat: '<span style="color:{series.color}">{series.name}</span>: <b>{point.y}</b><br/>',
             valueDecimals: 2,
@@ -89,7 +93,6 @@ function drawSimpleGraph(_el, _serie) {
             format: '{value}',
             showEmpty: false,
             showLastLabel: true,
-            min: 0,
             labels: {
                 align: 'right',
                 x: -5
