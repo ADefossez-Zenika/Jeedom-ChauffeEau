@@ -38,22 +38,23 @@ foreach ($eqLogics as $eqLogic) {
 	</tbody>
 </table>
 <script>
-
-$('.Graph').each(function(){
-	alert('test');
-	var Series = [{
-		step: true,
-		name: '{{Variation puissance}}',
-		data: $(this).attr('data-graph'),
-		type: 'line',
-		marker: {
-			enabled: false
-		},
-		tooltip: {
-			valueDecimals: 2
-		},
-	}];
-	drawSimpleGraph($(this), Series);
+$(function(){
+	$('.Graph').each(function(){
+		alert('test');
+		var Series = [{
+			step: true,
+			name: '{{Variation puissance}}',
+			data: $(this).attr('data-graph'),
+			type: 'line',
+			marker: {
+				enabled: false
+			},
+			tooltip: {
+				valueDecimals: 2
+			},
+		}];
+		drawSimpleGraph($(this), Series);
+	});
 }
 function drawSimpleGraph(_el, _serie) {
     new Highcharts.chart({
