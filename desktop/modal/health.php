@@ -29,7 +29,7 @@ foreach ($eqLogics as $eqLogic) {
 	echo '<td>';
 	echo $eqLogic->getPuissance() . 'W';
 	$cache = cache::byKey('ChauffeEau::Puissance::'.$eqLogic->getId());
-	echo '<div onload="Graph('.$cache->getValue('[]').');" ></div>';
+	echo '<div class="Graph" data-graph="'.$cache->getValue('[]').'"></div>';
 	echo '</td>';
 	echo '<td><span class="label label-info" style="font-size : 1em;cursor:default;">' . $eqLogic->getStatus('lastCommunication') . '</span></td>';
 	echo '<td><span class="label label-info" style="font-size : 1em;cursor:default;">' . $eqLogic->getConfiguration('createtime') . '</span></td></tr>';
@@ -39,12 +39,12 @@ foreach ($eqLogics as $eqLogic) {
 </table>
 <script>
 
-function Graph(puissance) {
+$('.Graph').each(function(){
 	alert('test');
 	var Series = [{
 		step: true,
 		name: '{{Variation puissance}}',
-		data: puissance,
+		data: $(this).attr('data-graph'),
 		type: 'line',
 		marker: {
 			enabled: false
