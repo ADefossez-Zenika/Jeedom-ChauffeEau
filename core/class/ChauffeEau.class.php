@@ -232,7 +232,7 @@ class ChauffeEau extends eqLogic {
 				}
 			}
 		}
-		log::add('ChauffeEau','debug',$this->getHumanName().' : Le prochain disponibilité est '. date("d/m/Y H:i", $nextTime));
+		//log::add('ChauffeEau','debug',$this->getHumanName().' : Le prochain disponibilité est '. date("d/m/Y H:i", $nextTime));
 		return $nextTime;
 	}
 	public function EvaluatePowerTime() {
