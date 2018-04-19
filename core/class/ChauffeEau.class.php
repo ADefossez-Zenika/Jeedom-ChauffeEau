@@ -192,9 +192,10 @@ class ChauffeEau extends eqLogic {
 	}
 	public function EvaluatePowerStop($DeltaTemp){
 		if($this->getCmd(null,'state')->execCmd()){
-			$StartTime = cache::byKey('ChauffeEau::Start::Time::'.$this->getId());		
+			$StartTime = cache::byKey('ChauffeEau::Start::Time::'.$this->getId());	
 			if($DeltaTemp > 1){
 				$DeltaTime=time()-$StartTime->getValue(0);
+				log::add('ChauffeEau','info',$this->getHumanName().' : Le chauffe eau a montée de '.$DeltaTemp.'°C sur une periode de '.$DeltaTime.'s');
 				$this->Puissance($DeltaTemp,$DeltaTime);
 			}	
 			$this->PowerStop();
