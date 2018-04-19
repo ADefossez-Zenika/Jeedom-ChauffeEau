@@ -52,7 +52,7 @@ class ChauffeEau extends eqLogic {
 						$StartTemps = cache::byKey('ChauffeEau::Start::Temps::'.$ChauffeEau->getId());
 						$DeltaTemp=$StartTemps->getValue(0)-$TempActuel;
 						$PowerTime=$ChauffeEau->EvaluatePowerTime();
-						if(mktime() > $NextProg-$PowerTime){
+						if(mktime() > $NextProg-$PowerTime+60){	//Heure actuel > Heure de dispo - Temps de chauffe + Pas d'integration
 							if(mktime() > $NextProg){
 								log::add('ChauffeEau','debug',$ChauffeEau->getHumanName().' : Temps supperieur a l\'heure programmée');
 								$ChauffeEau->PowerStop();
@@ -192,9 +192,10 @@ class ChauffeEau extends eqLogic {
 	}
 	public function EvaluatePowerStop($DeltaTemp){
 		if($this->getCmd(null,'state')->execCmd()){
-			$StartTime = cache::byKey('ChauffeEau::Start::Time::'.$this->getId());		
+			$StartTime = cache::byKey('ChauffeEau::Start::Time::'.$this->getId());	
 			if($DeltaTemp > 1){
 				$DeltaTime=time()-$StartTime->getValue(0);
+				log::add('ChauffeEau','info',$this->getHumanName().' : Le chauffe eau a montée de '.$DeltaTemp.'°C sur une periode de '.$DeltaTime.'s');
 				$this->Puissance($DeltaTemp,$DeltaTime);
 			}	
 			$this->PowerStop();
