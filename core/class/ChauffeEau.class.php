@@ -52,7 +52,7 @@ class ChauffeEau extends eqLogic {
 						$StartTemps = cache::byKey('ChauffeEau::Start::Temps::'.$ChauffeEau->getId());
 						$DeltaTemp=$StartTemps->getValue(0)-$TempActuel;
 						$PowerTime=$ChauffeEau->EvaluatePowerTime();
-						if(mktime() > $NextProg-$PowerTime){
+						if(mktime() > $NextProg-$PowerTime+60){	//Heure actuel > Heure de dispo - Temps de chauffe + Pas d'integration
 							if(mktime() > $NextProg){
 								log::add('ChauffeEau','debug',$ChauffeEau->getHumanName().' : Temps supperieur a l\'heure programmée');
 								$ChauffeEau->PowerStop();
