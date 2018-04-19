@@ -35,6 +35,11 @@ class ChauffeEau extends eqLogic {
 		}
 	}
 	public static function cron() {	
+		$deamon_info = self::deamon_info();
+		if ($deamon_info['launchable'] != 'ok') 
+			return;
+		if ($deamon_info['state'] != 'ok') 
+			return;
 		foreach(eqLogic::byType('ChauffeEau') as $ChauffeEau){
 			if (!$ChauffeEau->getIsEnable()) 
 				return;
@@ -164,10 +169,7 @@ class ChauffeEau extends eqLogic {
 				$ChauffeEau->checkAndUpdateCmd('etatCommut',3);
 			/*if($_option['value'] && $ChauffeEau->getCmd(null,'state')->execCmd())
 				$ChauffeEau->checkAndUpdateCmd('etatCommut',2);*/
-			if($_option['value'])
-				$ChauffeEau->checkAndUpdateCmd('state',true);
-			else
-				$ChauffeEau->checkAndUpdateCmd('state',false);
+			$ChauffeEau->checkAndUpdateCmd('state',$_option['value']);
 		}
 	}
 	public function powerStart(){
