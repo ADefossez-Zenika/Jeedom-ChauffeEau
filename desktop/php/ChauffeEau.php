@@ -83,11 +83,11 @@ $eqLogics = eqLogic::byType('ChauffeEau');
 			</li>
 			<li role="presentation" class="">
 				<a href="#programationtab" aria-controls="profile" role="tab" data-toggle="tab" aria-expanded="false">
-					<i class="fa fa-map"></i> {{Programmation}}</a>
+					<i class="fa fa-calendar"></i> {{Programmation}}</a>
 			</li>
 			<li role="presentation">
 				<a href="#conditiontab" aria-controls="profile" role="tab" data-toggle="tab" aria-expanded="false">
-					<i class="fa fa-list-alt"></i> {{Conditions d'exécution}}</a>
+					<i class="fa fa-asterisk"></i> {{Conditions}}</a>
 			</li>
 			<li role="presentation">
 				<a href="#actionOnTab" aria-controls="profile" role="tab" data-toggle="tab" aria-expanded="false">
