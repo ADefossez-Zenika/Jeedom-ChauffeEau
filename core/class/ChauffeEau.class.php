@@ -35,6 +35,11 @@ class ChauffeEau extends eqLogic {
 		}
 	}
 	public static function cron() {	
+		$deamon_info = self::deamon_info();
+		if ($deamon_info['launchable'] != 'ok') 
+			return;
+		if ($deamon_info['state'] != 'ok') 
+			return;
 		foreach(eqLogic::byType('ChauffeEau') as $ChauffeEau){
 			if (!$ChauffeEau->getIsEnable()) 
 				return;
@@ -164,10 +169,7 @@ class ChauffeEau extends eqLogic {
 				$ChauffeEau->checkAndUpdateCmd('etatCommut',3);
 			/*if($_option['value'] && $ChauffeEau->getCmd(null,'state')->execCmd())
 				$ChauffeEau->checkAndUpdateCmd('etatCommut',2);*/
-			if($_option['value'])
-				$ChauffeEau->checkAndUpdateCmd('state',true);
-			else
-				$ChauffeEau->checkAndUpdateCmd('state',false);
+			$ChauffeEau->checkAndUpdateCmd('state',$_option['value']);
 		}
 	}
 	public function powerStart(){
@@ -349,7 +351,7 @@ class ChauffeEau extends eqLogic {
 		$this->createDeamon();
 		cache::set('ChauffeEau::Hysteresis::'.$this->getId(),false, 0);
 		$cache = cache::byKey('ChauffeEau::Puissance::'.$this->getId());
-		if(count(json_decode($cache->getValue('[]'), true)))
+		if(count(json_decode($cache->getValue('[]'), true)) == 0)
 			cache::set('ChauffeEau::Puissance::'.$this->getId(), json_encode(array_slice(array($this->getConfiguration('Puissance')), -10, 10)), 0);
 	}
 	public function createDeamon() {
