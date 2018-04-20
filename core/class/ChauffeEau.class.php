@@ -269,7 +269,7 @@ class ChauffeEau extends eqLogic {
 	public function getPuissance() {
 		$cache = cache::byKey('ChauffeEau::Puissance::'.$this->getId());
 		$value = json_decode($cache->getValue('[]'), true);
-		$value[] = trim($this->getConfiguration('Puissance'));
+		$value[] = intval(trim($this->getConfiguration('Puissance')));
 		return round(array_sum($value)/count($value),0);
 	}
 	public function EvaluateCondition(){
@@ -352,7 +352,7 @@ class ChauffeEau extends eqLogic {
 		cache::set('ChauffeEau::Hysteresis::'.$this->getId(),false, 0);
 		$cache = cache::byKey('ChauffeEau::Puissance::'.$this->getId());
 		if(count(json_decode($cache->getValue('[]'), true)) == 0)
-			cache::set('ChauffeEau::Puissance::'.$this->getId(), json_encode(array_slice(array(trim($this->getConfiguration('Puissance'))), -10, 10)), 0);
+			cache::set('ChauffeEau::Puissance::'.$this->getId(), json_encode(array_slice(array(intval(trim($this->getConfiguration('Puissance')))), -10, 10)), 0);
 	}
 	public function createDeamon() {
 		if ($this->getConfiguration('Etat') != ''){
