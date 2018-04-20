@@ -46,7 +46,7 @@ class ChauffeEau extends eqLogic {
 			switch($ChauffeEau->getCmd(null,'etatCommut')->execCmd()){
 				case 1:
 					// Mode Forcée
-					$ChauffeEau->powerStart();
+					$ChauffeEau->PowerStart();
 				break;
 				case 2:
 					//Mode automatique
@@ -64,10 +64,13 @@ class ChauffeEau extends eqLogic {
 								break;
 							}
 							log::add('ChauffeEau','debug',$ChauffeEau->getHumanName().' : Temps de chauffage nécessaire pour atteindre la température souhaité est de '.$PowerTime.' s');
+							$StartTime = cache::byKey('ChauffeEau::Start::Time::'.$ChauffeEau->getId());	
+							$DeltaTime=time()-$StartTime->getValue(0);
+							log::add('ChauffeEau','info',$ChauffeEau->getHumanName().' : Le chauffe eau a montée de '.$DeltaTemp.'°C sur une periode de '.$DeltaTime.'s');
 							if($ChauffeEau->EvaluateCondition()){
 								if($TempActuel <=  $TempSouhaite){
 									log::add('ChauffeEau','info','Execution de '.$ChauffeEau->getHumanName());
-									$ChauffeEau->powerStart();
+									$ChauffeEau->PowerStart();
 								}else{
 									cache::set('ChauffeEau::Hysteresis::'.$ChauffeEau->getId(),false, 0);
 									$ChauffeEau->EvaluatePowerStop($DeltaTemp);
@@ -163,7 +166,7 @@ class ChauffeEau extends eqLogic {
 	public static function pull($_option) {
 		$ChauffeEau = Volets::byId($_option['ChauffeEau_id']);
 		if (is_object($ChauffeEau) && $ChauffeEau->getIsEnable()) {
-			if($_option['value'] && !$ChauffeEau->getCmd(null,'state')->execCmd())
+			/*if($_option['value'] && !$ChauffeEau->getCmd(null,'state')->execCmd())
 				$ChauffeEau->checkAndUpdateCmd('etatCommut',1);
 			if(!$_option['value'] && $ChauffeEau->getCmd(null,'state')->execCmd())
 				$ChauffeEau->checkAndUpdateCmd('etatCommut',3);
@@ -172,9 +175,9 @@ class ChauffeEau extends eqLogic {
 			$ChauffeEau->checkAndUpdateCmd('state',$_option['value']);
 		}
 	}
-	public function powerStart(){
+	public function PowerStart(){
 		if(!$this->getCmd(null,'state')->execCmd()){
-			$this->checkAndUpdateCmd('state',true);
+			//$this->checkAndUpdateCmd('state',true);
 			log::add('ChauffeEau','info',$this->getHumanName().' : Alimentation électrique du chauffe-eau');
 			cache::set('ChauffeEau::Start::Temps::'.$this->getId(),jeedom::evaluateExpression($this->getConfiguration('TempActuel')), 0);
 			cache::set('ChauffeEau::Start::Time::'.$this->getId(),time(), 0);
@@ -185,7 +188,7 @@ class ChauffeEau extends eqLogic {
 	}
 	public function PowerStop(){
 		if($this->getCmd(null,'state')->execCmd()){
-			$this->checkAndUpdateCmd('state',false);
+			//$this->checkAndUpdateCmd('state',false);
 			log::add('ChauffeEau','info',$this->getHumanName().' : Coupure de l\'alimentation électrique du chauffe-eau');
 			foreach($this->getConfiguration('ActionOff') as $cmd){
 				$this->ExecuteAction($cmd);
@@ -269,7 +272,7 @@ class ChauffeEau extends eqLogic {
 	public function getPuissance() {
 		$cache = cache::byKey('ChauffeEau::Puissance::'.$this->getId());
 		$value = json_decode($cache->getValue('[]'), true);
-		$value[] = $this->getConfiguration('Puissance');
+		$value[] = intval(trim($this->getConfiguration('Puissance')));
 		return round(array_sum($value)/count($value),0);
 	}
 	public function EvaluateCondition(){
@@ -352,7 +355,7 @@ class ChauffeEau extends eqLogic {
 		cache::set('ChauffeEau::Hysteresis::'.$this->getId(),false, 0);
 		$cache = cache::byKey('ChauffeEau::Puissance::'.$this->getId());
 		if(count(json_decode($cache->getValue('[]'), true)) == 0)
-			cache::set('ChauffeEau::Puissance::'.$this->getId(), json_encode(array_slice(array($this->getConfiguration('Puissance')), -10, 10)), 0);
+			cache::set('ChauffeEau::Puissance::'.$this->getId(), json_encode(array_slice(array(intval(trim($this->getConfiguration('Puissance')))), -10, 10)), 0);
 	}
 	public function createDeamon() {
 		if ($this->getConfiguration('Etat') != ''){
