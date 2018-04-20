@@ -177,7 +177,8 @@ class ChauffeEau extends eqLogic {
 	}
 	public function PowerStart(){
 		if(!$this->getCmd(null,'state')->execCmd()){
-			//$this->checkAndUpdateCmd('state',true);
+			if($this->getConfiguration('Etat') == '')
+				$this->checkAndUpdateCmd('state',true);
 			log::add('ChauffeEau','info',$this->getHumanName().' : Alimentation électrique du chauffe-eau');
 			cache::set('ChauffeEau::Start::Temps::'.$this->getId(),jeedom::evaluateExpression($this->getConfiguration('TempActuel')), 0);
 			cache::set('ChauffeEau::Start::Time::'.$this->getId(),time(), 0);
@@ -188,7 +189,8 @@ class ChauffeEau extends eqLogic {
 	}
 	public function PowerStop(){
 		if($this->getCmd(null,'state')->execCmd()){
-			//$this->checkAndUpdateCmd('state',false);
+			if($this->getConfiguration('Etat') == '')
+				$this->checkAndUpdateCmd('state',false);
 			log::add('ChauffeEau','info',$this->getHumanName().' : Coupure de l\'alimentation électrique du chauffe-eau');
 			foreach($this->getConfiguration('ActionOff') as $cmd){
 				$this->ExecuteAction($cmd);
