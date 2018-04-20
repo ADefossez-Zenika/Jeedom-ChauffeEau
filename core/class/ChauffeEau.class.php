@@ -64,6 +64,9 @@ class ChauffeEau extends eqLogic {
 								break;
 							}
 							log::add('ChauffeEau','debug',$ChauffeEau->getHumanName().' : Temps de chauffage nécessaire pour atteindre la température souhaité est de '.$PowerTime.' s');
+							$StartTime = cache::byKey('ChauffeEau::Start::Time::'.$ChauffeEau->getId());	
+							$DeltaTime=time()-$StartTime->getValue(0);
+							log::add('ChauffeEau','info',$ChauffeEau->getHumanName().' : Le chauffe eau a montée de '.$DeltaTemp.'°C sur une periode de '.$DeltaTime.'s');
 							if($ChauffeEau->EvaluateCondition()){
 								if($TempActuel <=  $TempSouhaite){
 									log::add('ChauffeEau','info','Execution de '.$ChauffeEau->getHumanName());
