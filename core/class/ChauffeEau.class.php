@@ -54,8 +54,6 @@ class ChauffeEau extends eqLogic {
 					if($NextProg != null){
 						$TempSouhaite = jeedom::evaluateExpression($ChauffeEau->getConfiguration('TempSouhaite'));
 						$TempActuel= jeedom::evaluateExpression($ChauffeEau->getConfiguration('TempActuel'));
-						$StartTemps = cache::byKey('ChauffeEau::Start::Temps::'.$ChauffeEau->getId());
-						$DeltaTemp=$StartTemps->getValue(0)-$TempActuel;
 						$PowerTime=$ChauffeEau->EvaluatePowerTime();
 						if(mktime() > $NextProg-$PowerTime+60){	//Heure actuel > Heure de dispo - Temps de chauffe + Pas d'integration
 							if(mktime() > $NextProg){
@@ -64,21 +62,18 @@ class ChauffeEau extends eqLogic {
 								break;
 							}
 							log::add('ChauffeEau','debug',$ChauffeEau->getHumanName().' : Temps de chauffage nécessaire pour atteindre la température souhaité est de '.$PowerTime.' s');
-							$StartTime = cache::byKey('ChauffeEau::Start::Time::'.$ChauffeEau->getId());	
-							$DeltaTime=time()-$StartTime->getValue(0);
-							log::add('ChauffeEau','info',$ChauffeEau->getHumanName().' : Le chauffe eau a montée de '.$DeltaTemp.'°C sur une periode de '.$DeltaTime.'s');
 							if($ChauffeEau->EvaluateCondition()){
 								if($TempActuel <=  $TempSouhaite){
 									log::add('ChauffeEau','info','Execution de '.$ChauffeEau->getHumanName());
 									$ChauffeEau->PowerStart();
 								}else{
 									cache::set('ChauffeEau::Hysteresis::'.$ChauffeEau->getId(),false, 0);
-									$ChauffeEau->EvaluatePowerStop($DeltaTemp);
+									$ChauffeEau->EvaluatePowerStop();
 								}
 							}else
-								$ChauffeEau->EvaluatePowerStop($DeltaTemp);	
+								$ChauffeEau->EvaluatePowerStop();	
 						}else
-							$ChauffeEau->EvaluatePowerStop($DeltaTemp);
+							$ChauffeEau->EvaluatePowerStop();
 					}else
 						$ChauffeEau->PowerStop();
 				break;
@@ -177,7 +172,8 @@ class ChauffeEau extends eqLogic {
 	}
 	public function PowerStart(){
 		if(!$this->getCmd(null,'state')->execCmd()){
-			//$this->checkAndUpdateCmd('state',true);
+			if($this->getConfiguration('Etat') == '')
+				$this->checkAndUpdateCmd('state',true);
 			log::add('ChauffeEau','info',$this->getHumanName().' : Alimentation électrique du chauffe-eau');
 			cache::set('ChauffeEau::Start::Temps::'.$this->getId(),jeedom::evaluateExpression($this->getConfiguration('TempActuel')), 0);
 			cache::set('ChauffeEau::Start::Time::'.$this->getId(),time(), 0);
@@ -188,22 +184,26 @@ class ChauffeEau extends eqLogic {
 	}
 	public function PowerStop(){
 		if($this->getCmd(null,'state')->execCmd()){
-			//$this->checkAndUpdateCmd('state',false);
+			if($this->getConfiguration('Etat') == '')
+				$this->checkAndUpdateCmd('state',false);
 			log::add('ChauffeEau','info',$this->getHumanName().' : Coupure de l\'alimentation électrique du chauffe-eau');
 			foreach($this->getConfiguration('ActionOff') as $cmd){
 				$this->ExecuteAction($cmd);
 			}
 		}
 	}
-	public function EvaluatePowerStop($DeltaTemp){
+	public function EvaluatePowerStop(){
 		if($this->getCmd(null,'state')->execCmd()){
+			$this->PowerStop();
 			$StartTime = cache::byKey('ChauffeEau::Start::Time::'.$this->getId());	
+			$StartTemps = cache::byKey('ChauffeEau::Start::Temps::'.$this->getId());
+			$TempActuel= jeedom::evaluateExpression($this->getConfiguration('TempActuel'));
+			$DeltaTemp=$TempActuel-$StartTemps->getValue(0);
 			if($DeltaTemp > 1){
 				$DeltaTime=time()-$StartTime->getValue(0);
 				log::add('ChauffeEau','info',$this->getHumanName().' : Le chauffe eau a montée de '.$DeltaTemp.'°C sur une periode de '.$DeltaTime.'s');
 				$this->Puissance($DeltaTemp,$DeltaTime);
 			}	
-			$this->PowerStop();
 		}
 	}
 	public function NextProg(){
@@ -261,12 +261,12 @@ class ChauffeEau extends eqLogic {
 	public function setPuissance($Puissance) {
 		$cache = cache::byKey('ChauffeEau::Puissance::'.$this->getId());
 		$value = json_decode($cache->getValue('[]'), true);
-		$moyenne=$this->getPuissance();
+		$moyenne=intval(trim($this->getPuissance()));
 		if($Puissance > $moyenne * 1.3)
 			$Puissance =$Puissance * 1.3;
 		elseif($Puissance < $moyenne * 0.7)
 			$Puissance =$Puissance * 0.7;
-		$value[] =$Puissance;
+		$value[] =intval(trim($Puissance));
 		cache::set('ChauffeEau::Puissance::'.$this->getId(), json_encode(array_slice($value, -10, 10)), 0);
 	}
 	public function getPuissance() {
