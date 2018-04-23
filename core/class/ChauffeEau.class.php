@@ -55,7 +55,6 @@ class ChauffeEau extends eqLogic {
 						$TempSouhaite = jeedom::evaluateExpression($ChauffeEau->getConfiguration('TempSouhaite'));
 						$TempActuel= jeedom::evaluateExpression($ChauffeEau->getConfiguration('TempActuel'));
 						$StartTemps = cache::byKey('ChauffeEau::Start::Temps::'.$ChauffeEau->getId());
-						$DeltaTemp=$StartTemps->getValue(0)-$TempActuel;
 						$PowerTime=$ChauffeEau->EvaluatePowerTime();
 						if(mktime() > $NextProg-$PowerTime+60){	//Heure actuel > Heure de dispo - Temps de chauffe + Pas d'integration
 							if(mktime() > $NextProg){
@@ -66,19 +65,18 @@ class ChauffeEau extends eqLogic {
 							log::add('ChauffeEau','debug',$ChauffeEau->getHumanName().' : Temps de chauffage nécessaire pour atteindre la température souhaité est de '.$PowerTime.' s');
 							$StartTime = cache::byKey('ChauffeEau::Start::Time::'.$ChauffeEau->getId());	
 							$DeltaTime=time()-$StartTime->getValue(0);
-							log::add('ChauffeEau','info',$ChauffeEau->getHumanName().' : Le chauffe eau a montée de '.$DeltaTemp.'°C sur une periode de '.$DeltaTime.'s');
 							if($ChauffeEau->EvaluateCondition()){
 								if($TempActuel <=  $TempSouhaite){
 									log::add('ChauffeEau','info','Execution de '.$ChauffeEau->getHumanName());
 									$ChauffeEau->PowerStart();
 								}else{
 									cache::set('ChauffeEau::Hysteresis::'.$ChauffeEau->getId(),false, 0);
-									$ChauffeEau->EvaluatePowerStop($DeltaTemp);
+									$ChauffeEau->EvaluatePowerStop();
 								}
 							}else
-								$ChauffeEau->EvaluatePowerStop($DeltaTemp);	
+								$ChauffeEau->EvaluatePowerStop();	
 						}else
-							$ChauffeEau->EvaluatePowerStop($DeltaTemp);
+							$ChauffeEau->EvaluatePowerStop($Deltaemp);
 					}else
 						$ChauffeEau->PowerStop();
 				break;
@@ -197,15 +195,18 @@ class ChauffeEau extends eqLogic {
 			}
 		}
 	}
-	public function EvaluatePowerStop($DeltaTemp){
+	public function EvaluatePowerStop(){
 		if($this->getCmd(null,'state')->execCmd()){
+			$this->PowerStop();
 			$StartTime = cache::byKey('ChauffeEau::Start::Time::'.$this->getId());	
+			$StartTemps = cache::byKey('ChauffeEau::Start::Temps::'.$this->getId());
+			$TempActuel= jeedom::evaluateExpression($this->getConfiguration('TempActuel'));
+			$DeltaTemp=$TempActuel-$StartTemps->getValue(0);
 			if($DeltaTemp > 1){
 				$DeltaTime=time()-$StartTime->getValue(0);
 				log::add('ChauffeEau','info',$this->getHumanName().' : Le chauffe eau a montée de '.$DeltaTemp.'°C sur une periode de '.$DeltaTime.'s');
 				$this->Puissance($DeltaTemp,$DeltaTime);
 			}	
-			$this->PowerStop();
 		}
 	}
 	public function NextProg(){
