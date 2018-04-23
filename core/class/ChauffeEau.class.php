@@ -54,7 +54,6 @@ class ChauffeEau extends eqLogic {
 					if($NextProg != null){
 						$TempSouhaite = jeedom::evaluateExpression($ChauffeEau->getConfiguration('TempSouhaite'));
 						$TempActuel= jeedom::evaluateExpression($ChauffeEau->getConfiguration('TempActuel'));
-						$StartTemps = cache::byKey('ChauffeEau::Start::Temps::'.$ChauffeEau->getId());
 						$PowerTime=$ChauffeEau->EvaluatePowerTime();
 						if(mktime() > $NextProg-$PowerTime+60){	//Heure actuel > Heure de dispo - Temps de chauffe + Pas d'integration
 							if(mktime() > $NextProg){
@@ -63,8 +62,6 @@ class ChauffeEau extends eqLogic {
 								break;
 							}
 							log::add('ChauffeEau','debug',$ChauffeEau->getHumanName().' : Temps de chauffage nécessaire pour atteindre la température souhaité est de '.$PowerTime.' s');
-							$StartTime = cache::byKey('ChauffeEau::Start::Time::'.$ChauffeEau->getId());	
-							$DeltaTime=time()-$StartTime->getValue(0);
 							if($ChauffeEau->EvaluateCondition()){
 								if($TempActuel <=  $TempSouhaite){
 									log::add('ChauffeEau','info','Execution de '.$ChauffeEau->getHumanName());
@@ -76,7 +73,7 @@ class ChauffeEau extends eqLogic {
 							}else
 								$ChauffeEau->EvaluatePowerStop();	
 						}else
-							$ChauffeEau->EvaluatePowerStop($Deltaemp);
+							$ChauffeEau->EvaluatePowerStop();
 					}else
 						$ChauffeEau->PowerStop();
 				break;
@@ -264,12 +261,12 @@ class ChauffeEau extends eqLogic {
 	public function setPuissance($Puissance) {
 		$cache = cache::byKey('ChauffeEau::Puissance::'.$this->getId());
 		$value = json_decode($cache->getValue('[]'), true);
-		$moyenne=$this->getPuissance();
+		$moyenne=intval(trim($this->getPuissance()));
 		if($Puissance > $moyenne * 1.3)
 			$Puissance =$Puissance * 1.3;
 		elseif($Puissance < $moyenne * 0.7)
 			$Puissance =$Puissance * 0.7;
-		$value[] =$Puissance;
+		$value[] =intval(trim($Puissance));
 		cache::set('ChauffeEau::Puissance::'.$this->getId(), json_encode(array_slice($value, -10, 10)), 0);
 	}
 	public function getPuissance() {
