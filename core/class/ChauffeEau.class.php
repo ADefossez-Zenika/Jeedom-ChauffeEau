@@ -139,14 +139,12 @@ class ChauffeEau extends eqLogic {
 		$PowerTime=$this->EvaluatePowerTime();		
 		$replace['#Consigne#'] = jeedom::evaluateExpression($this->getConfiguration('TempSouhaite'));
 		$replace['#tempBallon#'] = jeedom::evaluateExpression($this->getConfiguration('TempActuel'));
-		if($replace['#Consigne#'] < $replace['#tempBallon#']){
+		$NextProg=$this->NextProg();
+		if($replace['#Consigne#'] < $replace['#tempBallon#'])
 			$replace['#NextStart#'] = "L'eau n'a pas besoin d'etre chauffé";
-			$replace['#NextStop#'] = '-';
-		}else{
-			$NextProg=$this->NextProg();
+		else
 			$replace['#NextStart#'] = date('d/m/Y H:i',$NextProg-$PowerTime);
-			$replace['#NextStop#'] = date('d/m/Y H:i',$NextProg);
-		}
+		$replace['#NextStop#'] = date('d/m/Y H:i',$NextProg);
 		if ($_version == 'dview' || $_version == 'mview') {
 			$object = $this->getObject();
 			$replace['#name#'] = (is_object($object)) ? $object->getName() . ' - ' . $replace['#name#'] : $replace['#name#'];
