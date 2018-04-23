@@ -136,12 +136,15 @@ class ChauffeEau extends eqLogic {
 			$replace['#'.$cmd->getLogicalId().'#']= $cmd->toHtml($_version, $cmdColor);
 		}
 		$replace['#cmdColor#'] = ($this->getPrimaryCategory() == '') ? '' : jeedom::getConfiguration('eqLogic:category:' . $this->getPrimaryCategory() . ':' . $vcolor);
-		$PowerTime=$this->EvaluatePowerTime();
-		$NextProg=$this->NextProg();
-		$replace['#NextStart#'] = date('d/m/Y H:i',$NextProg-$PowerTime);
-		$replace['#NextStop#'] = date('d/m/Y H:i',$NextProg);
+		$PowerTime=$this->EvaluatePowerTime();		
 		$replace['#Consigne#'] = jeedom::evaluateExpression($this->getConfiguration('TempSouhaite'));
 		$replace['#tempBallon#'] = jeedom::evaluateExpression($this->getConfiguration('TempActuel'));
+		$NextProg=$this->NextProg();
+		if($replace['#Consigne#'] < $replace['#tempBallon#'])
+			$replace['#NextStart#'] = "L'eau n'a pas besoin d'etre chauffé";
+		else
+			$replace['#NextStart#'] = date('d/m/Y H:i',$NextProg-$PowerTime);
+		$replace['#NextStop#'] = date('d/m/Y H:i',$NextProg);
 		if ($_version == 'dview' || $_version == 'mview') {
 			$object = $this->getObject();
 			$replace['#name#'] = (is_object($object)) ? $object->getName() . ' - ' . $replace['#name#'] : $replace['#name#'];
