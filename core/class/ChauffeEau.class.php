@@ -170,7 +170,10 @@ class ChauffeEau extends eqLogic {
 				$ChauffeEau->checkAndUpdateCmd('etatCommut',3);
 			/*if($_option['value'] && $ChauffeEau->getCmd(null,'state')->execCmd())
 				$ChauffeEau->checkAndUpdateCmd('etatCommut',2);*/
-			$ChauffeEau->checkAndUpdateCmd('state',$_option['value']);
+			if($_option['value'])
+				$ChauffeEau->checkAndUpdateCmd('state',true);
+			else	
+				$ChauffeEau->checkAndUpdateCmd('state',false);
 		}
 	}
 	public function PowerStart(){
