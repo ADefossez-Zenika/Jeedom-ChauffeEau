@@ -171,15 +171,15 @@ class ChauffeEau extends eqLogic {
 			/*if($_option['value'] && $ChauffeEau->getCmd(null,'state')->execCmd())
 				$ChauffeEau->checkAndUpdateCmd('etatCommut',2);*/
 			if($_option['value'])
-				$ChauffeEau->checkAndUpdateCmd('state',true);
+				$ChauffeEau->checkAndUpdateCmd('state',1);
 			else	
-				$ChauffeEau->checkAndUpdateCmd('state',false);
+				$ChauffeEau->checkAndUpdateCmd('state',0);
 		}
 	}
 	public function PowerStart(){
 		if(!$this->getCmd(null,'state')->execCmd()){
 			if($this->getConfiguration('Etat') == '')
-				$this->checkAndUpdateCmd('state',true);
+				$this->checkAndUpdateCmd('state',1);
 			log::add('ChauffeEau','info',$this->getHumanName().' : Alimentation électrique du chauffe-eau');
 			cache::set('ChauffeEau::Start::Temps::'.$this->getId(),jeedom::evaluateExpression($this->getConfiguration('TempActuel')), 0);
 			cache::set('ChauffeEau::Start::Time::'.$this->getId(),time(), 0);
@@ -191,7 +191,7 @@ class ChauffeEau extends eqLogic {
 	public function PowerStop(){
 		if($this->getCmd(null,'state')->execCmd()){
 			if($this->getConfiguration('Etat') == '')
-				$this->checkAndUpdateCmd('state',false);
+				$this->checkAndUpdateCmd('state',0);
 			log::add('ChauffeEau','info',$this->getHumanName().' : Coupure de l\'alimentation électrique du chauffe-eau');
 			foreach($this->getConfiguration('ActionOff') as $cmd){
 				$this->ExecuteAction($cmd);
