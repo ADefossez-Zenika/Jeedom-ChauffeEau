@@ -162,6 +162,7 @@ class ChauffeEau extends eqLogic {
 	        'border-radius' => true
 	));
 	public static function pull($_option) {
+		log::add('ChauffeEau','debug','Evenement sur le retour d\'etat : '.json_encode($_option));
 		$ChauffeEau = Volets::byId($_option['ChauffeEau_id']);
 		if (is_object($ChauffeEau) && $ChauffeEau->getIsEnable()) {
 			/*if($_option['value'] && !$ChauffeEau->getCmd(null,'state')->execCmd())
@@ -170,6 +171,7 @@ class ChauffeEau extends eqLogic {
 				$ChauffeEau->checkAndUpdateCmd('etatCommut',3);
 			/*if($_option['value'] && $ChauffeEau->getCmd(null,'state')->execCmd())
 				$ChauffeEau->checkAndUpdateCmd('etatCommut',2);*/
+			log::add('ChauffeEau','info',$ChauffeEau->getHumanName().' : l\'etat du chauffe eau est passé a '.$_option['value']);
 			if($_option['value'])
 				$ChauffeEau->checkAndUpdateCmd('state',1);
 			else	
