@@ -63,13 +63,10 @@ class ChauffeEau extends eqLogic {
 							}
 							log::add('ChauffeEau','debug',$ChauffeEau->getHumanName().' : Temps de chauffage nécessaire pour atteindre la température souhaité est de '.$PowerTime.' s');
 							if($ChauffeEau->EvaluateCondition()){
-								if($TempActuel <=  $TempSouhaite){
-									log::add('ChauffeEau','info','Execution de '.$ChauffeEau->getHumanName());
+								if($TempActuel <=  $TempSouhaite)
 									$ChauffeEau->PowerStart();
-								}else{
-									cache::set('ChauffeEau::Hysteresis::'.$ChauffeEau->getId(),false, 0);
+								else
 									$ChauffeEau->EvaluatePowerStop();
-								}
 							}else
 								$ChauffeEau->EvaluatePowerStop();	
 						}else
@@ -197,6 +194,7 @@ class ChauffeEau extends eqLogic {
 	public function PowerStop(){
 		cache::set('ChauffeEau::Power::'.$this->getId(),false, 0);
 		if($this->getCmd(null,'state')->execCmd()){
+			cache::set('ChauffeEau::Hysteresis::'.$this->getId(),false, 0);
 			if($this->getConfiguration('Etat') == '')
 				$this->checkAndUpdateCmd('state',0);
 			log::add('ChauffeEau','info',$this->getHumanName().' : Coupure de l\'alimentation électrique du chauffe-eau');
@@ -221,8 +219,10 @@ class ChauffeEau extends eqLogic {
 		}
 	}
 	public function NextProg(){
-		if(cache::byKey('ChauffeEau::Hysteresis::'.$this->getId())->getValue(false))
+		if(cache::byKey('ChauffeEau::Hysteresis::'.$this->getId())->getValue(false)){
+			log::add('ChauffeEau','info',$this->getHumanName().' : Cylce Hysteresis en cours');
 			return mktime()+$this->EvaluatePowerTime();
+		}
 		$nextTime=null;
 		foreach($this->getConfiguration('programation') as $ConigSchedule){
 			if($ConigSchedule["isHoraire"]){
@@ -236,9 +236,10 @@ class ChauffeEau extends eqLogic {
 						$offset+=$day;
 						$timestamp=mktime ($ConigSchedule["Heure"], $ConigSchedule["Minute"], 0, date("n") , date("j") , date("Y"))+ (3600 * 24) * $offset;
 						if($ConigSchedule["isSeuil"]){
-							if(jeedom::evaluateExpression($this->getConfiguration('TempActuel')) > $ConigSchedule["seuil"]){
+							if(jeedom::evaluateExpression($this->getConfiguration('TempActuel')) <= $ConigSchedule["seuil"]){
+								log::add('ChauffeEau','info',$this->getHumanName().' : Lancement du cycle d\'Hysteresis');
 								cache::set('ChauffeEau::Hysteresis::'.$this->getId(),true, 0);
-								return mktime()-60;
+								return mktime()+$this->EvaluatePowerTime();
 							}
 						}
 						break;
@@ -247,9 +248,10 @@ class ChauffeEau extends eqLogic {
 				if($nextTime == null || $nextTime > $timestamp)
 					$nextTime=$timestamp;
 			}elseif($ConigSchedule["isSeuil"] && $ConigSchedule[date('w')]){
-				if(jeedom::evaluateExpression($this->getConfiguration('TempActuel')) < $ConigSchedule["seuil"]){
-					$nextTime=mktime()+100;
+				if(jeedom::evaluateExpression($this->getConfiguration('TempActuel')) <= $ConigSchedule["seuil"]){
+					log::add('ChauffeEau','info',$this->getHumanName().' : Lancement du cycle d\'Hysteresis');
 					cache::set('ChauffeEau::Hysteresis::'.$this->getId(),true, 0);
+					$nextTime= mktime()+$this->EvaluatePowerTime();
 				}
 			}
 		}
