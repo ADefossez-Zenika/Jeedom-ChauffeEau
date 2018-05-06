@@ -221,7 +221,7 @@ class ChauffeEau extends eqLogic {
 	public function NextProg(){
 		if(cache::byKey('ChauffeEau::Hysteresis::'.$this->getId())->getValue(false)){
 			log::add('ChauffeEau','info',$this->getHumanName().' : Cylce Hysteresis en cours');
-			return mktime()+$this->EvaluatePowerTime();
+			return mktime()+$this->EvaluatePowerTime()-100;
 		}
 		$nextTime=null;
 		foreach($this->getConfiguration('programation') as $ConigSchedule){
@@ -239,7 +239,7 @@ class ChauffeEau extends eqLogic {
 							if(jeedom::evaluateExpression($this->getConfiguration('TempActuel')) <= $ConigSchedule["seuil"]){
 								log::add('ChauffeEau','info',$this->getHumanName().' : Lancement du cycle d\'Hysteresis');
 								cache::set('ChauffeEau::Hysteresis::'.$this->getId(),true, 0);
-								return mktime()+$this->EvaluatePowerTime();
+								return mktime()+$this->EvaluatePowerTime()-100;
 							}
 						}
 						break;
@@ -251,7 +251,7 @@ class ChauffeEau extends eqLogic {
 				if(jeedom::evaluateExpression($this->getConfiguration('TempActuel')) <= $ConigSchedule["seuil"]){
 					log::add('ChauffeEau','info',$this->getHumanName().' : Lancement du cycle d\'Hysteresis');
 					cache::set('ChauffeEau::Hysteresis::'.$this->getId(),true, 0);
-					$nextTime= mktime()+$this->EvaluatePowerTime();
+					$nextTime = mktime()+$this->EvaluatePowerTime()-100;
 				}
 			}
 		}
