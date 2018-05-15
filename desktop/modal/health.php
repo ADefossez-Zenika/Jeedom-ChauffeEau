@@ -5,7 +5,7 @@ if (!isConnect('admin')) {
 $eqLogics = ChauffeEau::byType('ChauffeEau');
 ?>
 
-<table class="table table-condensed tablesorter" id="table_healthopenenocean">
+<table class="table table-condensed tablesorter" id="table_healthChauffeEau">
 	<thead>
 		<tr>
 			<th>{{ID}}</th>
