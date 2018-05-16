@@ -43,8 +43,6 @@ class ChauffeEau extends eqLogic {
 		foreach(eqLogic::byType('ChauffeEau') as $ChauffeEau){
 			if (!$ChauffeEau->getIsEnable()) 
 				continue;
-			if ($ChauffeEau->getCmd(null,'isDelestage')->execCmd())
-				continue;
 			switch($ChauffeEau->getCmd(null,'etatCommut')->execCmd()){
 				case 1:
 					// Mode Forcée
@@ -377,11 +375,6 @@ class ChauffeEau extends eqLogic {
 		$Auto=$this->AddCommande("Automatique","auto","action","other",true,'Commutateur');
 		$Auto->setValue($isArmed->getId());
 		$Auto->save();
-		$isDelestage=$this->AddCommande("Etat Délestage","isDelestage","info","numeric",false);
-		$isDelestage->event(0);
-		$Delestage=$this->AddCommande("Délestage","Delestage","action","other",true,);
-		$Delestage->setValue($isDelestage->getId());
-		$Delestage->save();
 		$this->createDeamon();
 		cache::set('ChauffeEau::Hysteresis::'.$this->getId(),false, 0);
 		$cache = cache::byKey('ChauffeEau::Puissance::'.$this->getId());
@@ -413,14 +406,6 @@ class ChauffeEauCmd extends cmd {
 			break;
 			case 'auto':
 				$this->getEqLogic()->checkAndUpdateCmd('etatCommut',2);
-			break;
-			case 'Delestage':				
-				if ($this->getEqLogic()->getCmd(null,'isDelestage')->execCmd()){
-					$this->getEqLogic()->checkAndUpdateCmd('isDelestage',false);
-				}else{
-					$this->getEqLogic()->checkAndUpdateCmd('isDelestage',true);
-					$this->getEqLogic()->PowerStop();
-				}
 			break;
 		}
 	}
