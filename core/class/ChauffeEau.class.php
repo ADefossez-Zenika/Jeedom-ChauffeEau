@@ -54,28 +54,29 @@ class ChauffeEau extends eqLogic {
 					$TempActuel= jeedom::evaluateExpression($ChauffeEau->getConfiguration('TempActuel'));
 					$NextProg=$ChauffeEau->NextProg();
 					if($NextProg != null){
-						if(mktime() > $NextProg){
-							log::add('ChauffeEau','debug',$ChauffeEau->getHumanName().' : Temps supperieur a l\'heure programmée');
-							$ChauffeEau->EvaluatePowerStop();
-							continue;
-						}
-						if(cache::byKey('ChauffeEau::Hysteresis::'.$ChauffeEau->getId())->getValue(false)){
-							if($ChauffeEau->EvaluateCondition()){
-								if($TempActuel >=  $TempSouhaite)
-									$ChauffeEau->EvaluatePowerStop();
-							}else
-								$ChauffeEau->EvaluatePowerStop();	
-						}else{
-							$ChauffeEau->EvaluatePowerStop();	
-							$PowerTime=$ChauffeEau->EvaluatePowerTime();
-							if(mktime() > $NextProg-$PowerTime+60){	//Heure actuel > Heure de dispo - Temps de chauffe + Pas d'integration
-								log::add('ChauffeEau','debug',$ChauffeEau->getHumanName().' : Temps de chauffage nécessaire pour atteindre la température souhaité est de '.$PowerTime.' s');
+						$PowerTime=$ChauffeEau->EvaluatePowerTime();
+						if(mktime() > $NextProg-$PowerTime+60){	//Heure actuel > Heure de dispo - Temps de chauffe + Pas d'integration
+							log::add('ChauffeEau','debug',$ChauffeEau->getHumanName().' : Temps de chauffage nécessaire pour atteindre la température souhaité est de '.$PowerTime.' s');		
+							if(mktime() > $NextProg){
+								log::add('ChauffeEau','debug',$ChauffeEau->getHumanName().' : Temps supperieur a l\'heure programmée');
+								$ChauffeEau->EvaluatePowerStop();
+								continue;
+							}
+							if(cache::byKey('ChauffeEau::Hysteresis::'.$ChauffeEau->getId())->getValue(false)){
 								if($ChauffeEau->EvaluateCondition()){
-									if($TempActuel <=  $TempSouhaite)
-										$ChauffeEau->PowerStart();
+									if($TempActuel >=  $TempSouhaite)
+										$ChauffeEau->EvaluatePowerStop();
+								}else
+									$ChauffeEau->EvaluatePowerStop();	
+							}else{
+								$ChauffeEau->EvaluatePowerStop();	
+									if($ChauffeEau->EvaluateCondition()){
+										if($TempActuel <=  $TempSouhaite)
+											$ChauffeEau->PowerStart();
 								}	
 							}
-						}
+						}else
+							$ChauffeEau->EvaluatePowerStop();
 					}else
 						$ChauffeEau->PowerStop();
 						
