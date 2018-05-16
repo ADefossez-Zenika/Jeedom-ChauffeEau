@@ -42,7 +42,9 @@ class ChauffeEau extends eqLogic {
 			return;
 		foreach(eqLogic::byType('ChauffeEau') as $ChauffeEau){
 			if (!$ChauffeEau->getIsEnable()) 
-				return;
+				continue;
+			if ($ChauffeEau->getCmd(null,'isDelestage')->execCmd())
+				continue;
 			switch($ChauffeEau->getCmd(null,'etatCommut')->execCmd()){
 				case 1:
 					// Mode Forcée
@@ -50,29 +52,35 @@ class ChauffeEau extends eqLogic {
 				break;
 				case 2:
 					//Mode automatique
+					$TempSouhaite = jeedom::evaluateExpression($ChauffeEau->getConfiguration('TempSouhaite'));
+					$TempActuel= jeedom::evaluateExpression($ChauffeEau->getConfiguration('TempActuel'));
 					$NextProg=$ChauffeEau->NextProg();
 					if($NextProg != null){
-						$TempSouhaite = jeedom::evaluateExpression($ChauffeEau->getConfiguration('TempSouhaite'));
-						$TempActuel= jeedom::evaluateExpression($ChauffeEau->getConfiguration('TempActuel'));
-						$PowerTime=$ChauffeEau->EvaluatePowerTime();
-						if(mktime() > $NextProg-$PowerTime+60){	//Heure actuel > Heure de dispo - Temps de chauffe + Pas d'integration
-							if(mktime() > $NextProg){
-								log::add('ChauffeEau','debug',$ChauffeEau->getHumanName().' : Temps supperieur a l\'heure programmée');
-								$ChauffeEau->PowerStop();
-								break;
-							}
-							log::add('ChauffeEau','debug',$ChauffeEau->getHumanName().' : Temps de chauffage nécessaire pour atteindre la température souhaité est de '.$PowerTime.' s');
+						if(mktime() > $NextProg){
+							log::add('ChauffeEau','debug',$ChauffeEau->getHumanName().' : Temps supperieur a l\'heure programmée');
+							$ChauffeEau->EvaluatePowerStop();
+							continue;
+						}
+						if(cache::byKey('ChauffeEau::Hysteresis::'.$this->getId())->getValue(false)){
 							if($ChauffeEau->EvaluateCondition()){
-								if($TempActuel <=  $TempSouhaite)
-									$ChauffeEau->PowerStart();
-								else
+								if($TempActuel >=  $TempSouhaite)
 									$ChauffeEau->EvaluatePowerStop();
 							}else
 								$ChauffeEau->EvaluatePowerStop();	
-						}else
-							$ChauffeEau->EvaluatePowerStop();
+						}else{
+							$ChauffeEau->EvaluatePowerStop();	
+							$PowerTime=$ChauffeEau->EvaluatePowerTime();
+							if(mktime() > $NextProg-$PowerTime+60){	//Heure actuel > Heure de dispo - Temps de chauffe + Pas d'integration
+								log::add('ChauffeEau','debug',$ChauffeEau->getHumanName().' : Temps de chauffage nécessaire pour atteindre la température souhaité est de '.$PowerTime.' s');
+								if($ChauffeEau->EvaluateCondition()){
+									if($TempActuel <=  $TempSouhaite)
+										$ChauffeEau->PowerStart();
+								}	
+							}
+						}
 					}else
 						$ChauffeEau->PowerStop();
+						
 				break;
 				case 3:
 					// Mode Stope
@@ -181,6 +189,7 @@ class ChauffeEau extends eqLogic {
 	public function PowerStart(){
 		cache::set('ChauffeEau::Power::'.$this->getId(),true, 0);
 		if(!$this->getCmd(null,'state')->execCmd()){
+			cache::set('ChauffeEau::Hysteresis::'.$this->getId(),true, 0);
 			if($this->getConfiguration('Etat') == '')
 				$this->checkAndUpdateCmd('state',1);
 			log::add('ChauffeEau','info',$this->getHumanName().' : Alimentation électrique du chauffe-eau');
@@ -219,10 +228,10 @@ class ChauffeEau extends eqLogic {
 		}
 	}
 	public function NextProg(){
-		if(cache::byKey('ChauffeEau::Hysteresis::'.$this->getId())->getValue(false)){
+		/*if(cache::byKey('ChauffeEau::Hysteresis::'.$this->getId())->getValue(false)){
 			log::add('ChauffeEau','info',$this->getHumanName().' : Cylce Hysteresis en cours');
 			return mktime()+$this->EvaluatePowerTime()-100;
-		}
+		}*/
 		$nextTime=null;
 		foreach($this->getConfiguration('programation') as $ConigSchedule){
 			if($ConigSchedule["isHoraire"]){
@@ -329,14 +338,14 @@ class ChauffeEau extends eqLogic {
 			log::add('ChauffeEau', 'error', __('Erreur lors de l\'éxecution de ', __FILE__) . $cmd['cmd'] . __('. Détails : ', __FILE__) . $e->getMessage());
 		}		
 	}
-	public static function AddCommande($eqLogic,$Name,$_logicalId,$Type="info", $SubType='binary',$visible,$Template='') {
-		$Commande = $eqLogic->getCmd(null,$_logicalId);
+	public function AddCommande(,$Name,$_logicalId,$Type="info", $SubType='binary',$visible,$Template='') {
+		$Commande = $this->getCmd(null,$_logicalId);
 		if (!is_object($Commande))
 		{
 			$Commande = new ChauffeEauCmd();
 			$Commande->setId(null);
 			$Commande->setLogicalId($_logicalId);
-			$Commande->setEqLogic_id($eqLogic->getId());
+			$Commande->setEqLogic_id($this->getId());
 			$Commande->setName($Name);
 			$Commande->setIsVisible($visible);
 			$Commande->setType($Type);
@@ -351,23 +360,28 @@ class ChauffeEau extends eqLogic {
 		self::deamon_stop();
 	}
 	public function postSave() {
-		$state=self::AddCommande($this,"Etat du chauffe-eau","state","info", 'binary',true);
+		$state=$this->AddCommande("Etat du chauffe-eau","state","info", 'binary',true);
 		$state->event(false);
 		$state->setCollectDate(date('Y-m-d H:i:s'));
 		$state->save();
-		$isArmed=self::AddCommande($this,"Etat fonctionnement","etatCommut","info","numeric",false);
+		$isArmed=$this->AddCommande("Etat fonctionnement","etatCommut","info","numeric",false);
 		$isArmed->event(2);
 		$isArmed->setCollectDate(date('Y-m-d H:i:s'));
 		$isArmed->save();
-		$Armed=self::AddCommande($this,"Marche forcée","armed","action","other",true,'Commutateur');
+		$Armed=$this->AddCommande("Marche forcée","armed","action","other",true,'Commutateur');
 		$Armed->setValue($isArmed->getId());
 		$Armed->save();
-		$Released=self::AddCommande($this,"Désactiver","released","action","other",true,'Commutateur');
+		$Released=$this->AddCommande("Désactiver","released","action","other",true,'Commutateur');
 		$Released->setValue($isArmed->getId());
 		$Released->save();
-		$Auto=self::AddCommande($this,"Automatique","auto","action","other",true,'Commutateur');
+		$Auto=$this->AddCommande("Automatique","auto","action","other",true,'Commutateur');
 		$Auto->setValue($isArmed->getId());
 		$Auto->save();
+		$isDelestage=$this->AddCommande("Etat Délestage","isDelestage","info","numeric",false);
+		$isDelestage->event(0);
+		$Delestage=$this->AddCommande("Délestage","Delestage","action","other",true,);
+		$Delestage->setValue($isDelestage->getId());
+		$Delestage->save();
 		$this->createDeamon();
 		cache::set('ChauffeEau::Hysteresis::'.$this->getId(),false, 0);
 		$cache = cache::byKey('ChauffeEau::Puissance::'.$this->getId());
@@ -399,6 +413,14 @@ class ChauffeEauCmd extends cmd {
 			break;
 			case 'auto':
 				$this->getEqLogic()->checkAndUpdateCmd('etatCommut',2);
+			break;
+			case 'Delestage':				
+				if ($this->getEqLogic()->getCmd(null,'isDelestage')->execCmd()){
+					$this->getEqLogic()->checkAndUpdateCmd('isDelestage',false);
+				}else{
+					$this->getEqLogic()->checkAndUpdateCmd('isDelestage',true);
+					$this->getEqLogic()->PowerStop();
+				}
 			break;
 		}
 	}
