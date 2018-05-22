@@ -67,7 +67,9 @@ class ChauffeEau extends eqLogic {
 									$ChauffeEau->PowerStart();
 							}	
 						}else{
-							if(cache::byKey('ChauffeEau::Hysteresis::'.$ChauffeEau->getId())->getValue(false)){
+							$StartTemps = cache::byKey('ChauffeEau::Start::Temps::'.$ChauffeEau->getId());
+							$DeltaTemp=$TempActuel-$StartTemps->getValue(0);
+							if($DeltaTemp > 1 && cache::byKey('ChauffeEau::Hysteresis::'.$ChauffeEau->getId())->getValue(false)){
 								if($ChauffeEau->EvaluateCondition()){
 									if($TempActuel >=  $TempSouhaite)
 										$ChauffeEau->EvaluatePowerStop();
