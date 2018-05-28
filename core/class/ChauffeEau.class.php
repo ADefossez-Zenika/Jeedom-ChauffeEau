@@ -52,34 +52,39 @@ class ChauffeEau extends eqLogic {
 					//Mode automatique
 					$TempSouhaite = jeedom::evaluateExpression($ChauffeEau->getConfiguration('TempSouhaite'));
 					$TempActuel= jeedom::evaluateExpression($ChauffeEau->getConfiguration('TempActuel'));
-					$NextProg=$ChauffeEau->NextProg();
-					if($NextProg != null){
-						if(mktime() > $NextProg){
-							log::add('ChauffeEau','debug',$ChauffeEau->getHumanName().' : Temps supperieur a l\'heure programmée');
-							$ChauffeEau->EvaluatePowerStop();
-							continue;
-						}
-						$PowerTime=$ChauffeEau->EvaluatePowerTime();
-						if(mktime() > $NextProg-$PowerTime+60){	//Heure actuel > Heure de dispo - Temps de chauffe + Pas d'integration
-							log::add('ChauffeEau','debug',$ChauffeEau->getHumanName().' : Temps de chauffage nécessaire pour atteindre la température souhaité est de '.$PowerTime.' s');		
+					$NextProg = cache::byKey('ChauffeEau::Stop::Time::'.$ChauffeEau->getId())->getValue(0);
+					if($NextProg == 0){
+						$NextProg=$ChauffeEau->NextProg();
+						if($NextProg != null)
+							cache::set('ChauffeEau::Stop::Time::'.$ChauffeEau->getId(),$NextProg, 0);
+						else 
+							continue;							
+					}
+					if(mktime() > $NextProg){
+						cache::set('ChauffeEau::Stop::Time::'.$ChauffeEau->getId(),0, 0);
+						log::add('ChauffeEau','debug',$ChauffeEau->getHumanName().' : Temps supperieur a l\'heure programmée');
+						$ChauffeEau->EvaluatePowerStop();
+						continue;
+					}
+					$PowerTime=$ChauffeEau->EvaluatePowerTime();
+					if(mktime() > $NextProg-$PowerTime+60){	//Heure actuel > Heure de dispo - Temps de chauffe + Pas d'integration
+						log::add('ChauffeEau','debug',$ChauffeEau->getHumanName().' : Temps de chauffage nécessaire pour atteindre la température souhaité est de '.$PowerTime.' s');		
+						if($ChauffeEau->EvaluateCondition()){
+							if($TempActuel <=  $TempSouhaite)
+								$ChauffeEau->PowerStart();
+						}	
+					}else{
+						$StartTemps = cache::byKey('ChauffeEau::Start::Temps::'.$ChauffeEau->getId());
+						$DeltaTemp=$TempActuel-$StartTemps->getValue(0);
+						if($DeltaTemp > 1 && cache::byKey('ChauffeEau::Hysteresis::'.$ChauffeEau->getId())->getValue(false)){
 							if($ChauffeEau->EvaluateCondition()){
-								if($TempActuel <=  $TempSouhaite)
-									$ChauffeEau->PowerStart();
+								if($TempActuel >=  $TempSouhaite)
+									$ChauffeEau->EvaluatePowerStop();
+								continue;
 							}	
-						}else{
-							$StartTemps = cache::byKey('ChauffeEau::Start::Temps::'.$ChauffeEau->getId());
-							$DeltaTemp=$TempActuel-$StartTemps->getValue(0);
-							if($DeltaTemp > 1 && cache::byKey('ChauffeEau::Hysteresis::'.$ChauffeEau->getId())->getValue(false)){
-								if($ChauffeEau->EvaluateCondition()){
-									if($TempActuel >=  $TempSouhaite)
-										$ChauffeEau->EvaluatePowerStop();
-									continue;
-								}	
-							}
-							$ChauffeEau->EvaluatePowerStop();
 						}
-					}else
-						$ChauffeEau->PowerStop();
+						$ChauffeEau->EvaluatePowerStop();
+					}
 						
 				break;
 				case 3:
