@@ -233,10 +233,6 @@ class ChauffeEau extends eqLogic {
 		}
 	}
 	public function NextProg(){
-		/*if(cache::byKey('ChauffeEau::Hysteresis::'.$this->getId())->getValue(false)){
-			log::add('ChauffeEau','info',$this->getHumanName().' : Cylce Hysteresis en cours');
-			return mktime()+$this->EvaluatePowerTime()-100;
-		}*/
 		$nextTime=null;
 		foreach($this->getConfiguration('programation') as $ConigSchedule){
 			if($ConigSchedule["isHoraire"]){
@@ -250,11 +246,8 @@ class ChauffeEau extends eqLogic {
 						$offset+=$day;
 						$timestamp=mktime ($ConigSchedule["Heure"], $ConigSchedule["Minute"], 0, date("n") , date("j") , date("Y"))+ (3600 * 24) * $offset;
 						if($ConigSchedule["isSeuil"]){
-							if(jeedom::evaluateExpression($this->getConfiguration('TempActuel')) <= $ConigSchedule["seuil"]){
-								log::add('ChauffeEau','info',$this->getHumanName().' : Lancement du cycle d\'Hysteresis');
-								cache::set('ChauffeEau::Hysteresis::'.$this->getId(),true, 0);
-								return mktime()+$this->EvaluatePowerTime()-100;
-							}
+							if(jeedom::evaluateExpression($this->getConfiguration('TempActuel')) > $ConigSchedule["seuil"])
+								continue;
 						}
 						break;
 					}
@@ -265,7 +258,7 @@ class ChauffeEau extends eqLogic {
 				if(jeedom::evaluateExpression($this->getConfiguration('TempActuel')) <= $ConigSchedule["seuil"]){
 					log::add('ChauffeEau','info',$this->getHumanName().' : Lancement du cycle d\'Hysteresis');
 					cache::set('ChauffeEau::Hysteresis::'.$this->getId(),true, 0);
-					$nextTime = mktime()+$this->EvaluatePowerTime()-100;
+					$nextTime = mktime()+(60*60*24);
 				}
 			}
 		}
@@ -273,7 +266,6 @@ class ChauffeEau extends eqLogic {
 		return $nextTime;
 	}
 	public function EvaluatePowerTime() {
-		//Evaluation du temps necessaire au chauffage de l'eau
 		$DeltaTemp = jeedom::evaluateExpression($this->getConfiguration('TempSouhaite'));
 		$DeltaTemp-= jeedom::evaluateExpression($this->getConfiguration('TempActuel'));
 		$Energie=$this->getConfiguration('Capacite')*$DeltaTemp*4185;
