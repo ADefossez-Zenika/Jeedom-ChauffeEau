@@ -303,7 +303,7 @@ class ChauffeEau extends eqLogic {
 			if (isset($Condition['enable']) && $Condition['enable'] == 0)
 				continue;
 			$expression = jeedom::evaluateExpression($Condition['expression']);
-			$message = __('Evaluation de la condition : ['.jeedom::toHumanReadable($Condition).'][', __FILE__) . trim($expression) . '] = ';
+			$message = __('Evaluation de la condition : ['.jeedom::toHumanReadable($Condition['expression']).'][', __FILE__) . trim($expression) . '] = ';
 			$result = evaluate($expression);
 			if (is_bool($result)) {
 				if ($result) {
