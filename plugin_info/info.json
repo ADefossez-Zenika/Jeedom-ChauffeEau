@@ -7,6 +7,7 @@
 	"require" : "3.0",
 	"category" : "automatisation",
 	"hasOwnDeamon" : true,
+	"compatibility" : ["miniplus","smart","rpi","docker","diy","mobile"],
 	"issue" : "https://github.com/mika-nt28/Jeedom-ChauffeEau/issues",
  	"changelog" : "https://github.com/mika-nt28/Jeedom-ChauffeEau/commits/master",
  	"documentation" : "https://mika-nt28.github.io/Jeedom-ChauffeEau/"
