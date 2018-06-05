@@ -284,11 +284,11 @@ class ChauffeEau extends eqLogic {
 	public function setPuissance($Puissance) {
 		$cache = cache::byKey('ChauffeEau::Puissance::'.$this->getId());
 		$value = json_decode($cache->getValue('[]'), true);
-		$moyenne=intval(trim($this->getPuissance()));
-		if($Puissance > $moyenne * 1.1)
-			$Puissance =$Puissance * 1.1;
-		elseif($Puissance < $moyenne * 0.9)
-			$Puissance =$Puissance * 0.9;
+		$Moyenne=intval(trim($this->getPuissance()));
+		if($Puissance > $Moyenne * 1.1)
+			$Puissance =$Moyenne * 1.1;
+		elseif($Puissance < $Moyenne * 0.9)
+			$Puissance =$Moyenne * 0.9;
 		$value[] =intval(trim($Puissance));
 		cache::set('ChauffeEau::Puissance::'.$this->getId(), json_encode(array_slice($value, -10, 10)), 0);
 	}
