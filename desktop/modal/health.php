@@ -12,6 +12,7 @@ $eqLogics = ChauffeEau::byType('ChauffeEau');
 			<th>{{Nom}}</th>
 			<th>{{Statut}}</th>
 			<th>{{Puissance estimée}}</th>
+			<th>{{Ratio (duréee/deltaT°)}}</th>
 			<th>{{Dernière communication}}</th>
 			<th>{{Date création}}</th>
 		</tr>
@@ -28,7 +29,11 @@ foreach ($eqLogics as $eqLogic) {
 	echo '<td>' . $status . '</td>';
 	echo '<td>';
 	$cache = cache::byKey('ChauffeEau::Puissance::'.$eqLogic->getId());
-	echo '<div class="Graph" id="Graph_'. $eqLogic->getId().'" data-graph="'.$cache->getValue('[]').'" data-title="'.$eqLogic->getPuissance() . 'W"></div>';
+	echo '<div class="Graph" id="Graph_Puissance_'. $eqLogic->getId().'" data-graph="'.$cache->getValue('[]').'" data-title="'.$eqLogic->getPuissance() . 'W"></div>';
+	echo '</td>';
+	echo '<td>';
+	$cache = cache::byKey('ChauffeEau::Ratio::'.$eqLogic->getId());
+	echo '<div class="Graph" id="Graph_Ratio_'. $eqLogic->getId().'" data-graph="'.$cache->getValue('[]').'" data-title="'.$eqLogic->getPuissance() . 'W"></div>';
 	echo '</td>';
 	echo '<td><span class="label label-info" style="font-size : 1em;cursor:default;">' . $eqLogic->getStatus('lastCommunication') . '</span></td>';
 	echo '<td><span class="label label-info" style="font-size : 1em;cursor:default;">' . $eqLogic->getConfiguration('createtime') . '</span></td></tr>';
