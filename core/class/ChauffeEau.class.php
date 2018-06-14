@@ -228,7 +228,12 @@ class ChauffeEau extends eqLogic {
 			if($DeltaTemp > 1){
 				$DeltaTime=time()-$StartTime->getValue(0);
 				log::add('ChauffeEau','info',$this->getHumanName().' : Le chauffe eau a montée de '.$DeltaTemp.'°C sur une periode de '.$DeltaTime.'s');
+				$Ratio = cache::byKey('ChauffeEau::Ratio::'.$this->getId());
+				$value = json_decode($Ratio->getValue('[]'), true);
+				$value[] =intval(round($DeltaTime/$DeltaTemp));
+				cache::set('ChauffeEau::Ratio::'.$this->getId(), json_encode(array_slice($value, -10, 10)), 0);
 				$this->Puissance($DeltaTemp,$DeltaTime);
+				
 			}	
 		}
 	}
@@ -376,8 +381,8 @@ class ChauffeEau extends eqLogic {
 		$Auto->save();
 		$this->createDeamon();
 		cache::set('ChauffeEau::Hysteresis::'.$this->getId(),false, 0);
-		$cache = cache::byKey('ChauffeEau::Puissance::'.$this->getId());
-		if(count(json_decode($cache->getValue('[]'), true)) == 0)
+		$Puissance = cache::byKey('ChauffeEau::Puissance::'.$this->getId());
+		if(count(json_decode($Puissance->getValue('[]'), true)) == 0)
 			cache::set('ChauffeEau::Puissance::'.$this->getId(), json_encode(array_slice(array(intval(trim($this->getConfiguration('Puissance')))), -10, 10)), 0);
 	}
 	public function createDeamon() {
