@@ -52,6 +52,7 @@ class ChauffeEau extends eqLogic {
 					//Mode automatique
 					$TempSouhaite = jeedom::evaluateExpression($ChauffeEau->getConfiguration('TempSouhaite'));
 					$TempActuel= jeedom::evaluateExpression($ChauffeEau->getConfiguration('TempActuel'));
+					$ChauffeEau->CheckDeltaTemp($TempActuel);
 					$NextProg = cache::byKey('ChauffeEau::Stop::Time::'.$ChauffeEau->getId())->getValue(0);
 					if($NextProg == 0){
 						$NextProg=$ChauffeEau->NextProg();
@@ -236,6 +237,33 @@ class ChauffeEau extends eqLogic {
 				
 			}	
 		}
+	}
+	public function CheckDeltaTemp($TempActuel){
+		if(!$this->getCmd(null,'state')->execCmd()){
+			$LastTemp = cache::byKey('ChauffeEau::LastTemp::'.$this->getId());	
+			$DeltaTemp=$TempActuel-$LastTemp->getValue($TempActuel);
+			$this->setDeltaTemp($DeltaTemp);
+			if($DeltaTemp > $this->getDeltaTemp()){
+				log::add('ChauffeEau','info',$this->getHumanName().' : Il y a un chutte de température de '.$DeltaTemp.' => Vous prenez une douche');
+			}	
+		}
+		cache::set('ChauffeEau::LastTemp::'.$this->getId(),$TempActuel, 0);
+	}	
+	public function setDeltaTemp($DeltaTemp) {
+		$cache = cache::byKey('ChauffeEau::DeltaTemp::'.$this->getId());
+		$value = json_decode($cache->getValue('[]'), true);
+		$Moyenne=intval(trim($this->getDeltaTemp()));
+		if($DeltaTemp > $Moyenne * 1.1)
+			$DeltaTemp =$Moyenne * 1.1;
+		elseif($DeltaTemp < $Moyenne * 0.9)
+			$DeltaTemp =$Moyenne * 0.9;
+		$value[] =intval(trim($DeltaTemp));
+		cache::set('ChauffeEau::DeltaTemp::'.$this->getId(), json_encode(array_slice($value, -10, 10)), 0);
+	}
+	public function getDeltaTemp() {
+		$cache = cache::byKey('ChauffeEau::DeltaTemp::'.$this->getId());
+		$value = json_decode($cache->getValue('[]'), true);
+		return round(array_sum($value)/count($value),0);
 	}
 	public function NextProg(){
 		$nextTime=null;
