@@ -152,12 +152,6 @@ $eqLogics = eqLogic::byType('ChauffeEau');
 								</div>
 							</div>
 							<div class="form-group">
-								<label class="col-sm-2 control-label" >{{Température Souhaitée (°C)}}</label>
-								<div class="col-sm-5">
-									<input type="text" class="eqLogicAttr form-control" data-l1key="configuration"  data-l2key="TempSouhaite" placeholder="{{Température Souhaité (°C) - Valeur conseillé 60°C}}"/>
-								</div>
-							</div>
-							<div class="form-group">
 								<label class="col-sm-2 control-label" >{{Sélectionner une commande ou estimer la température actuelle de l'eau}}</label>
 								<div class="col-sm-5 input-group">
 									<input class="eqLogicAttr form-control input-sm" data-l1key="configuration"  data-l2key="TempActuel" placeholder="{{Sélectionner un objet Jeedom de température, ou Saisisser une valeur par defaut}}">
@@ -174,29 +168,7 @@ $eqLogics = eqLogic::byType('ChauffeEau');
 				<div class="col-sm-6">
 					<form class="form-horizontal">
 						<legend>Controle du chauffe eau</legend>
-						<fieldset>
-							<!--div class="form-group">
-								<label class="col-sm-2 control-label" >{{Commande d'activation du chauffe eau}}</label>
-								<div class="col-sm-5 input-group">
-									<input class="eqLogicAttr form-control input-sm" data-l1key="configuration"  data-l2key="Activation" placeholder="{{Séléctioner l'objet de commande d'activation du chauffe eau}}">
-									<span class="input-group-btn">
-										<a class="btn btn-success btn-sm bt_selectCmdExpression" >
-											<i class="fa fa-list-alt"></i>
-										</a>
-									</span>
-								</div>
-							</div>
-							<div class="form-group">
-								<label class="col-sm-2 control-label" >{{Commande de désactivation du chauffe eau}}</label>
-								<div class="col-sm-5 input-group">
-									<input class="eqLogicAttr form-control input-sm" data-l1key="configuration"  data-l2key="Desactivation" placeholder="{{Séléctioner l'objet de commande de desactivation du chauffe eau}}">
-									<span class="input-group-btn">
-										<a class="btn btn-success btn-sm bt_selectCmdExpression" >
-											<i class="fa fa-list-alt"></i>
-										</a>
-									</span>
-								</div>
-							</div-->	
+						<fieldset>	
 							<div class="form-group">
 								<label class="col-sm-2 control-label" >{{ Commande d’état du chauffe-eau}}</label>
 								<div class="col-sm-5 input-group">
@@ -241,9 +213,10 @@ $eqLogics = eqLogic::byType('ChauffeEau');
 					<thead>
 						<tr>
 							<th style="width:30px;"></th>
-							<th style="width:600px;">{{Jour actif}}</th>
-							<th style="width:100px;">{{Heure}}</th>
-							<th>{{Reprogrammation}}</th>
+							<th style="width:100px;">{{Jour actif}}</th>
+							<th style="width:300px;">{{Température}}</th>
+							<th style="width:200px;">{{Programmation}}</th>
+							<th>{{URL}}</th>
 						</tr>
 					</thead>
 					<tbody></tbody>
