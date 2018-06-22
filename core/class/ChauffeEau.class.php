@@ -50,7 +50,7 @@ class ChauffeEau extends eqLogic {
 				break;
 				case 2:
 					//Mode automatique
-					$TempSouhaite = cache::byKey('ChauffeEau::TempSouhaite::'.$this->getId())->getValue(60);
+					$TempSouhaite = cache::byKey('ChauffeEau::TempSouhaite::'.$ChauffeEau->getId())->getValue(60);
 					$TempActuel= jeedom::evaluateExpression($ChauffeEau->getConfiguration('TempActuel'));
 					$ChauffeEau->CheckDeltaTemp($TempActuel);
 					$NextProg = cache::byKey('ChauffeEau::Stop::Time::'.$ChauffeEau->getId())->getValue(0);
