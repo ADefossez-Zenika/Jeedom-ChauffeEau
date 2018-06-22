@@ -214,8 +214,9 @@ $eqLogics = eqLogic::byType('ChauffeEau');
 						<tr>
 							<th style="width:30px;"></th>
 							<th style="width:600px;">{{Jour actif}}</th>
-							<th style="width:100px;">{{Heure}}</th>
-							<th>{{Reprogrammation}}</th>
+							<th style="width:100px;">{{Température}}</th>
+							<th style="width:100px;">{{Programmation}}</th>
+							<th>{{URL}}</th>
 						</tr>
 					</thead>
 					<tbody></tbody>
