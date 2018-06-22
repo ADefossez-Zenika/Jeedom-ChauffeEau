@@ -50,7 +50,7 @@ class ChauffeEau extends eqLogic {
 				break;
 				case 2:
 					//Mode automatique
-					$TempSouhaite = jeedom::evaluateExpression($ChauffeEau->getConfiguration('TempSouhaite'));
+					$TempSouhaite = cache::byKey('ChauffeEau::TempSouhaite::'.$this->getId())->getValue(60);
 					$TempActuel= jeedom::evaluateExpression($ChauffeEau->getConfiguration('TempActuel'));
 					$ChauffeEau->CheckDeltaTemp($TempActuel);
 					$NextProg = cache::byKey('ChauffeEau::Stop::Time::'.$ChauffeEau->getId())->getValue(0);
@@ -69,10 +69,12 @@ class ChauffeEau extends eqLogic {
 					}
 					$PowerTime=$ChauffeEau->EvaluatePowerTime();
 					if(mktime() > $NextProg-$PowerTime+60){	//Heure actuel > Heure de dispo - Temps de chauffe + Pas d'integration
-						log::add('ChauffeEau','debug',$ChauffeEau->getHumanName().' : Temps de chauffage nécessaire pour atteindre la température souhaité est de '.$PowerTime.' s');		
 						if($ChauffeEau->EvaluateCondition()){
-							if($TempActuel <=  $TempSouhaite)
+							if($TempActuel <=  $TempSouhaite){
+								log::add('ChauffeEau','info',$ChauffeEau->getHumanName().' : La température actuel est de '.$TempActuel.'°C et nous desirons atteindre '.  $TempSouhaite.'°C');		
+								log::add('ChauffeEau','info',$ChauffeEau->getHumanName().' : Temps de chauffage estimé est de '.$PowerTime.' s');
 								$ChauffeEau->PowerStart();
+							}
 						}	
 					}else{
 						$StartTemps = cache::byKey('ChauffeEau::Start::Temps::'.$ChauffeEau->getId());
@@ -148,7 +150,7 @@ class ChauffeEau extends eqLogic {
 		}
 		$replace['#cmdColor#'] = ($this->getPrimaryCategory() == '') ? '' : jeedom::getConfiguration('eqLogic:category:' . $this->getPrimaryCategory() . ':' . $vcolor);
 		$PowerTime=$this->EvaluatePowerTime();		
-		$replace['#Consigne#'] = jeedom::evaluateExpression($this->getConfiguration('TempSouhaite'));
+		$replace['#Consigne#'] = cache::byKey('ChauffeEau::TempSouhaite::'.$this->getId())->getValue(60);
 		$replace['#tempBallon#'] = jeedom::evaluateExpression($this->getConfiguration('TempActuel'));
 		$NextProg=$this->NextProg();
 		if($replace['#Consigne#'] < $replace['#tempBallon#'])
@@ -267,6 +269,7 @@ class ChauffeEau extends eqLogic {
 	}
 	public function NextProg(){
 		$nextTime=null;
+		$TempSouhaite=null;
 		foreach($this->getConfiguration('programation') as $ConigSchedule){
 			if($ConigSchedule["isHoraire"]){
 				$offset=0;
@@ -282,15 +285,19 @@ class ChauffeEau extends eqLogic {
 							if(jeedom::evaluateExpression($this->getConfiguration('TempActuel')) > $ConigSchedule["seuil"])
 								continue;
 						}
+						$TempSouhaite=$ConigSchedule["consigne"];
 						break;
 					}
 				}
-				if($nextTime == null || $nextTime > $timestamp)
+				if($nextTime == null || $nextTime > $timestamp){
 					$nextTime=$timestamp;
+					cache::set('ChauffeEau::TempSouhaite::'.$this->getId(),jeedom::evaluateExpression($TempSouhaite), 0);
+				}
 			}elseif($ConigSchedule["isSeuil"] && $ConigSchedule[date('w')]){
 				if(jeedom::evaluateExpression($this->getConfiguration('TempActuel')) <= $ConigSchedule["seuil"]){
 					log::add('ChauffeEau','info',$this->getHumanName().' : Lancement du cycle d\'Hysteresis');
 					cache::set('ChauffeEau::Hysteresis::'.$this->getId(),true, 0);
+					cache::set('ChauffeEau::TempSouhaite::'.$this->getId(),jeedom::evaluateExpression($ConigSchedule["consigne"]), 0);
 					$nextTime = mktime()+(60*60*24);
 				}
 			}
@@ -298,8 +305,8 @@ class ChauffeEau extends eqLogic {
 		//log::add('ChauffeEau','debug',$this->getHumanName().' : Le prochain disponibilité est '. date("d/m/Y H:i", $nextTime));
 		return $nextTime;
 	}
-	public function EvaluatePowerTime() {
-		$DeltaTemp = jeedom::evaluateExpression($this->getConfiguration('TempSouhaite'));
+	public function EvaluatePowerTime() {		
+		$DeltaTemp = cache::byKey('ChauffeEau::TempSouhaite::'.$this->getId())->getValue(60);
 		$DeltaTemp-= jeedom::evaluateExpression($this->getConfiguration('TempActuel'));
 		$Energie=$this->getConfiguration('Capacite')*$DeltaTemp*4185;
 		$PowerTime = round($Energie/ $this->getPuissance());
