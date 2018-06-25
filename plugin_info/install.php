@@ -15,7 +15,7 @@ function ChauffeEau_update(){
 		$cache = cache::byKey('ChauffeEau::EvalTime::'.$eqLogic->getId());
 		if (is_object($cache)) 	
 			$cache->remove();
-		cache::set('ChauffeEau::Puissance::'.$eqLogic->getId(), json_encode(array_slice(array(intval(trim($eqLogic->getConfiguration('Puissance')))), -10, 10)), 0);
+		//cache::set('ChauffeEau::Puissance::'.$eqLogic->getId(), json_encode(array_slice(array(intval(trim($eqLogic->getConfiguration('Puissance')))), -10, 10)), 0);
 	}
 	log::add('ChauffeEau','debug','Fin du script de mise a jours');
 }
