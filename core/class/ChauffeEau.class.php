@@ -141,6 +141,8 @@ class ChauffeEau extends eqLogic {
 		if (!is_array($replace)) 
 			return $replace;
 		$version = jeedom::versionAlias($_version);
+		$cmdColor = ($this->getPrimaryCategory() == '') ? '' : jeedom::getConfiguration('eqLogic:category:' . $this->getPrimaryCategory() . ':' . $vcolor);
+		$replace['#cmdColor#'] = $cmdColor;
 		if ($this->getDisplay('hideOn' . $version) == 1)
 			return '';
 		foreach ($this->getCmd() as $cmd) {
@@ -148,7 +150,6 @@ class ChauffeEau extends eqLogic {
 				continue;
 			$replace['#'.$cmd->getLogicalId().'#']= $cmd->toHtml($_version, $cmdColor);
 		}
-		$replace['#cmdColor#'] = ($this->getPrimaryCategory() == '') ? '' : jeedom::getConfiguration('eqLogic:category:' . $this->getPrimaryCategory() . ':' . $vcolor);
 		$PowerTime=$this->EvaluatePowerTime();		
 		$replace['#Consigne#'] = cache::byKey('ChauffeEau::TempSouhaite::'.$this->getId())->getValue(60);
 		$replace['#tempBallon#'] = jeedom::evaluateExpression($this->getConfiguration('TempActuel'));
