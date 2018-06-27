@@ -32,6 +32,10 @@ Controle du chauffe eau
 ---
 * Commande d'etat du chauffe-eau : sélectionnez la commande d'etat de votre chauffe-eau afin de permetre au plugin de se mettre a jours
 
+> La commande de retour d'etat doit etre d'un sous-type binaire
+0 => Eteint
+1 => Allumée
+
 Programmation
 ==========
 Nous avans la possibilité de cree plusieurs programmation  de notre chauffe eau, en fonction des jours de la semaine, de l'heure de disponibilité de l'eau chaude ou d'un seuil de température. 
