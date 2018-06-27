@@ -422,6 +422,18 @@ class ChauffeEau extends eqLogic {
 			cache::set('ChauffeEau::Puissance::'.$this->getId(), json_encode(array_slice(array(intval(trim($this->getConfiguration('Puissance')))), -10, 10)), 0);
 	}
 	public function createDeamon() {
+      		$cache = cache::byKey('ChauffeEau::Start::Temps::'.$this->getId());
+      		if(is_object($cache))
+          		$cache->remove();
+      		$cache = cache::byKey('ChauffeEau::Stop::Time::'.$this->getId());
+      		if(is_object($cache))
+          		$cache->remove();
+      		$cache = cache::byKey('ChauffeEau::Power::'.$this->getId());
+      		if(is_object($cache))
+          		$cache->remove();
+      		$cache = cache::byKey('ChauffeEau::Hysteresis::'.$this->getId());
+      		if(is_object($cache))
+          		$cache->remove();
 		if ($this->getConfiguration('Etat') != ''){
 			$listener = listener::byClassAndFunction('ChauffeEau', 'pull', array('ChauffeEau_id' => $this->getId()));
 			if (!is_object($listener))
