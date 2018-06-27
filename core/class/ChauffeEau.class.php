@@ -50,7 +50,7 @@ class ChauffeEau extends eqLogic {
 				break;
 				case 2:
 					//Mode automatique
-					$TempSouhaite = cache::byKey('ChauffeEau::TempSouhaite::'.$ChauffeEau->getId())->getValue(60);
+					$TempSouhaite = $ChauffeEau->getCmd(null,'consigne')->execCmd();
 					$TempActuel= jeedom::evaluateExpression($ChauffeEau->getConfiguration('TempActuel'));
 					$ChauffeEau->CheckDeltaTemp($TempActuel);
 					$NextProg = cache::byKey('ChauffeEau::Stop::Time::'.$ChauffeEau->getId())->getValue(0);
@@ -151,10 +151,9 @@ class ChauffeEau extends eqLogic {
 			$replace['#'.$cmd->getLogicalId().'#']= $cmd->toHtml($_version, $cmdColor);
 		}
 		$PowerTime=$this->EvaluatePowerTime();		
-		$replace['#Consigne#'] = cache::byKey('ChauffeEau::TempSouhaite::'.$this->getId())->getValue(60);
 		$replace['#tempBallon#'] = jeedom::evaluateExpression($this->getConfiguration('TempActuel'));
 		$NextProg=$this->NextProg();
-		if($replace['#Consigne#'] < $replace['#tempBallon#'])
+		if($replace['#consigne#'] < $replace['#tempBallon#'])
 			$replace['#NextStart#'] = "L'eau n'a pas besoin d'etre chauffé";
 		else
 			$replace['#NextStart#'] = date('d/m/Y H:i',$NextProg-$PowerTime);
@@ -292,14 +291,14 @@ class ChauffeEau extends eqLogic {
 				}
 				if($nextTime == null || $nextTime > $timestamp){
 					$nextTime=$timestamp;
-					cache::set('ChauffeEau::TempSouhaite::'.$this->getId(),jeedom::evaluateExpression($TempSouhaite), 0);
+					$this->checkAndUpdateCmd('consigne',jeedom::evaluateExpression($TempSouhaite));
 				}
 			}elseif($ConigSchedule["isSeuil"] && $ConigSchedule[date('w')]){
 				if(jeedom::evaluateExpression($this->getConfiguration('TempActuel')) <= $ConigSchedule["seuil"]){
 					log::add('ChauffeEau','info',$this->getHumanName().' : Lancement du cycle d\'Hysteresis');
 					cache::set('ChauffeEau::Hysteresis::'.$this->getId(),true, 0);
-					cache::set('ChauffeEau::TempSouhaite::'.$this->getId(),jeedom::evaluateExpression($ConigSchedule["consigne"]), 0);
-					$nextTime = mktime()+(60*60*24);
+					$nextTime = mktime()+(60*60*24);					
+					$this->checkAndUpdateCmd('consigne',jeedom::evaluateExpression($ConigSchedule["consigne"]));
 				}
 			}
 		}
@@ -307,7 +306,7 @@ class ChauffeEau extends eqLogic {
 		return $nextTime;
 	}
 	public function EvaluatePowerTime() {		
-		$DeltaTemp = cache::byKey('ChauffeEau::TempSouhaite::'.$this->getId())->getValue(60);
+		$DeltaTemp = $this->getCmd(null,'consigne')->execCmd();
 		$DeltaTemp-= jeedom::evaluateExpression($this->getConfiguration('TempActuel'));
 		$Energie=$this->getConfiguration('Capacite')*$DeltaTemp*4185;
 		$PowerTime = round($Energie/ $this->getPuissance());
@@ -398,6 +397,7 @@ class ChauffeEau extends eqLogic {
 		self::deamon_stop();
 	}
 	public function postSave() {
+		$this->AddCommande("Consigne appliqué","consigne","info", 'numeric',true);
 		$state=$this->AddCommande("Etat du chauffe-eau","state","info", 'binary',true);
 		$state->event(false);
 		$state->setCollectDate(date('Y-m-d H:i:s'));
