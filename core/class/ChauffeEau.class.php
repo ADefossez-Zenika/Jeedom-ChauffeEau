@@ -450,6 +450,9 @@ class ChauffeEau extends eqLogic {
 			$listener->addEvent($this->getConfiguration('Etat'));
 			$listener->save();	
 		}
+		$state=cmd::byId(str_replace('#','',$this->getConfiguration('Etat')));
+		if(is_object($state))
+			$this->checkAndUpdateCmd('state',$state->execCmd());
 	}
 }
 class ChauffeEauCmd extends cmd {
