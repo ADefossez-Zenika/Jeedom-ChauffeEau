@@ -152,8 +152,10 @@ class ChauffeEau extends eqLogic {
 		}
 		$PowerTime=$this->EvaluatePowerTime();		
 		$replace['#tempBallon#'] = jeedom::evaluateExpression($this->getConfiguration('TempActuel'));
-		$NextProg=$this->NextProg();
-		if($replace['#consigne#'] < $replace['#tempBallon#'])
+		$NextProg = cache::byKey('ChauffeEau::Stop::Time::'.$this->getId())->getValue(0);
+		if($NextProg==0)
+			$NextProg=$this->NextProg();
+		if($PowerTime<0)
 			$replace['#NextStart#'] = "L'eau n'a pas besoin d'etre chauffé";
 		else
 			$replace['#NextStart#'] = date('d/m/Y H:i',$NextProg-$PowerTime);
@@ -397,7 +399,7 @@ class ChauffeEau extends eqLogic {
 		self::deamon_stop();
 	}
 	public function postSave() {
-		$this->AddCommande("Consigne appliqué","consigne","info", 'numeric',true);
+		$this->AddCommande("Consigne appliquée","consigne","info", 'numeric',true);
 		$state=$this->AddCommande("Etat du chauffe-eau","state","info", 'binary',true);
 		$state->event(false);
 		$state->setCollectDate(date('Y-m-d H:i:s'));
@@ -422,6 +424,21 @@ class ChauffeEau extends eqLogic {
 			cache::set('ChauffeEau::Puissance::'.$this->getId(), json_encode(array_slice(array(intval(trim($this->getConfiguration('Puissance')))), -10, 10)), 0);
 	}
 	public function createDeamon() {
+		$listener = listener::byClassAndFunction('ChauffeEau', 'pull', array('ChauffeEau_id' => $this->getId()));
+		if (is_object($listener)) 	
+			$listener->remove();
+      		$cache = cache::byKey('ChauffeEau::Start::Temps::'.$this->getId());
+      		if(is_object($cache))
+          		$cache->remove();
+      		$cache = cache::byKey('ChauffeEau::Stop::Time::'.$this->getId());
+      		if(is_object($cache))
+          		$cache->remove();
+      		$cache = cache::byKey('ChauffeEau::Power::'.$this->getId());
+      		if(is_object($cache))
+          		$cache->remove();
+      		$cache = cache::byKey('ChauffeEau::Hysteresis::'.$this->getId());
+      		if(is_object($cache))
+          		$cache->remove();
 		if ($this->getConfiguration('Etat') != ''){
 			$listener = listener::byClassAndFunction('ChauffeEau', 'pull', array('ChauffeEau_id' => $this->getId()));
 			if (!is_object($listener))
@@ -432,6 +449,11 @@ class ChauffeEau extends eqLogic {
 			$listener->emptyEvent();				
 			$listener->addEvent($this->getConfiguration('Etat'));
 			$listener->save();	
+		}
+		if($this->getConfiguration('Etat') != ''){
+			$state=cmd::byId(str_replace('#','',$this->getConfiguration('Etat')));
+			if(is_object($state))
+				$this->checkAndUpdateCmd('state',$state->execCmd());
 		}
 	}
 }
