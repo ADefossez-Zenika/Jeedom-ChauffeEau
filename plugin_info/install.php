@@ -15,9 +15,11 @@ function ChauffeEau_update(){
 		if (is_object($cache)) 	
 			$cache->remove();
 		foreach($eqLogic->getConfiguration('ActionOn') as $cmd){
+			$cmd['declencheur']='on';
 			$Action[]=$cmd;
 		}
 		foreach($eqLogic->getConfiguration('ActionOff') as $cmd){
+			$cmd['declencheur']='off';
 			$Action[]=$cmd;
 		}
 		$eqLogic->setConfiguration('Action',$Action);
