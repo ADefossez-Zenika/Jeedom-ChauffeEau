@@ -90,12 +90,8 @@ $eqLogics = eqLogic::byType('ChauffeEau');
 					<i class="fa fa-asterisk"></i> {{Conditions}}</a>
 			</li>
 			<li role="presentation">
-				<a href="#actionOnTab" aria-controls="profile" role="tab" data-toggle="tab" aria-expanded="false">
-					<i class="fa fa-list-alt"></i> {{Actions d'activation}}</a>
-			</li>
-			<li role="presentation">
-				<a href="#actionOffTab" aria-controls="profile" role="tab" data-toggle="tab" aria-expanded="false">
-					<i class="fa fa-list-alt"></i> {{Actions d'extinction}}</a>
+				<a href="#actionTab" aria-controls="profile" role="tab" data-toggle="tab" aria-expanded="false">
+					<i class="fa fa-list-alt"></i> {{Actions}}</a>
 			</li>
 		</ul>
 		<div class="tab-content" style="height:calc(100% - 50px);overflow:auto;overflow-x: hidden;">
@@ -246,7 +242,7 @@ $eqLogics = eqLogic::byType('ChauffeEau');
 					<tbody></tbody>
 				</table>
 			</div>
-			<div role="tabpanel" class="tab-pane" id="actionOnTab">
+			<div role="tabpanel" class="tab-pane" id="actionTab">
 				<form class="form-horizontal">
 					<fieldset>
 						<legend>{{Les actions:}}
@@ -264,31 +260,8 @@ $eqLogics = eqLogic::byType('ChauffeEau');
 					<thead>
 						<tr>
 							<th></th>
-							<th>Action</th>
-						</tr>
-					</thead>
-					<tbody></tbody>
-				</table>
-			</div>		
-			<div role="tabpanel" class="tab-pane" id="actionOffTab">
-				<form class="form-horizontal">
-					<fieldset>
-						<legend>{{Les actions:}}
-							<sup>
-								<i class="fa fa-question-circle tooltips" title="Saisir toutes les actions à mener à l'ouverture"></i>
-							</sup>
-							<a class="btn btn-success btn-xs ActionAttr" data-action="add" style="margin-left: 5px;">
-								<i class="fa fa-plus-circle"></i>
-								{{Ajouter une Action}}
-							</a>
-						</legend>
-					</fieldset>
-				</form>					
-				<table id="table_action" class="table table-bordered table-condensed">
-					<thead>
-						<tr>
-							<th></th>
-							<th>Action</th>
+							<th>{{Action}}</th>
+							<th>{{Déclencheur}}</th>
 						</tr>
 					</thead>
 					<tbody></tbody>
