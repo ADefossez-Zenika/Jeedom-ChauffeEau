@@ -105,7 +105,9 @@ La commande "Etat fonctionnement" permet de connaitre dans quel etat est le chau
 - 3 = Off
 
 La commande "Marche forcée" permet de forcer l'allumage du chauffe-eau.
+
 La commande "Désactiver" permet de forcer l'extinction du chauffe-eau.
+
 La commande "Automatique" permet de laisser le plugin gerer le chauffe-eau.
 
 > En fonction de l'etat du chauffe-eau vu par le plugin et l'etat reel, le plugin changera automatiquement le mode.
