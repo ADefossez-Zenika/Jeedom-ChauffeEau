@@ -34,7 +34,11 @@ foreach ($eqLogics as $eqLogic) {
 	echo '<td>';
 	$cache = cache::byKey('ChauffeEau::Ratio::'.$eqLogic->getId());
 	$RatioMoy = json_decode($cache->getValue('[]'), true);
-	echo '<div class="Graph" id="Graph_Ratio_'. $eqLogic->getId().'" data-graph="'.$cache->getValue('[]').'" data-title="'.round(array_sum($RatioMoy)/count($RatioMoy),0) . 'W"></div>';
+	if(count($RatioMoy) > 0)
+		$RatioMoy = round(array_sum($RatioMoy)/count($RatioMoy),0)
+	else
+		$RatioMoy=0;
+	echo '<div class="Graph" id="Graph_Ratio_'. $eqLogic->getId().'" data-graph="'.$cache->getValue('[]').'" data-title="'.$RatioMoy . 's/°C"></div>';
 	echo '</td>';
 	echo '<td><span class="label label-info" style="font-size : 1em;cursor:default;">' . $eqLogic->getStatus('lastCommunication') . '</span></td>';
 	echo '<td><span class="label label-info" style="font-size : 1em;cursor:default;">' . $eqLogic->getConfiguration('createtime') . '</span></td></tr>';
