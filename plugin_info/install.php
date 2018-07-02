@@ -21,8 +21,8 @@ function ChauffeEau_update(){
 			$Action[]=$cmd;
 		}
 		$eqLogic->setConfiguration('Action',$Action);
-		$eqLogic->setConfiguration('ActionOn',array());
-		$eqLogic->setConfiguration('ActionOff',array());
+		//$eqLogic->setConfiguration('ActionOn',array());
+		//$eqLogic->setConfiguration('ActionOff',array());
 		$eqLogic->save();
 		//cache::set('ChauffeEau::Puissance::'.$eqLogic->getId(), json_encode(array_slice(array(intval(trim($eqLogic->getConfiguration('Puissance')))), -10, 10)), 0);
 	}
