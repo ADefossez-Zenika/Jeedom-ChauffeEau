@@ -1,6 +1,7 @@
 $("#table_cmd").sortable({axis: "y", cursor: "move", items: ".cmd", placeholder: "ui-state-highlight", tolerance: "intersect", forcePlaceholderSize: true});
 $("#table_programation").sortable({axis: "y", cursor: "move", items: ".ProgramationGroup", placeholder: "ui-state-highlight", tolerance: "intersect", forcePlaceholderSize: true});
 $("#table_condition").sortable({axis: "y", cursor: "move", items: ".ConditionGroup", placeholder: "ui-state-highlight", tolerance: "intersect", forcePlaceholderSize: true});
+$("#table_action").sortable({axis: "y", cursor: "move", items: ".ActionGroup", placeholder: "ui-state-highlight", tolerance: "intersect", forcePlaceholderSize: true});
 $('.bt_showExpressionTest').off('click').on('click', function () {
 	$('#md_modal').dialog({title: "{{Testeur d'expression}}"});
 	$("#md_modal").load('index.php?v=d&modal=expression.test').dialog('open');
@@ -55,28 +56,22 @@ $('body').on( 'click','.bt_selectCmdExpression', function() {
 function saveEqLogic(_eqLogic) {
 	_eqLogic.configuration.programation=new Object();
 	_eqLogic.configuration.condition=new Object();
-	_eqLogic.configuration.ActionOn=new Object();
-	_eqLogic.configuration.ActionOff=new Object();
+	_eqLogic.configuration.Action=new Object();
 	var ProgramationArray= new Array();
 	var ConditionArray= new Array();
-	var ActionOnArray= new Array();
-	var ActionOffArray= new Array();
+	var ActionArray= new Array();
 	$('#programationtab .ProgramationGroup').each(function( index ) {
 		ProgramationArray.push($(this).getValues('.expressionAttr')[0])
 	});
 	$('#conditiontab .ConditionGroup').each(function( index ) {
 		ConditionArray.push($(this).getValues('.expressionAttr')[0])
 	});
-	$('#actionOnTab .ActionGroup').each(function( index ) {
-		ActionOnArray.push($(this).getValues('.expressionAttr')[0])
-	});
-	$('#actionOffTab .ActionGroup').each(function( index ) {
-		ActionOffArray.push($(this).getValues('.expressionAttr')[0])
+	$('#actionTab .ActionGroup').each(function( index ) {
+		ActionArray.push($(this).getValues('.expressionAttr')[0])
 	});
 	_eqLogic.configuration.programation=ProgramationArray;
 	_eqLogic.configuration.condition=ConditionArray;
-	_eqLogic.configuration.ActionOn=ActionOnArray;
-	_eqLogic.configuration.ActionOff=ActionOffArray;
+	_eqLogic.configuration.Action=ActionArray;
    	return _eqLogic;
 }
 function printEqLogic(_eqLogic) {	
@@ -95,16 +90,10 @@ function printEqLogic(_eqLogic) {
 				addCondition(_eqLogic.configuration.condition[index],$('#conditiontab').find('table tbody'));
 		}
 	}
-	if (typeof(_eqLogic.configuration.ActionOn) !== 'undefined') {
-		for(var index in _eqLogic.configuration.ActionOn) { 
-			if( (typeof _eqLogic.configuration.ActionOn[index] === "object") && (_eqLogic.configuration.ActionOn[index] !== null) )
-				addAction(_eqLogic.configuration.ActionOn[index],$('#actionOnTab').find('table tbody'));
-		}
-	}
-	if (typeof(_eqLogic.configuration.ActionOff) !== 'undefined') {
-		for(var index in _eqLogic.configuration.ActionOff) { 
-			if( (typeof _eqLogic.configuration.ActionOff[index] === "object") && (_eqLogic.configuration.ActionOff[index] !== null) )
-				addAction(_eqLogic.configuration.ActionOff[index],$('#actionOffTab').find('table tbody'));
+	if (typeof(_eqLogic.configuration.Action) !== 'undefined') {
+		for(var index in _eqLogic.configuration.Action) { 
+			if( (typeof _eqLogic.configuration.Action[index] === "object") && (_eqLogic.configuration.Action[index] !== null) )
+				addAction(_eqLogic.configuration.Action[index],$('#actionTab').find('table tbody'));
 		}
 	}
 }
@@ -214,12 +203,23 @@ function addAction(_action,  _el) {
 					.append($('<i class="fa fa-list-alt">')))))	
 		.append($('<div class="actionOptions">')
 	       		.append($(jeedom.cmd.displayActionOption(init(_action.cmd, ''), _action.options)))));
+	tr.append(addParameters());
 	_el.append(tr);
         _el.find('tr:last').setValues(_action, '.expressionAttr');
 	_el.find('tr:last .DawnSimulatorEngine').hide();
 	$('.ActionAttr[data-action=remove]').off().on('click',function(){
 		$(this).closest('tr').remove();
 	});
+}
+function addParameters() {
+	return $('<td>')
+		.append($('<select class="expressionAttr form-control input-sm cmdAction" data-l1key="declencheur" multiple>')
+			.append($('<option value="on">')
+				.text('{{Allumage du chauffe-eau}}'))
+			.append($('<option value="off">')
+				.text('{{Extinction du chauffe-eau}}'))
+			.append($('<option value="dispo">')
+				.text('{{Heure de dispo}}')));		
 }
 $('.ActionAttr[data-action=add]').off().on('click',function(){
 	addAction({},$(this).closest('.tab-pane').find('table'));
