@@ -65,9 +65,9 @@ class ChauffeEau extends eqLogic {
 						cache::set('ChauffeEau::Stop::Time::'.$ChauffeEau->getId(),0, 0);
 						log::add('ChauffeEau','debug',$ChauffeEau->getHumanName().' : Temps supperieur a l\'heure programmée');
 						$ChauffeEau->EvaluatePowerStop();
-						foreach($this->getConfiguration('Action') as $cmd){
+						foreach($ChauffeEau->getConfiguration('Action') as $cmd){
 							if($cmd['declencheur'] == 'dispo')
-								$this->ExecuteAction($cmd);
+								$ChauffeEau->ExecuteAction($cmd);
 						}
 						continue;
 					}

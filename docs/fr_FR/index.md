@@ -92,3 +92,23 @@ Chaque action configurée sera exécutée dans l'ordre choisi.
 Nous pouvons aussi bien ajouter une commande qu'un scénario
 
 ![introduction01](../images/ConfigurationAction.jpg)
+
+Mode de fonctionnement
+==========
+
+Le plugin a 3 mode de fonctionnement.
+Nous pouvons connaitre et controler chaqu'une de ses mode par une commande
+
+La commande "Etat fonctionnement" permet de connaitre dans quel etat est le chauffe-eau.
+- 1 = Marche forcé
+- 2 = Automatique
+- 3 = Off
+
+La commande "Marche forcée" permet de forcer l'allumage du chauffe-eau.
+
+La commande "Désactiver" permet de forcer l'extinction du chauffe-eau.
+
+La commande "Automatique" permet de laisser le plugin gerer le chauffe-eau.
+
+> En fonction de l'etat du chauffe-eau vu par le plugin et l'etat reel, le plugin changera automatiquement le mode.
+Par exemple, vous forcé l'allumage du chauffe-eau en manuel, le retour d'etat reel passe a on alors que le plugin attend un off, il comprend alors que nous souhaitons faire un marche forcé et passe par se mode pour ne pas interfer dans votre decision manuel
