@@ -14,6 +14,7 @@ function ChauffeEau_update(){
 		$cache = cache::byKey('ChauffeEau::EvalTime::'.$eqLogic->getId());
 		if (is_object($cache)) 	
 			$cache->remove();
+		$Action=$eqLogic->getConfiguration('Action',array());
 		foreach($eqLogic->getConfiguration('ActionOn') as $cmd){
 			$cmd['declencheur']='on';
 			$Action[]=$cmd;
