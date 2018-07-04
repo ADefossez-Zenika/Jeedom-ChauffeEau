@@ -44,16 +44,17 @@ class ChauffeEau extends eqLogic {
 			if (!$ChauffeEau->getIsEnable()) 
 				continue;
 			switch($ChauffeEau->getCmd(null,'etatCommut')->execCmd()){
-				case 1:
+				case 'armed':
 					// Mode Forcée
 					$ChauffeEau->PowerStart();
 				break;
-				case 2:
+				case 'auto':
 					//Mode automatique
 					$TempSouhaite = $ChauffeEau->getCmd(null,'consigne')->execCmd();
 					$TempActuel= jeedom::evaluateExpression($ChauffeEau->getConfiguration('TempActuel'));
 					$ChauffeEau->CheckDeltaTemp($TempActuel);
 					$NextProg = cache::byKey('ChauffeEau::Stop::Time::'.$ChauffeEau->getId())->getValue(0);
+					$Delestage = cache::byKey('ChauffeEau::Delestage::'.$ChauffeEau->getId())->getValue(false);
 					if($NextProg == 0){
 						$NextProg=$ChauffeEau->NextProg();
 						if($NextProg != null)
@@ -62,14 +63,22 @@ class ChauffeEau extends eqLogic {
 							continue;							
 					}
 					if(mktime() > $NextProg){
-						cache::set('ChauffeEau::Stop::Time::'.$ChauffeEau->getId(),0, 0);
-						log::add('ChauffeEau','debug',$ChauffeEau->getHumanName().' : Temps supperieur a l\'heure programmée');
-						$ChauffeEau->EvaluatePowerStop();
-						foreach($ChauffeEau->getConfiguration('Action') as $cmd){
-							if($cmd['declencheur'] == 'dispo')
-								$ChauffeEau->ExecuteAction($cmd);
+						if($Delestage && $ChauffeEau->getConfiguration('delestage') == 'Heure')
+							cache::set('ChauffeEau::Delestage::'.$ChauffeEau->getId(),false, 0);
+						if($Delestage && $ChauffeEau->getConfiguration('delestage') == '30'){
+							cache::set('ChauffeEau::Stop::Time::'.$ChauffeEau->getId(),$NextProg+(30*60), 0);
+							continue;
 						}
-						continue;
+						if(!cache::byKey('ChauffeEau::Delestage::'.$ChauffeEau->getId())->getValue(false)){
+							cache::set('ChauffeEau::Stop::Time::'.$ChauffeEau->getId(),0, 0);
+							log::add('ChauffeEau','debug',$ChauffeEau->getHumanName().' : Temps supperieur a l\'heure programmée');
+							$ChauffeEau->EvaluatePowerStop();
+							foreach($ChauffeEau->getConfiguration('Action') as $cmd){
+								if($cmd['declencheur'] == 'dispo')
+									$ChauffeEau->ExecuteAction($cmd);
+							}
+							continue;
+						}
 					}
 					$PowerTime=$ChauffeEau->EvaluatePowerTime();
 					if(mktime() > $NextProg-$PowerTime+60){	//Heure actuel > Heure de dispo - Temps de chauffe + Pas d'integration
@@ -85,8 +94,11 @@ class ChauffeEau extends eqLogic {
 						$DeltaTemp=$TempActuel-$StartTemps->getValue(0);
 						if($DeltaTemp > 1 && cache::byKey('ChauffeEau::Hysteresis::'.$ChauffeEau->getId())->getValue(false)){
 							if($ChauffeEau->EvaluateCondition()){
-								if($TempActuel >=  $TempSouhaite)
+								if($TempActuel >=  $TempSouhaite){									
+									if($Delestage && $ChauffeEau->getConfiguration('delestage') == 'Temp')
+										cache::set('ChauffeEau::Delestage::'.$ChauffeEau->getId(),false, 0);
 									$ChauffeEau->EvaluatePowerStop();
+								}
 								continue;
 							}	
 						}
@@ -94,9 +106,14 @@ class ChauffeEau extends eqLogic {
 					}
 						
 				break;
-				case 3:
-					// Mode Stope
+				case 'released':
+					// Mode Stop
 					$ChauffeEau->PowerStop();
+				break;
+				case 'delestage':
+					// Mode Délestage
+					$ChauffeEau->PowerStop();
+					cache::set('ChauffeEau::Delestage::'.$ChauffeEau->getId(),true, 0);
 				break;
 			}
 		}
@@ -393,12 +410,12 @@ class ChauffeEau extends eqLogic {
 			$Commande->setEqLogic_id($this->getId());
 			$Commande->setName($Name);
 			$Commande->setIsVisible($visible);
-			$Commande->setType($Type);
-			$Commande->setSubType($SubType);
-			$Commande->setTemplate('dashboard',$Template );
-			$Commande->setTemplate('mobile', $Template);
-			$Commande->save();
 		}
+		$Commande->setType($Type);
+		$Commande->setSubType($SubType);
+		$Commande->setTemplate('dashboard',$Template );
+		$Commande->setTemplate('mobile', $Template);
+		$Commande->save();
 		return $Commande;
 	}
 	public function preRemove() {
@@ -410,17 +427,20 @@ class ChauffeEau extends eqLogic {
 		$state->event(false);
 		$state->setCollectDate(date('Y-m-d H:i:s'));
 		$state->save();
-		$isArmed=$this->AddCommande("Etat fonctionnement","etatCommut","info","numeric",false);
-		$isArmed->event(2);
+		$isArmed=$this->AddCommande("Etat fonctionnement","etatCommut","info","string",true);
+		$isArmed->event('auto');
 		$isArmed->setCollectDate(date('Y-m-d H:i:s'));
 		$isArmed->save();
-		$Armed=$this->AddCommande("Marche forcée","armed","action","other",true,'Commutateur');
+		$Armed=$this->AddCommande("Marche forcée","armed","action","other",true,'');
 		$Armed->setValue($isArmed->getId());
 		$Armed->save();
-		$Released=$this->AddCommande("Désactiver","released","action","other",true,'Commutateur');
+		$Released=$this->AddCommande("Désactiver","released","action","other",true,'');
 		$Released->setValue($isArmed->getId());
 		$Released->save();
-		$Auto=$this->AddCommande("Automatique","auto","action","other",true,'Commutateur');
+		$Auto=$this->AddCommande("Automatique","auto","action","other",true,'');
+		$Auto->setValue($isArmed->getId());
+		$Auto->save();
+		$Auto=$this->AddCommande("Délestage","delestage","action","other",true,'');
 		$Auto->setValue($isArmed->getId());
 		$Auto->save();
 		$this->createDeamon();
@@ -467,13 +487,16 @@ class ChauffeEauCmd extends cmd {
 	public function execute($_options = null) {
 		switch($this->getLogicalId()){
 			case 'armed':
-				$this->getEqLogic()->checkAndUpdateCmd('etatCommut',1);
+				$this->getEqLogic()->checkAndUpdateCmd('etatCommut','armed');
 			break;
 			case 'released':
-				$this->getEqLogic()->checkAndUpdateCmd('etatCommut',3);
+				$this->getEqLogic()->checkAndUpdateCmd('etatCommut','released');
 			break;
 			case 'auto':
-				$this->getEqLogic()->checkAndUpdateCmd('etatCommut',2);
+				$this->getEqLogic()->checkAndUpdateCmd('etatCommut','auto');
+			break;
+			case 'delestage':
+				$this->getEqLogic()->checkAndUpdateCmd('etatCommut','delestage');
 			break;
 		}
 	}

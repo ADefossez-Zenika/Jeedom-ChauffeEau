@@ -101,15 +101,15 @@ $eqLogics = eqLogic::byType('ChauffeEau');
 						<legend>Général</legend>
 						<fieldset>
 							<div class="form-group ">
-								<label class="col-sm-2 control-label">{{Nom de la Zone}}</label>
-								<div class="col-sm-5">
+								<label class="col-sm-4 control-label">{{Nom de la Zone}}</label>
+								<div class="col-sm-7">
 									<input type="text" class="eqLogicAttr form-control" data-l1key="id" style="display : none;" />
 									<input type="text" class="eqLogicAttr form-control" data-l1key="name" placeholder="{{Nom du groupe de zones}}"/>
 								</div>
 							</div>
 							<div class="form-group">
-								<label class="col-sm-2 control-label" >{{Objet parent}}</label>
-								<div class="col-sm-5">
+								<label class="col-sm-4 control-label" >{{Objet parent}}</label>
+								<div class="col-sm-7">
 									<select id="sel_object" class="eqLogicAttr form-control" data-l1key="object_id">
 										<option value="">{{Aucun}}</option>
 										<?php
@@ -120,8 +120,8 @@ $eqLogics = eqLogic::byType('ChauffeEau');
 								</div>
 							</div>
 							<div class="form-group">
-								<label class="col-sm-2 control-label" ></label>
-								<div class="col-sm-5">
+								<label class="col-sm-4 control-label" ></label>
+								<div class="col-sm-7">
 									<label>{{Activer}}</label>
 									<input type="checkbox" class="eqLogicAttr" data-label-text="{{Activer}}" data-l1key="isEnable" checked/>
 									<label>{{Visible}}</label>
@@ -136,20 +136,20 @@ $eqLogics = eqLogic::byType('ChauffeEau');
 						<legend>Paramètre du chauffe-eau</legend>
 						<fieldset>
 							<div class="form-group">
-								<label class="col-sm-2 control-label" >{{Capacité du chauffe eau (Litre)}}</label>
-								<div class="col-sm-5">
+								<label class="col-sm-4 control-label" >{{Capacité du chauffe eau (Litre)}}</label>
+								<div class="col-sm-7">
 									<input type="text" class="eqLogicAttr form-control" data-l1key="configuration"  data-l2key="Capacite" placeholder="{{Capacité du chauffe eau (Litre)}}"/>
 								</div>
 							</div>
 							<div class="form-group">
-								<label class="col-sm-2 control-label" >{{Puissance du chauffe eau (Watt)}}</label>
-								<div class="col-sm-5">
+								<label class="col-sm-4 control-label" >{{Puissance du chauffe eau (Watt)}}</label>
+								<div class="col-sm-7">
 									<input type="text" class="eqLogicAttr form-control" data-l1key="configuration"  data-l2key="Puissance" placeholder="{{Puissance du chauffe eau (Watt)}}"/>
 								</div>
 							</div>
 							<div class="form-group">
-								<label class="col-sm-2 control-label" >{{Sélectionner une commande ou estimer la température actuelle de l'eau}}</label>
-								<div class="col-sm-5 input-group">
+								<label class="col-sm-4 control-label" >{{Sélectionner une commande ou estimer la température actuelle de l'eau}}</label>
+								<div class="col-sm-7 input-group">
 									<input class="eqLogicAttr form-control input-sm" data-l1key="configuration"  data-l2key="TempActuel" placeholder="{{Sélectionner un objet Jeedom de température, ou Saisisser une valeur par defaut}}">
 									<span class="input-group-btn">
 										<a class="btn btn-success btn-sm bt_selectCmdExpression" >
@@ -166,14 +166,24 @@ $eqLogics = eqLogic::byType('ChauffeEau');
 						<legend>Controle du chauffe eau</legend>
 						<fieldset>	
 							<div class="form-group">
-								<label class="col-sm-2 control-label" >{{ Commande d’état du chauffe-eau}}</label>
-								<div class="col-sm-5 input-group">
+								<label class="col-sm-4 control-label" >{{ Commande d’état du chauffe-eau}}</label>
+								<div class="col-sm-7 input-group">
 									<input class="eqLogicAttr form-control input-sm" data-l1key="configuration"  data-l2key="Etat" placeholder="{{Séléctioner l'objet de commande d'etat du chauffe eau}}">
 									<span class="input-group-btn">
 										<a class="btn btn-success btn-sm bt_selectCmdExpression" >
 											<i class="fa fa-list-alt"></i>
 										</a>
 									</span>
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-4 control-label" >{{Si délestage, le chauffe-eau doit :}}</label>
+								<div class="col-sm-7">
+									<select class="eqLogicAttr form-control input-sm" data-l1key="configuration" data-l2key="delestage" multiple="">
+										<option value="Heure">{{S'arreter a l'heure}}</option>
+										<option value="Temp">{{S'arreter a la consigne}}</option>
+										<option value="30">{{30 minute de chauffe}}</option>
+									</select>
 								</div>
 							</div>	
 						</fieldset>
