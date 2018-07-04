@@ -393,11 +393,11 @@ class ChauffeEau extends eqLogic {
 			$Commande->setEqLogic_id($this->getId());
 			$Commande->setName($Name);
 			$Commande->setIsVisible($visible);
-			$Commande->setTemplate('dashboard',$Template );
-			$Commande->setTemplate('mobile', $Template);
 		}
 		$Commande->setType($Type);
 		$Commande->setSubType($SubType);
+		$Commande->setTemplate('dashboard',$Template );
+		$Commande->setTemplate('mobile', $Template);
 		$Commande->save();
 		return $Commande;
 	}
@@ -410,20 +410,20 @@ class ChauffeEau extends eqLogic {
 		$state->event(false);
 		$state->setCollectDate(date('Y-m-d H:i:s'));
 		$state->save();
-		$isArmed=$this->AddCommande("Etat fonctionnement","etatCommut","info","string",false);
+		$isArmed=$this->AddCommande("Etat fonctionnement","etatCommut","info","string",true);
 		$isArmed->event('auto');
 		$isArmed->setCollectDate(date('Y-m-d H:i:s'));
 		$isArmed->save();
-		$Armed=$this->AddCommande("Marche forcée","armed","action","other",true,'Commutateur');
+		$Armed=$this->AddCommande("Marche forcée","armed","action","other",true,'');
 		$Armed->setValue($isArmed->getId());
 		$Armed->save();
-		$Released=$this->AddCommande("Désactiver","released","action","other",true,'Commutateur');
+		$Released=$this->AddCommande("Désactiver","released","action","other",true,'');
 		$Released->setValue($isArmed->getId());
 		$Released->save();
-		$Auto=$this->AddCommande("Automatique","auto","action","other",true,'Commutateur');
+		$Auto=$this->AddCommande("Automatique","auto","action","other",true,'');
 		$Auto->setValue($isArmed->getId());
 		$Auto->save();
-		$Auto=$this->AddCommande("Délestage","delestage","action","other",true,'Commutateur');
+		$Auto=$this->AddCommande("Délestage","delestage","action","other",true,'');
 		$Auto->setValue($isArmed->getId());
 		$Auto->save();
 		$this->createDeamon();
