@@ -74,8 +74,10 @@ class ChauffeEau extends eqLogic {
 							log::add('ChauffeEau','debug',$ChauffeEau->getHumanName().' : Temps supperieur a l\'heure programmée');
 							$ChauffeEau->EvaluatePowerStop();
 							foreach($ChauffeEau->getConfiguration('Action') as $cmd){
-								if($cmd['declencheur'] == 'dispo')
-									$ChauffeEau->ExecuteAction($cmd);
+								foreach($cmd['declencheur'] as $declencheur){
+									if($declencheur == 'dispo')
+										$ChauffeEau->ExecuteAction($cmd);
+								}
 							}
 							continue;
 						}
@@ -227,8 +229,10 @@ class ChauffeEau extends eqLogic {
 			cache::set('ChauffeEau::Start::Temps::'.$this->getId(),jeedom::evaluateExpression($this->getConfiguration('TempActuel')), 0);
 			cache::set('ChauffeEau::Start::Time::'.$this->getId(),time(), 0);
 			foreach($this->getConfiguration('Action') as $cmd){
-				if($cmd['declencheur'] == 'on')
-					$this->ExecuteAction($cmd);
+				foreach($cmd['declencheur'] as $declencheur){
+					if($declencheur == 'on')
+						$this->ExecuteAction($cmd);
+				}
 			}
 		}
 	}
@@ -240,8 +244,10 @@ class ChauffeEau extends eqLogic {
 				$this->checkAndUpdateCmd('state',0);
 			log::add('ChauffeEau','info',$this->getHumanName().' : Coupure de l\'alimentation électrique du chauffe-eau');
 			foreach($this->getConfiguration('Action') as $cmd){
-				if($cmd['declencheur'] == 'off')
-					$this->ExecuteAction($cmd);
+				foreach($cmd['declencheur'] as $declencheur){
+					if($declencheur == 'off')
+						$this->ExecuteAction($cmd);
+				}
 			}
 		}
 	}
