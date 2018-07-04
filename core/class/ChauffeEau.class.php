@@ -393,12 +393,12 @@ class ChauffeEau extends eqLogic {
 			$Commande->setEqLogic_id($this->getId());
 			$Commande->setName($Name);
 			$Commande->setIsVisible($visible);
-			$Commande->setType($Type);
-			$Commande->setSubType($SubType);
 			$Commande->setTemplate('dashboard',$Template );
 			$Commande->setTemplate('mobile', $Template);
-			$Commande->save();
 		}
+		$Commande->setType($Type);
+		$Commande->setSubType($SubType);
+		$Commande->save();
 		return $Commande;
 	}
 	public function preRemove() {
@@ -410,8 +410,8 @@ class ChauffeEau extends eqLogic {
 		$state->event(false);
 		$state->setCollectDate(date('Y-m-d H:i:s'));
 		$state->save();
-		$isArmed=$this->AddCommande("Etat fonctionnement","etatCommut","info","numeric",false);
-		$isArmed->event(2);
+		$isArmed=$this->AddCommande("Etat fonctionnement","etatCommut","info","string",false);
+		$isArmed->event('auto');
 		$isArmed->setCollectDate(date('Y-m-d H:i:s'));
 		$isArmed->save();
 		$Armed=$this->AddCommande("Marche forcée","armed","action","other",true,'Commutateur');
@@ -421,6 +421,9 @@ class ChauffeEau extends eqLogic {
 		$Released->setValue($isArmed->getId());
 		$Released->save();
 		$Auto=$this->AddCommande("Automatique","auto","action","other",true,'Commutateur');
+		$Auto->setValue($isArmed->getId());
+		$Auto->save();
+		$Auto=$this->AddCommande("Délestage","delestage","action","other",true,'Commutateur');
 		$Auto->setValue($isArmed->getId());
 		$Auto->save();
 		$this->createDeamon();
@@ -467,13 +470,16 @@ class ChauffeEauCmd extends cmd {
 	public function execute($_options = null) {
 		switch($this->getLogicalId()){
 			case 'armed':
-				$this->getEqLogic()->checkAndUpdateCmd('etatCommut',1);
+				$this->getEqLogic()->checkAndUpdateCmd('etatCommut','armed');
 			break;
 			case 'released':
-				$this->getEqLogic()->checkAndUpdateCmd('etatCommut',3);
+				$this->getEqLogic()->checkAndUpdateCmd('etatCommut','released');
 			break;
 			case 'auto':
-				$this->getEqLogic()->checkAndUpdateCmd('etatCommut',2);
+				$this->getEqLogic()->checkAndUpdateCmd('etatCommut','auto');
+			break;
+			case 'delestage':
+				$this->getEqLogic()->checkAndUpdateCmd('etatCommut','delestage');
 			break;
 		}
 	}
