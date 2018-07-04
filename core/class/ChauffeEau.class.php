@@ -7,7 +7,7 @@ class ChauffeEau extends eqLogic {
 		$return['launchable'] = 'ok';
 		$return['state'] = 'nok';
 		foreach(eqLogic::byType('ChauffeEau') as $ChauffeEau){
-			if($ChauffeEau->getIsEnable()){
+			if($ChauffeEau->getIsEnable() && $ChauffeEau->getConfiguration('Etat') != ''){
 				$listener = listener::byClassAndFunction('ChauffeEau', 'pull', array('ChauffeEau_id' => $ChauffeEau->getId()));
 				if (!is_object($listener))	
 					return $return;
@@ -475,8 +475,6 @@ class ChauffeEau extends eqLogic {
 			$listener->emptyEvent();				
 			$listener->addEvent($this->getConfiguration('Etat'));
 			$listener->save();	
-		}
-		if($this->getConfiguration('Etat') != ''){
 			$state=cmd::byId(str_replace('#','',$this->getConfiguration('Etat')));
 			if(is_object($state))
 				$this->checkAndUpdateCmd('state',$state->execCmd());
