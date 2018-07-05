@@ -35,7 +35,7 @@ foreach ($eqLogics as $eqLogic) {
 	$cache = cache::byKey('ChauffeEau::Ratio::'.$eqLogic->getId());
 	$RatioMoy = json_decode($cache->getValue('[]'), true);
 	if(count($RatioMoy) > 0)
-		$RatioMoy = round(array_sum($RatioMoy)/count($RatioMoy),0)
+		$RatioMoy = round(array_sum($RatioMoy)/count($RatioMoy),0);
 	else
 		$RatioMoy=0;
 	echo '<div class="Graph" id="Graph_Ratio_'. $eqLogic->getId().'" data-graph="'.$cache->getValue('[]').'" data-title="'.$RatioMoy . 's/°C"></div>';
