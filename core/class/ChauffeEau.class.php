@@ -429,7 +429,7 @@ class ChauffeEau extends eqLogic {
 	}
 	public function postSave() {
 		$this->AddCommande("Consigne appliquée","consigne","info", 'numeric',true);
-		$state=$this->AddCommande("Etat du chauffe-eau","state","info", 'binary',true);
+		$state=$this->AddCommande("Etat du chauffe-eau","state","info", 'binary',true,'State');
 		$state->event(false);
 		$state->setCollectDate(date('Y-m-d H:i:s'));
 		$state->save();
