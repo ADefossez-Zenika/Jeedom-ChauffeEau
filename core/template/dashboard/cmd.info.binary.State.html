@@ -1,0 +1,27 @@
+<div style="width:90px;min-height:80px;" class="cmd tooltips cmd-widget cursor" data-type="info" data-subtype="binary" data-cmd_id="#id#" data-cmd_uid="#uid#" data-version="#version#">
+    <center>
+        <div style="font-weight: bold;font-size : 12px;#hideCmdName#">#name#</div>
+        <span style="font-size: 3em;font-weight: bold;margin-top: 5px;" class="iconCmd"></span>
+    </center>
+    <script>
+        jeedom.cmd.update['#id#'] = function(_options){
+            if (_options.display_value == '1' || _options.display_value == 1 || _options.display_value == '99' || _options.display_value == 99 || _options.display_value == 'on') {
+                if (jeedom.cmd.normalizeName('#name#') == 'on') {
+                    $('.cmd[data-cmd_id=#id#]').hide();
+                }else{
+                    $('.cmd[data-cmd_id=#id#]').show();
+                  	 $('.cmd[data-cmd_id=#id#] .iconCmd').empty().append("<img width='80' src='plugins/ChauffeEau/core/template/images/ChauffeEauOn.png'>");
+                }
+            } else {
+                if (jeedom.cmd.normalizeName('#name#') == 'off') {
+                    $('.cmd[data-cmd_id=#id#]').hide();
+                }else{
+                    $('.cmd[data-cmd_id=#id#]').show();
+                   	$('.cmd[data-cmd_id=#id#] .iconCmd').empty().append("<img width='80' src='plugins/ChauffeEau/core/template/images/ChauffeEauOff.png'>");
+			
+                }
+            }
+        }
+        jeedom.cmd.update['#id#']({display_value:'#state#'});
+    </script>
+</div>
