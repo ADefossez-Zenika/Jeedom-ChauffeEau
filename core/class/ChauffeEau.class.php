@@ -255,19 +255,20 @@ class ChauffeEau extends eqLogic {
 		cache::set('ChauffeEau::Power::'.$this->getId(),false, 0);
 		if($this->getCmd(null,'state')->execCmd()){
 			$this->PowerStop();
+			$TempActuel= jeedom::evaluateExpression($this->getConfiguration('TempActuel'));
 			$StartTime = cache::byKey('ChauffeEau::Start::Time::'.$this->getId());	
 			$StartTemps = cache::byKey('ChauffeEau::Start::Temps::'.$this->getId());
-			$TempActuel= jeedom::evaluateExpression($this->getConfiguration('TempActuel'));
-			$DeltaTemp=$TempActuel-$StartTemps->getValue(0);
+			$DeltaTemp=$TempActuel-$StartTemps->getValue($TempActuel);
 			if($DeltaTemp > 1){
-				$DeltaTime=time()-$StartTime->getValue(0);
-				log::add('ChauffeEau','info',$this->getHumanName().' : Le chauffe eau a montée de '.$DeltaTemp.'°C sur une periode de '.$DeltaTime.'s');
-				$Ratio = cache::byKey('ChauffeEau::Ratio::'.$this->getId());
-				$value = json_decode($Ratio->getValue('[]'), true);
-				$value[] =intval(round($DeltaTime/$DeltaTemp));
-				cache::set('ChauffeEau::Ratio::'.$this->getId(), json_encode(array_slice($value, -10, 10)), 0);
-				$this->Puissance($DeltaTemp,$DeltaTime);
-				
+				$DeltaTime=time()-$StartTime->getValue(time());
+				if($DeltaTime > 1){
+					log::add('ChauffeEau','info',$this->getHumanName().' : Le chauffe eau a montée de '.$DeltaTemp.'°C sur une periode de '.$DeltaTime.'s');
+					$Ratio = cache::byKey('ChauffeEau::Ratio::'.$this->getId());
+					$value = json_decode($Ratio->getValue('[]'), true);
+					$value[] =intval(round($DeltaTime/$DeltaTemp));
+					cache::set('ChauffeEau::Ratio::'.$this->getId(), json_encode(array_slice($value, -10, 10)), 0);
+					$this->Puissance($DeltaTemp,$DeltaTime);
+				}
 			}	
 		}
 	}
