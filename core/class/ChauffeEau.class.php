@@ -57,20 +57,23 @@ class ChauffeEau extends eqLogic {
 					$Delestage = cache::byKey('ChauffeEau::Delestage::'.$ChauffeEau->getId())->getValue(false);
 					if($NextProg == 0){
 						$NextProg=$ChauffeEau->NextProg();
-						if($NextProg != null)
+						if($NextProg != null){
+							$ChauffeEau->checkAndUpdateCmd('NextStop',date('d/m/Y H:i',$NextProg));
 							cache::set('ChauffeEau::Stop::Time::'.$ChauffeEau->getId(),$NextProg, 0);
-						else 
+						}else 
 							continue;							
 					}
 					if(mktime() > $NextProg){
 						if($Delestage && $ChauffeEau->getConfiguration('delestage') == 'Heure')
 							cache::set('ChauffeEau::Delestage::'.$ChauffeEau->getId(),false, 0);
 						if($Delestage && $ChauffeEau->getConfiguration('delestage') == '30'){
+							$ChauffeEau->checkAndUpdateCmd('NextStop',date('d/m/Y H:i',$NextProg+(30*60)));
 							cache::set('ChauffeEau::Stop::Time::'.$ChauffeEau->getId(),$NextProg+(30*60), 0);
 							continue;
 						}
 						if(!cache::byKey('ChauffeEau::Delestage::'.$ChauffeEau->getId())->getValue(false)){
 							cache::set('ChauffeEau::Stop::Time::'.$ChauffeEau->getId(),0, 0);
+							$ChauffeEau->checkAndUpdateCmd('NextStop',date('d/m/Y H:i'));
 							log::add('ChauffeEau','debug',$ChauffeEau->getHumanName().' : Temps supperieur a l\'heure programmée');
 							$ChauffeEau->EvaluatePowerStop();
 							foreach($ChauffeEau->getConfiguration('Action') as $cmd){
@@ -83,6 +86,8 @@ class ChauffeEau extends eqLogic {
 						}
 					}
 					$PowerTime=$ChauffeEau->EvaluatePowerTime();
+					$NextStart=strtotime($NextProg)-$PowerTime;
+					$ChauffeEau->checkAndUpdateCmd('NextStart',date('d/m/Y H:i',$NextStart));
 					if(mktime() > $NextProg-$PowerTime+60){	//Heure actuel > Heure de dispo - Temps de chauffe + Pas d'integration
 						if($ChauffeEau->EvaluateCondition()){
 							if($TempActuel <=  $TempSouhaite){
@@ -173,8 +178,8 @@ class ChauffeEau extends eqLogic {
 				continue;
 			$replace['#'.$cmd->getLogicalId().'#']= $cmd->toHtml($_version, $cmdColor);
 		}
-		$PowerTime=$this->EvaluatePowerTime();		
 		$replace['#tempBallon#'] = jeedom::evaluateExpression($this->getConfiguration('TempActuel'));
+		/*$PowerTime=$this->EvaluatePowerTime();		
 		$NextProg = cache::byKey('ChauffeEau::Stop::Time::'.$this->getId())->getValue(0);
 		if($NextProg==0)
 			$NextProg=$this->NextProg();
@@ -182,7 +187,7 @@ class ChauffeEau extends eqLogic {
 			$replace['#NextStart#'] = "L'eau n'a pas besoin d'etre chauffé";
 		else
 			$replace['#NextStart#'] = date('d/m/Y H:i',$NextProg-$PowerTime);
-		$replace['#NextStop#'] = date('d/m/Y H:i',$NextProg);
+		$replace['#NextStop#'] = date('d/m/Y H:i',$NextProg);*/
 		if ($_version == 'dview' || $_version == 'mview') {
 			$object = $this->getObject();
 			$replace['#name#'] = (is_object($object)) ? $object->getName() . ' - ' . $replace['#name#'] : $replace['#name#'];
@@ -432,6 +437,8 @@ class ChauffeEau extends eqLogic {
 		self::deamon_stop();
 	}
 	public function postSave() {
+		$this->AddCommande("Date début","NextStart","info", 'string',true);
+		$this->AddCommande("Date de fin","NextStop","info", 'string',true);
 		$this->AddCommande("Consigne appliquée","consigne","info", 'numeric',true,'Consigne');
 		$state=$this->AddCommande("Etat du chauffe-eau","state","info", 'binary',true,'State');
 		$state->event(false);
