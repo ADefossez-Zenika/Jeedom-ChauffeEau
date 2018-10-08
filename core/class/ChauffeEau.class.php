@@ -59,7 +59,7 @@ class ChauffeEau extends eqLogic {
 	}
 	public function CheckChauffeEau(){
 		if (!$this->getIsEnable()) 
-			continue;
+			return;
 		switch($this->getCmd(null,'etatCommut')->execCmd()){
 			case 'armed':
 				// Mode Forcée
