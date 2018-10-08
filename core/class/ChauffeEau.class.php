@@ -63,6 +63,9 @@ class ChauffeEau extends eqLogic {
 						}else 
 							continue;							
 					}
+					$PowerTime=$ChauffeEau->EvaluatePowerTime();
+					$NextStart=$NextProg-$PowerTime;
+					$ChauffeEau->checkAndUpdateCmd('NextStart',date('d/m/Y H:i',$NextStart));
 					if(mktime() > $NextProg){
 						if($Delestage && $ChauffeEau->getConfiguration('delestage') == 'Heure')
 							cache::set('ChauffeEau::Delestage::'.$ChauffeEau->getId(),false, 0);
@@ -85,9 +88,6 @@ class ChauffeEau extends eqLogic {
 							continue;
 						}
 					}
-					$PowerTime=$ChauffeEau->EvaluatePowerTime();
-					$NextStart=strtotime($NextProg)-$PowerTime;
-					$ChauffeEau->checkAndUpdateCmd('NextStart',date('d/m/Y H:i',$NextStart));
 					if(mktime() > $NextProg-$PowerTime+60){	//Heure actuel > Heure de dispo - Temps de chauffe + Pas d'integration
 						if($ChauffeEau->EvaluateCondition()){
 							if($TempActuel <=  $TempSouhaite){
