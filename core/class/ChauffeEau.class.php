@@ -442,7 +442,7 @@ class ChauffeEau extends eqLogic {
 	public function postSave() {
 		$this->AddCommande("Date de début","NextStart","info", 'string',true);
 		$this->AddCommande("Date de fin","NextStop","info", 'string',true);
-		$this->AddCommande("Temps étimé","PowerTime","info", 'string',false);
+		$this->AddCommande("Temps estimé","PowerTime","info", 'numeric',false);
 		$this->AddCommande("Consigne appliquée","consigne","info", 'numeric',true,'Consigne');
 		$state=$this->AddCommande("Etat du chauffe-eau","state","info", 'binary',true,'State');
 		$state->event(false);
