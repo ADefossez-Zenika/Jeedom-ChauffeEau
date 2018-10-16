@@ -352,6 +352,7 @@ class ChauffeEau extends eqLogic {
 		$DeltaTemp-= jeedom::evaluateExpression($this->getConfiguration('TempActuel'));
 		$Energie=$this->getConfiguration('Capacite')*$DeltaTemp*4185;
 		$PowerTime = round($Energie/ $this->getPuissance());
+		$this->checkAndUpdateCmd('PowerTime',$PowerTime);
 		$this->refreshWidget();
 		return $PowerTime;
 	} 
@@ -439,8 +440,9 @@ class ChauffeEau extends eqLogic {
 		self::deamon_stop();
 	}
 	public function postSave() {
-		$this->AddCommande("Date début","NextStart","info", 'string',true);
+		$this->AddCommande("Date de début","NextStart","info", 'string',true);
 		$this->AddCommande("Date de fin","NextStop","info", 'string',true);
+		$this->AddCommande("Temps étimé","PowerTime","info", 'string',false);
 		$this->AddCommande("Consigne appliquée","consigne","info", 'numeric',true,'Consigne');
 		$state=$this->AddCommande("Etat du chauffe-eau","state","info", 'binary',true,'State');
 		$state->event(false);
