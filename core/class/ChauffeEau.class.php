@@ -347,13 +347,16 @@ class ChauffeEau extends eqLogic {
 		//log::add('ChauffeEau','debug',$this->getHumanName().' : Le prochain disponibilité est '. date("d/m/Y H:i", $nextTime));
 		return $nextTime;
 	}
-	public function EvaluatePowerTime() {		
+	public function EvaluatePowerTime() {	
+		$PowerTime = 0;
 		$DeltaTemp = $this->getCmd(null,'consigne')->execCmd();
 		$DeltaTemp-= jeedom::evaluateExpression($this->getConfiguration('TempActuel'));
-		$Energie=$this->getConfiguration('Capacite')*$DeltaTemp*4185;
-		$PowerTime = round($Energie/ $this->getPuissance());
-		$this->checkAndUpdateCmd('PowerTime',$PowerTime);
-		$this->refreshWidget();
+		if($DeltaTemp > 0){
+			$Energie=$this->getConfiguration('Capacite')*$DeltaTemp*4185;
+			$PowerTime = round($Energie/ $this->getPuissance());
+			$this->checkAndUpdateCmd('PowerTime',$PowerTime);
+			$this->refreshWidget();
+		}
 		return $PowerTime;
 	} 
 	public function Puissance($DeltaTemp,$DeltaTime) {
