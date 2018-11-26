@@ -213,11 +213,11 @@ class ChauffeEau extends eqLogic {
 			$State=cache::byKey('ChauffeEau::Power::'.$ChauffeEau->getId());
 			if(is_object($State)){
 				if($_option['value'] && !$State->getValue(false))
-					$ChauffeEau->checkAndUpdateCmd('etatCommut',1);
+					$ChauffeEau->checkAndUpdateCmd('etatCommut','released');
 				if(!$_option['value'] && $State->getValue(false))
-					$ChauffeEau->checkAndUpdateCmd('etatCommut',3);
+					$ChauffeEau->checkAndUpdateCmd('etatCommut','released');
 				/*if($_option['value'] && $State->getValue(false))
-					$ChauffeEau->checkAndUpdateCmd('etatCommut',2);*/
+					$ChauffeEau->checkAndUpdateCmd('etatCommut','auto');*/
 			}
 			log::add('ChauffeEau','info',$ChauffeEau->getHumanName().' : l\'etat du chauffe eau est passé a '.$_option['value']);
 			if($_option['value'])
