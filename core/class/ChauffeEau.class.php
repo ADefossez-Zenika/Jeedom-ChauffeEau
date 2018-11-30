@@ -214,7 +214,7 @@ class ChauffeEau extends eqLogic {
 			$ChauffeEau->checkAndUpdateCmd('state',$_option['value']);
 			$State=cache::byKey('ChauffeEau::Power::'.$ChauffeEau->getId());
 			if(is_object($State)){
-				if($_option['value'] && !$State->getValue(false)){
+				if($_option['value'] && !$State->getValue(false))
 					$ChauffeEau->checkAndUpdateCmd('etatCommut','armed');
 				if(!$_option['value'] && $State->getValue(false))
 					$ChauffeEau->checkAndUpdateCmd('etatCommut','released');

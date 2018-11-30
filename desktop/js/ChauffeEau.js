@@ -152,7 +152,7 @@ function addProgramation(_programation,  _el) {
 			.append($('<input class="expressionAttr form-control input-sm" data-l1key="seuil" placeholder="Température de déclanchement"/>')))
 		.append($('<td class="form-horizontal">')
 				.append($('<label class="control-label">')
-					.text('{{Heure de déclanchement}}')
+					.text('{{Heure de disponibilité}}')
 					.append($('<label class="checkbox-inline">')
 						.append($('<input type="checkbox" class="expressionAttr" data-l1key="isHoraire">'))
 						.append('{{Activer}}'))
