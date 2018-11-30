@@ -210,20 +210,18 @@ class ChauffeEau extends eqLogic {
 		log::add('ChauffeEau','debug','Evenement sur le retour d\'etat : '.json_encode($_option));
 		$ChauffeEau = eqLogic::byId($_option['ChauffeEau_id']);
 		if (is_object($ChauffeEau) && $ChauffeEau->getIsEnable()) {
+			log::add('ChauffeEau','info',$ChauffeEau->getHumanName().' : l\'etat du chauffe eau est passé a '.$_option['value']);
+			$ChauffeEau->checkAndUpdateCmd('state',$_option['value']);
 			$State=cache::byKey('ChauffeEau::Power::'.$ChauffeEau->getId());
 			if(is_object($State)){
-				if($_option['value'] && !$State->getValue(false))
-					$ChauffeEau->checkAndUpdateCmd('etatCommut','released');
+				if($_option['value'] && !$State->getValue(false)){
+					$ChauffeEau->checkAndUpdateCmd('etatCommut','armed');
 				if(!$_option['value'] && $State->getValue(false))
 					$ChauffeEau->checkAndUpdateCmd('etatCommut','released');
 				/*if($_option['value'] && $State->getValue(false))
 					$ChauffeEau->checkAndUpdateCmd('etatCommut','auto');*/
+				$ChauffeEau->CheckChauffeEau();
 			}
-			log::add('ChauffeEau','info',$ChauffeEau->getHumanName().' : l\'etat du chauffe eau est passé a '.$_option['value']);
-			if($_option['value'])
-				$ChauffeEau->checkAndUpdateCmd('state',1);
-			else	
-				$ChauffeEau->checkAndUpdateCmd('state',0);
 		}
 	}
 	public function PowerStart(){
@@ -523,6 +521,7 @@ class ChauffeEauCmd extends cmd {
 				$this->getEqLogic()->checkAndUpdateCmd('etatCommut','delestage');
 			break;
 		}
+		$this->getEqLogic()->CheckChauffeEau();
 	}
 }
 ?>
