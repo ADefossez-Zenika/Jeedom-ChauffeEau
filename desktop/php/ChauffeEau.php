@@ -179,7 +179,7 @@ $eqLogics = eqLogic::byType('ChauffeEau');
 							<div class="form-group">
 								<label class="col-sm-4 control-label" >{{Si délestage, le chauffe-eau doit :}}</label>
 								<div class="col-sm-7">
-									<select class="eqLogicAttr form-control input-sm" data-l1key="configuration" data-l2key="delestage" multiple="">
+									<select class="eqLogicAttr form-control input-sm" data-l1key="configuration" data-l2key="delestage">
 										<option value="Heure">{{S'arreter a l'heure}}</option>
 										<option value="Temp">{{S'arreter a la consigne}}</option>
 										<option value="30">{{30 minute de chauffe}}</option>
