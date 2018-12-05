@@ -181,15 +181,6 @@ class ChauffeEau extends eqLogic {
 			$replace['#'.$cmd->getLogicalId().'#']= $cmd->toHtml($_version, $cmdColor);
 		}
 		$replace['#tempBallon#'] = jeedom::evaluateExpression($this->getConfiguration('TempActuel'));
-		/*$PowerTime=$this->EvaluatePowerTime();		
-		$NextProg = cache::byKey('ChauffeEau::Stop::Time::'.$this->getId())->getValue(0);
-		if($NextProg==0)
-			$NextProg=$this->NextProg();
-		if($PowerTime<0)
-			$replace['#NextStart#'] = "L'eau n'a pas besoin d'etre chauffé";
-		else
-			$replace['#NextStart#'] = date('d/m/Y H:i',$NextProg-$PowerTime);
-		$replace['#NextStop#'] = date('d/m/Y H:i',$NextProg);*/
 		if ($_version == 'dview' || $_version == 'mview') {
 			$object = $this->getObject();
 			$replace['#name#'] = (is_object($object)) ? $object->getName() . ' - ' . $replace['#name#'] : $replace['#name#'];
@@ -469,7 +460,7 @@ class ChauffeEau extends eqLogic {
 		cache::set('ChauffeEau::Hysteresis::'.$this->getId(),false, 0);
 		$Puissance = cache::byKey('ChauffeEau::Puissance::'.$this->getId());
 		if(count(json_decode($Puissance->getValue('[]'), true)) == 0)
-			cache::set('ChauffeEau::Puissance::'.$this->getId(), json_encode(array_slice(array(intval(trim($this->getConfiguration('Puissance')))), -10, 10)), 0);
+			cache::set('ChauffeEau::Puissance::'.$this->getId(), json_encode(array(intval(trim($this->getConfiguration('Puissance'))))), 0);
 		$this->CheckChauffeEau();
 	}
 	public function createDeamon() {
