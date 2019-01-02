@@ -166,7 +166,7 @@ $eqLogics = eqLogic::byType('ChauffeEau');
 						<legend>Controle du chauffe eau</legend>
 						<fieldset>	
 							<div class="form-group">
-								<label class="col-sm-4 control-label" >{{ Commande d’état du chauffe-eau}}</label>
+								<label class="col-sm-4 control-label" >{{Commande d’état du chauffe-eau}}</label>
 								<div class="col-sm-7 input-group">
 									<input class="eqLogicAttr form-control input-sm" data-l1key="configuration"  data-l2key="Etat" placeholder="{{Séléctioner l'objet de commande d'etat du chauffe eau}}">
 									<span class="input-group-btn">
@@ -174,6 +174,12 @@ $eqLogics = eqLogic::byType('ChauffeEau');
 											<i class="fa fa-list-alt"></i>
 										</a>
 									</span>
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-4 control-label" >{{Temps additionnel (min)}}</label>
+								<div class="col-sm-7 input-group">
+									<input class="eqLogicAttr form-control input-sm" data-l1key="configuration"  data-l2key="TempsAdditionel" placeholder="{{Saisir un temps en minute qui sera ajouté au temps de chauffage necessaire. Ceci pour garantir une chauffe complette}}">
 								</div>
 							</div>
 							<div class="form-group">
