@@ -346,6 +346,8 @@ class ChauffeEau extends eqLogic {
 			$this->checkAndUpdateCmd('PowerTime',$PowerTime);
 			$this->refreshWidget();
 		}
+		if($this->getConfiguration('TempsAdditionel') != '' )
+			$PowerTime += $this->getConfiguration('TempsAdditionel') * 60;		
 		return $PowerTime;
 	} 
 	public function Puissance($DeltaTemp,$DeltaTime) {
