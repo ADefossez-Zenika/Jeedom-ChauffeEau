@@ -166,6 +166,12 @@ $eqLogics = eqLogic::byType('ChauffeEau');
 						<legend>Controle du chauffe eau</legend>
 						<fieldset>	
 							<div class="form-group">
+								<label class="col-sm-4 control-label" >{{Répéter les commandes d'allumage et d'extinction}}</label>
+								<div class="col-sm-7 input-group">
+									<input type="checkbox" class="eqLogicAttr input-sm" data-l1key="configuration"  data-l2key="RepeatCmd">
+								</div>
+							</div>
+							<div class="form-group">
 								<label class="col-sm-4 control-label" >{{Commande d’état du chauffe-eau}}</label>
 								<div class="col-sm-7 input-group">
 									<input class="eqLogicAttr form-control input-sm" data-l1key="configuration"  data-l2key="Etat" placeholder="{{Séléctioner l'objet de commande d'etat du chauffe eau}}">
