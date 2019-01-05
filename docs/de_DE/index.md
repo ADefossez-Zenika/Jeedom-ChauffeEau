@@ -11,6 +11,9 @@ Paramètrage du plugin
 
 ![introduction01](../images/ConfigurationGeneral.jpg)   
 
+Sur ce blog, vous aurrez l'exemple d'une installation complete de la gestion de chauffe eau avec jeedom
+https://jeedom-facile.fr/index.php/2019/01/03/piloter-votre-ballon-deau-chaude/
+
 Parametre général
 ---
 
@@ -30,11 +33,9 @@ Parametre du chauffe eaux
 
 Controle du chauffe eau
 ---
-* Commande d'etat du chauffe-eau : sélectionnez la commande d'etat de votre chauffe-eau afin de permetre au plugin de se mettre a jours
-
-> La commande de retour d'etat doit etre d'un sous-type binaire
-0 => Eteint
-1 => Allumée
+* Commande d'etat du chauffe-eau : sélectionnez la commande d'etat de votre chauffe-eau afin de permetre au plugin de se mettre a jours > La commande de retour d'etat doit etre d'un sous-type binaire (0 => Eteint, 1 => Allumée)
+* Temps additionnel (min) : Ce temps définie en minute permet d'ajouté eu temps calculé un temps de sécurité au demarrage
+* Si délestage, le chauffe-eau doit : Choix du comportement que doit avoir le plugin en cas de delestage durant la chauffe
 
 Programmation
 ==========
