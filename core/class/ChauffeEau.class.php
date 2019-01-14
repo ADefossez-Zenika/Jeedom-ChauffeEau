@@ -194,6 +194,7 @@ class ChauffeEau extends eqLogic {
 					$ChauffeEau->checkAndUpdateCmd('etatCommut','released');
 				/*if($_option['value'] && $State->getValue(false))
 					$ChauffeEau->checkAndUpdateCmd('etatCommut','auto');*/
+				cache::set('ChauffeEau::Repeat::'.$ChauffeEau->getId(),false, 0);
 				$ChauffeEau->CheckChauffeEau();
 			}
 		}
@@ -207,11 +208,15 @@ class ChauffeEau extends eqLogic {
 			log::add('ChauffeEau','info',$this->getHumanName().' : Alimentation électrique du chauffe-eau');
 			cache::set('ChauffeEau::Start::Temps::'.$this->getId(),jeedom::evaluateExpression($this->getConfiguration('TempActuel')), 0);
 			cache::set('ChauffeEau::Start::Time::'.$this->getId(),time(), 0);
-			foreach($this->getConfiguration('Action') as $cmd){
-				foreach($cmd['declencheur'] as $declencheur){
-					if($declencheur == 'on')
-						$this->ExecuteAction($cmd);
+			if(cache::byKey('ChauffeEau::Repeat::'.$this->getId())->getValue(true)){
+				foreach($this->getConfiguration('Action') as $cmd){
+					foreach($cmd['declencheur'] as $declencheur){
+						if($declencheur == 'on')
+							$this->ExecuteAction($cmd);
+					}
 				}
+			}else{
+				cache::set('ChauffeEau::Repeat::'.$this->getId(),true);
 			}
 		}
 	}
@@ -222,11 +227,15 @@ class ChauffeEau extends eqLogic {
 			if($this->getConfiguration('Etat') == '')
 				$this->checkAndUpdateCmd('state',0);
 			log::add('ChauffeEau','info',$this->getHumanName().' : Coupure de l\'alimentation électrique du chauffe-eau');
-			foreach($this->getConfiguration('Action') as $cmd){
-				foreach($cmd['declencheur'] as $declencheur){
-					if($declencheur == 'off')
-						$this->ExecuteAction($cmd);
+			if(cache::byKey('ChauffeEau::Repeat::'.$this->getId())->getValue(true)){
+				foreach($this->getConfiguration('Action') as $cmd){
+					foreach($cmd['declencheur'] as $declencheur){
+						if($declencheur == 'off')
+							$this->ExecuteAction($cmd);
+					}
 				}
+			}else{
+				cache::set('ChauffeEau::Repeat::'.$this->getId(),true);
 			}
 		}
 	}
@@ -235,7 +244,10 @@ class ChauffeEau extends eqLogic {
 		cache::set('ChauffeEau::Delestage::'.$this->getId(),false, 0);
 		$this->checkAndUpdateCmd('NextStop',date('d/m/Y H:i'));
 		log::add('ChauffeEau','debug',$this->getHumanName().' : Temps supperieur a l\'heure programmée');
-		$this->EvaluatePowerStop();
+		if(cache::byKey('ChauffeEau::Repeat::'.$this->getId())->getValue(true))
+			$this->EvaluatePowerStop();
+		else
+			cache::set('ChauffeEau::Repeat::'.$this->getId(),true);
 		foreach($this->getConfiguration('Action') as $cmd){
 			foreach($cmd['declencheur'] as $declencheur){
 				if($declencheur == 'dispo')
