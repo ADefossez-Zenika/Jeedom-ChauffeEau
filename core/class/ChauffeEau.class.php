@@ -194,7 +194,7 @@ class ChauffeEau extends eqLogic {
 					$ChauffeEau->checkAndUpdateCmd('etatCommut','released');
 				/*if($_option['value'] && $State->getValue(false))
 					$ChauffeEau->checkAndUpdateCmd('etatCommut','auto');*/
-				$ChauffeEau->CheckChauffeEau();
+				//$ChauffeEau->CheckChauffeEau();
 			}
 		}
 	}
