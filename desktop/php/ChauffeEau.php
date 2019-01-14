@@ -168,7 +168,15 @@ $eqLogics = eqLogic::byType('ChauffeEau');
 							<div class="form-group">
 								<label class="col-sm-4 control-label" >{{Répéter les commandes d'allumage et d'extinction}}</label>
 								<div class="col-sm-7 input-group">
-									<input type="checkbox" class="eqLogicAttr input-sm" data-l1key="configuration"  data-l2key="RepeatCmd">
+									<select class="eqLogicAttr form-control input-sm" data-l1key="configuration" data-l2key="RepeatCmd">
+										<option value="">{{Non}}</option>
+										<option value="cron">{{Toutes les minutes}}</option>
+										<option value="cron5">{{Toutes les 5 minutes}}</option>
+										<option value="cron15">{{Toutes les 15 minutes}}</option>
+										<option value="cron30">{{Toutes les 30 minutes}}</option>
+										<option value="cronHourly">{{Toutes les heures}}</option>
+										<option value="cronDaily">{{Tous les jours}}</option>
+									</select>
 								</div>
 							</div>
 							<div class="form-group">
