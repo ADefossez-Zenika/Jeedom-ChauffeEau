@@ -166,6 +166,13 @@ $eqLogics = eqLogic::byType('ChauffeEau');
 						<legend>Controle du chauffe eau</legend>
 						<fieldset>	
 							<div class="form-group">
+								<label class="col-sm-4 control-label" >{{Protection Bacteriologique}}</label>
+								<div class="col-sm-7">
+									<label>{{Activer}}</label>
+									<input type="checkbox" class="eqLogicAttr" data-label-text="{{Activer}}" data-l1key="configuration" data-l2key="BacteryProtect" checked/>
+								</div>
+							</div>
+							<div class="form-group">
 								<label class="col-sm-4 control-label" >{{Répéter les commandes d'allumage et d'extinction}}</label>
 								<div class="col-sm-7 input-group">
 									<select class="eqLogicAttr form-control input-sm" data-l1key="configuration" data-l2key="RepeatCmd">
