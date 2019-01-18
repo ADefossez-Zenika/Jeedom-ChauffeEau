@@ -338,6 +338,8 @@ class ChauffeEau extends eqLogic {
 			cache::set('ChauffeEau::Hysteresis::'.$this->getId(),false, 0);
 			if($this->getConfiguration('Etat') == '')
 				$this->checkAndUpdateCmd('state',0);
+			if(jeedom::evaluateExpression($this->getConfiguration('TempActuel')) > 60)
+				$this->checkAndUpdateCmd('BacteryProtect',false);
 			log::add('ChauffeEau','info',$this->getHumanName().' : Coupure de l\'alimentation électrique du chauffe-eau');
 			if(cache::byKey('ChauffeEau::Repeat::'.$this->getId())->getValue(true)){
 				foreach($this->getConfiguration('Action') as $cmd){
@@ -478,18 +480,40 @@ class ChauffeEau extends eqLogic {
 	}
 	public function EvaluatePowerTime() {	
 		$PowerTime = 0;
-		$DeltaTemp = $this->getCmd(null,'consigne')->execCmd();
-		$DeltaTemp-= jeedom::evaluateExpression($this->getConfiguration('TempActuel'));
+		list($DeltaTemp,$TempsAdditionel) = $this->BacteryProtect();
 		if($DeltaTemp > 0){
 			$Energie=$this->getConfiguration('Capacite')*$DeltaTemp*4185;
 			$PowerTime = round($Energie/ $this->getPuissance());
+			$PowerTime += $TempsAdditionel;	
+			if($this->getConfiguration('TempsAdditionel') != '' )
+				$PowerTime += $this->getConfiguration('TempsAdditionel') * 60;	
 			$this->checkAndUpdateCmd('PowerTime',$PowerTime);
 			$this->refreshWidget();
 		}
-		if($this->getConfiguration('TempsAdditionel') != '' )
-			$PowerTime += $this->getConfiguration('TempsAdditionel') * 60;		
 		return $PowerTime;
 	} 
+	public function BacteryProtect(){		
+		$TempActuel = jeedom::evaluateExpression($this->getConfiguration('TempActuel'));	
+		if($this->getConfiguration('BacteryProtect')){
+			if($TempActuel < 20 && $TempActuel > 55){
+				$this->checkAndUpdateCmd('BacteryProtect',false);
+				$Temps = 0;
+				$DeltaTemp = $this->getCmd(null,'consigne')->execCmd() - $TempActuel;
+			}elseif($TempActuel > 40 && $TempActuel < 55){
+				$this->checkAndUpdateCmd('BacteryProtect',true);
+				$Temps = 32 * 60;
+				$DeltaTemp = 60 - $TempActuel;
+			}else{
+				$this->checkAndUpdateCmd('BacteryProtect',true);
+				$Temps = 2 * 60;
+				$DeltaTemp = 65 - $TempActuel;
+			}
+		}else{
+			$Temps=0;
+			$DeltaTemp = $this->getCmd(null,'consigne')->execCmd() - $TempActuel;
+		}
+		return array($DeltaTemp, $Temps);
+	}
 	public function Puissance($DeltaTemp,$DeltaTime) {
 		$Energie=$this->getConfiguration('Capacite')*$DeltaTemp*4185;
 		$Puissance = round($Energie/$DeltaTime);
@@ -578,6 +602,7 @@ class ChauffeEau extends eqLogic {
 		$this->AddCommande("Date de fin","NextStop","info", 'string',true);
 		$this->AddCommande("Temps estimé","PowerTime","info", 'numeric',false);
 		$this->AddCommande("Consigne appliquée","consigne","info", 'numeric',true,'Consigne');
+		$this->AddCommande("Risque","BacteryProtect","info", 'binary',true);
 		$state=$this->AddCommande("Etat du chauffe-eau","state","info", 'binary',true,'State');
 		$state->event(false);
 		$state->setCollectDate(date('Y-m-d H:i:s'));

@@ -33,6 +33,7 @@ Parametre du chauffe eaux
 
 Controle du chauffe eau
 ---
+* Répéter les commandes d'allumage et d'extinction : Permet donc configurer une recurence d'emission des ordres de commande et de s'assurer que le chauffe eau est toujours dans l'etat attendue
 * Commande d'etat du chauffe-eau : sélectionnez la commande d'etat de votre chauffe-eau afin de permetre au plugin de se mettre a jours > La commande de retour d'etat doit etre d'un sous-type binaire (0 => Eteint, 1 => Allumée)
 * Temps additionnel (min) : Ce temps définie en minute permet d'ajouté eu temps calculé un temps de sécurité au demarrage
 * Si délestage, le chauffe-eau doit : Choix du comportement que doit avoir le plugin en cas de delestage durant la chauffe
@@ -97,19 +98,13 @@ Nous pouvons aussi bien ajouter une commande qu'un scénario
 Mode de fonctionnement
 ==========
 
-Le plugin a 3 mode de fonctionnement.
+Le plugin a 4 mode de fonctionnement, Marche forcé, Automatique , Off ou Delestage.
 Nous pouvons connaitre et controler chaqu'une de ses mode par une commande
 
-La commande "Etat fonctionnement" permet de connaitre dans quel etat est le chauffe-eau.
-- 1 = Marche forcé
-- 2 = Automatique
-- 3 = Off
-
 La commande "Marche forcée" permet de forcer l'allumage du chauffe-eau.
-
 La commande "Désactiver" permet de forcer l'extinction du chauffe-eau.
-
 La commande "Automatique" permet de laisser le plugin gerer le chauffe-eau.
+La commande "Délestage" permet de forcer l'extinction du chauffe-eau mais en ayant la possibilté de prolongé la chauffe.
 
 > En fonction de l'etat du chauffe-eau vu par le plugin et l'etat reel, le plugin changera automatiquement le mode.
 Par exemple, vous forcé l'allumage du chauffe-eau en manuel, le retour d'etat reel passe a on alors que le plugin attend un off, il comprend alors que nous souhaitons faire un marche forcé et passe par se mode pour ne pas interfer dans votre decision manuel
