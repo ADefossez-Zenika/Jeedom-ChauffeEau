@@ -512,7 +512,7 @@ class ChauffeEau extends eqLogic {
 			$Temps=0;
 			$DeltaTemp = $this->getCmd(null,'consigne')->execCmd() - $TempActuel;
 		}
-		return array($Consigne, $Temps);
+		return array($DeltaTemp, $Temps);
 	}
 	public function Puissance($DeltaTemp,$DeltaTime) {
 		$Energie=$this->getConfiguration('Capacite')*$DeltaTemp*4185;
