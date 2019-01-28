@@ -496,15 +496,12 @@ class ChauffeEau extends eqLogic {
 		$TempActuel = jeedom::evaluateExpression($this->getConfiguration('TempActuel'));	
 		if($this->getConfiguration('BacteryProtect')){
 			if($TempActuel < 20 && $TempActuel > 55){
-				$this->checkAndUpdateCmd('BacteryProtect',false);
 				$Temps = 0;
 				$DeltaTemp = $this->getCmd(null,'consigne')->execCmd() - $TempActuel;
 			}elseif($TempActuel > 40 && $TempActuel < 55){
-				$this->checkAndUpdateCmd('BacteryProtect',true);
 				$Temps = 32 * 60;
 				$DeltaTemp = 60 - $TempActuel;
 			}else{
-				$this->checkAndUpdateCmd('BacteryProtect',true);
 				$Temps = 2 * 60;
 				$DeltaTemp = 65 - $TempActuel;
 			}
@@ -517,25 +514,32 @@ class ChauffeEau extends eqLogic {
 	public function checkBacteryProtect($TempActuel){
 		$BacteryProtect = $this->getCmd(null,'BacteryProtect')->execCmd();
 		if($BacteryProtect){
-			$TempsBacteryProtect = cache::byKey('ChauffeEau::BacteryProtect::Time::'.$this->getId());
-			if($TempActuel > 60){
+			$TempsBacteryProtect = cache::byKey('ChauffeEau::BacteryProtect::Start::'.$this->getId());
+			if($TempActuel > 70){
 				if(!is_object($TempsBacteryProtect))
-					cache::set('ChauffeEau::BacteryProtect::Time::'.$this->getId(), time(), 0);	
-				if($TempsBacteryProtect->getValue(time()) - time() > 30*60)
+					cache::set('ChauffeEau::BacteryProtect::Start::'.$this->getId(), time(), 0);	
+				if($TempsBacteryProtect->getValue(time()) - time() > 1*60)
 					$this->checkAndUpdateCmd('BacteryProtect',false);
 			}elseif($TempActuel > 65){
 				if(!is_object($TempsBacteryProtect))
-					cache::set('ChauffeEau::BacteryProtect::Time::'.$this->getId(), time(), 0);	
+					cache::set('ChauffeEau::BacteryProtect::Start::'.$this->getId(), time(), 0);	
 				if($TempsBacteryProtect->getValue(time()) - time() > 2*60)
 					$this->checkAndUpdateCmd('BacteryProtect',false);
-			}elseif($TempActuel > 70){
+			}elseif($TempActuel > 60){
 				if(!is_object($TempsBacteryProtect))
-					cache::set('ChauffeEau::BacteryProtect::Time::'.$this->getId(), time(), 0);	
-				if($TempsBacteryProtect->getValue(time()) - time() > 1*60)
+					cache::set('ChauffeEau::BacteryProtect::Start::'.$this->getId(), time(), 0);	
+				if($TempsBacteryProtect->getValue(time()) - time() > 30*60)
 					$this->checkAndUpdateCmd('BacteryProtect',false);
 			}else{
 				if(is_object($TempsBacteryProtect))
 					$TempsBacteryProtect->remove();
+				$TempsBacteryProtectAlert = cache::byKey('ChauffeEau::BacteryProtect::Alert::'.$this->getId());
+				if($TempActuel > 25 && $TempActuel < 47){
+					if(!is_object($TempsBacteryProtectAlert))
+						cache::set('ChauffeEau::BacteryProtect::Alert::'.$this->getId(), time(), 0);
+					if($TempsBacteryProtectAlert->getValue(time()) - time() > 4*60*60)	
+						$this->checkAndUpdateCmd('BacteryProtect',true);
+				}
 			}
 		}
 	}
