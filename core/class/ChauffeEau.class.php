@@ -43,7 +43,7 @@ class ChauffeEau extends eqLogic {
 		foreach(eqLogic::byType('ChauffeEau') as $ChauffeEau){	
 			if($ChauffeEau->getIsEnable()){
 				$ChauffeEau->CheckChauffeEau();	
-				if ($ChauffeEau->getConfiguration('RepeatCmd') == "cron5"){
+				if ($ChauffeEau->getConfiguration('RepeatCmd') == "cron"){
 					$State=cache::byKey('ChauffeEau::Power::'.$ChauffeEau->getId());
 					if(is_object($State)){
 						if($State->getValue(false))
@@ -182,6 +182,8 @@ class ChauffeEau extends eqLogic {
 				$TempSouhaite = $this->getCmd(null,'consigne')->execCmd();
 				$TempActuel= jeedom::evaluateExpression($this->getConfiguration('TempActuel'));
 				$this->CheckDeltaTemp($TempActuel);
+				if($this->getConfiguration('BacteryProtect'))
+					$this->checkBacteryProtect($TempActuel);
 				$NextProg = cache::byKey('ChauffeEau::Stop::Time::'.$this->getId())->getValue(0);
 				if($NextProg == 0){
 					$NextProg=$this->NextProg();
@@ -338,8 +340,6 @@ class ChauffeEau extends eqLogic {
 			cache::set('ChauffeEau::Hysteresis::'.$this->getId(),false, 0);
 			if($this->getConfiguration('Etat') == '')
 				$this->checkAndUpdateCmd('state',0);
-			if(jeedom::evaluateExpression($this->getConfiguration('TempActuel')) > 60)
-				$this->checkAndUpdateCmd('BacteryProtect',false);
 			log::add('ChauffeEau','info',$this->getHumanName().' : Coupure de l\'alimentation électrique du chauffe-eau');
 			if(cache::byKey('ChauffeEau::Repeat::'.$this->getId())->getValue(true)){
 				foreach($this->getConfiguration('Action') as $cmd){
@@ -513,6 +513,31 @@ class ChauffeEau extends eqLogic {
 			$DeltaTemp = $this->getCmd(null,'consigne')->execCmd() - $TempActuel;
 		}
 		return array($DeltaTemp, $Temps);
+	}
+	public function checkBacteryProtect($TempActuel){
+		$BacteryProtect = $this->getCmd(null,'BacteryProtect')->execCmd();
+		if($BacteryProtect){
+			$TempsBacteryProtect = cache::byKey('ChauffeEau::BacteryProtect::Time::'.$this->getId());
+			if($TempActuel > 60){
+				if(!is_object($TempsBacteryProtect))
+					cache::set('ChauffeEau::BacteryProtect::Time::'.$this->getId(), time(), 0);	
+				if($TempsBacteryProtect->getValue(time()) - time() > 30*60)
+					$this->checkAndUpdateCmd('BacteryProtect',false);
+			}elseif($TempActuel > 65){
+				if(!is_object($TempsBacteryProtect))
+					cache::set('ChauffeEau::BacteryProtect::Time::'.$this->getId(), time(), 0);	
+				if($TempsBacteryProtect->getValue(time()) - time() > 2*60)
+					$this->checkAndUpdateCmd('BacteryProtect',false);
+			}elseif($TempActuel > 70){
+				if(!is_object($TempsBacteryProtect))
+					cache::set('ChauffeEau::BacteryProtect::Time::'.$this->getId(), time(), 0);	
+				if($TempsBacteryProtect->getValue(time()) - time() > 1*60)
+					$this->checkAndUpdateCmd('BacteryProtect',false);
+			}else{
+				if(is_object($TempsBacteryProtect))
+					$TempsBacteryProtect->remove();
+			}
+		}
 	}
 	public function Puissance($DeltaTemp,$DeltaTime) {
 		$Energie=$this->getConfiguration('Capacite')*$DeltaTemp*4185;
