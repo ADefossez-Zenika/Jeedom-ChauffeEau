@@ -182,7 +182,7 @@ class ChauffeEau extends eqLogic {
 				$TempSouhaite = $this->getCmd(null,'consigne')->execCmd();
 				$TempActuel= jeedom::evaluateExpression($this->getConfiguration('TempActuel'));
 				$this->CheckDeltaTemp($TempActuel);
-				if($this->getConfiguration('BacteryProtect'))
+				//if($this->getConfiguration('BacteryProtect'))
 					$this->checkBacteryProtect($TempActuel);
 				$NextProg = cache::byKey('ChauffeEau::Stop::Time::'.$this->getId())->getValue(0);
 				if($NextProg == 0){
