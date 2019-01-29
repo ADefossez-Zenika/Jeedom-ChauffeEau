@@ -592,7 +592,7 @@ class ChauffeEau extends eqLogic {
 			log::add('ChauffeEau', 'error', __('Erreur lors de l\'éxecution de ', __FILE__) . $cmd['cmd'] . __('. Détails : ', __FILE__) . $e->getMessage());
 		}		
 	}
-	public function AddCommande($Name,$_logicalId,$Type="info", $SubType='binary',$visible,$Template='') {
+	public function AddCommande($Name,$_logicalId,$Type="info", $SubType='binary',$visible,$unite='',$Template='') {
 		$Commande = $this->getCmd(null,$_logicalId);
 		if (!is_object($Commande))
 		{
@@ -605,7 +605,8 @@ class ChauffeEau extends eqLogic {
 		}
 		$Commande->setType($Type);
 		$Commande->setSubType($SubType);
-		$Commande->setTemplate('dashboard',$Template );
+		$Commande->setUnite($unite);
+		$Commande->setTemplate('dashboard',$Template);
 		$Commande->setTemplate('mobile', $Template);
 		$Commande->save();
 		return $Commande;
@@ -614,12 +615,13 @@ class ChauffeEau extends eqLogic {
 		self::deamon_stop();
 	}
 	public function postSave() {
-		$this->AddCommande("Date de début","NextStart","info", 'string',true);
-		$this->AddCommande("Date de fin","NextStop","info", 'string',true);
-		$this->AddCommande("Temps estimé","PowerTime","info", 'numeric',false);
-		$this->AddCommande("Consigne appliquée","consigne","info", 'numeric',true,'Consigne');
-		$this->AddCommande("Risque","BacteryProtect","info", 'binary',true);
-		$state=$this->AddCommande("Etat du chauffe-eau","state","info", 'binary',true,'State');
+		$this->AddCommande("Date de début","NextStart","info",'string',true);
+		$this->AddCommande("Date de fin","NextStop","info",'string',true);
+		$this->AddCommande("Temps estimé","PowerTime","info",'numeric',true);
+		$this->AddCommande("Température du ballon","TempActuel","info",'numeric',true,'°C');
+		$this->AddCommande("Consigne appliquée","consigne","info",'numeric',true,'°C','Consigne');
+		$this->AddCommande("Risque","BacteryProtect","info",'binary',true);
+		$state=$this->AddCommande("Etat du chauffe-eau","state","info",'binary',true,'','State');
 		$state->event(false);
 		$state->setCollectDate(date('Y-m-d H:i:s'));
 		$state->save();
@@ -627,16 +629,16 @@ class ChauffeEau extends eqLogic {
 		$isArmed->event('auto');
 		$isArmed->setCollectDate(date('Y-m-d H:i:s'));
 		$isArmed->save();
-		$Armed=$this->AddCommande("Marche forcée","armed","action","other",true,'');
+		$Armed=$this->AddCommande("Marche forcée","armed","action","other",true);
 		$Armed->setValue($isArmed->getId());
 		$Armed->save();
-		$Released=$this->AddCommande("Désactiver","released","action","other",true,'');
+		$Released=$this->AddCommande("Désactiver","released","action","other",true);
 		$Released->setValue($isArmed->getId());
 		$Released->save();
-		$Auto=$this->AddCommande("Automatique","auto","action","other",true,'');
+		$Auto=$this->AddCommande("Automatique","auto","action","other",true);
 		$Auto->setValue($isArmed->getId());
 		$Auto->save();
-		$Auto=$this->AddCommande("Délestage","delestage","action","other",true,'');
+		$Auto=$this->AddCommande("Délestage","delestage","action","other",true);
 		$Auto->setValue($isArmed->getId());
 		$Auto->save();
 		$this->createDeamon();
