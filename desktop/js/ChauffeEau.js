@@ -165,6 +165,14 @@ function addProgramation(_programation,  _el) {
 	$('.ProgramationAttr[data-action=remove]').off().on('click',function(){
 		$(this).closest('tr').remove();
 	});
+	$('.expressionAttr[data-l1key=isSeuil]').off().on('change',function(){
+		if($(this).checked)
+			$('.expressionAttr[data-l1key=isHoraire]').val(false);
+	});
+	$('.expressionAttr[data-l1key=isHoraire]').off().on('change',function(){
+		if($(this).checked)
+			$('.expressionAttr[data-l1key=isSeuil]').val(false);
+	});
 }
 function addCondition(_condition,_el) {
 	var tr = $('<tr class="ConditionGroup">')
