@@ -598,21 +598,20 @@ class ChauffeEau extends eqLogic {
 	}
 	public function AddCommande($Name,$_logicalId,$Type="info", $SubType='binary',$visible,$unite='',$Template='') {
 		$Commande = $this->getCmd(null,$_logicalId);
-		if (!is_object($Commande))
-		{
+		if (!is_object($Commande)){
 			$Commande = new ChauffeEauCmd();
 			$Commande->setId(null);
 			$Commande->setLogicalId($_logicalId);
 			$Commande->setEqLogic_id($this->getId());
 			$Commande->setName($Name);
 			$Commande->setIsVisible($visible);
+			$Commande->setType($Type);
+			$Commande->setSubType($SubType);
+			$Commande->setUnite($unite);
+			$Commande->setTemplate('dashboard',$Template);
+			$Commande->setTemplate('mobile', $Template);
+			$Commande->save();
 		}
-		$Commande->setType($Type);
-		$Commande->setSubType($SubType);
-		$Commande->setUnite($unite);
-		$Commande->setTemplate('dashboard',$Template);
-		$Commande->setTemplate('mobile', $Template);
-		$Commande->save();
 		return $Commande;
 	}
 	public function preRemove() {
