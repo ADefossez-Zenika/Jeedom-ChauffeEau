@@ -181,6 +181,7 @@ class ChauffeEau extends eqLogic {
 				//Mode automatique
 				$TempSouhaite = $this->getCmd(null,'consigne')->execCmd();
 				$TempActuel= jeedom::evaluateExpression($this->getConfiguration('TempActuel'));
+				$this->checkAndUpdateCmd('TempActuel',$TempActuel);	
 				$this->CheckDeltaTemp($TempActuel);
 				//if($this->getConfiguration('BacteryProtect'))
 					$this->checkBacteryProtect($TempActuel);
@@ -359,6 +360,7 @@ class ChauffeEau extends eqLogic {
 		if($this->getCmd(null,'state')->execCmd()){
 			$this->PowerStop();
 			$TempActuel= jeedom::evaluateExpression($this->getConfiguration('TempActuel'));
+			$this->checkAndUpdateCmd('TempActuel',$TempActuel);	
 			$StartTime = cache::byKey('ChauffeEau::Start::Time::'.$this->getId());	
 			$StartTemps = cache::byKey('ChauffeEau::Start::Temperature::'.$this->getId());
 			$DeltaTemp=$TempActuel-$StartTemps->getValue($TempActuel);
@@ -462,6 +464,7 @@ class ChauffeEau extends eqLogic {
 		$this->checkAndUpdateCmd('NextStop',date('d/m/Y H:i',$nextTime));
 		$this->checkAndUpdateCmd('NextStart',date('d/m/Y H:i',$nextTime-$PowerTime));
 		$this->checkAndUpdateCmd('consigne',jeedom::evaluateExpression($TempSouhaite));
+		$this->checkAndUpdateCmd('TempActuel',$TempActuel);
 		//log::add('ChauffeEau','debug',$this->getHumanName().' : Le prochain disponibilité est '. date("d/m/Y H:i", $nextTime));
 		if(!$validProg)	
 			return false;
@@ -482,7 +485,8 @@ class ChauffeEau extends eqLogic {
 		return $PowerTime;
 	} 
 	public function BacteryProtect(){		
-		$TempActuel = jeedom::evaluateExpression($this->getConfiguration('TempActuel'));	
+		$TempActuel = jeedom::evaluateExpression($this->getConfiguration('TempActuel'));
+		$this->checkAndUpdateCmd('TempActuel',$TempActuel);	
 		if($this->getConfiguration('BacteryProtect')){
 			if($TempActuel < 20 && $TempActuel > 55){
 				$Temps = 0;
