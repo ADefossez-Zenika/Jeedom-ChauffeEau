@@ -254,7 +254,7 @@ class ChauffeEau extends eqLogic {
       			$this->refreshWidget();
 		}
 	}
-	public function toHtml($_version = 'dashboard') {
+	/*public function toHtml($_version = 'dashboard') {
 		$replace = $this->preToHtml($_version);
 		if (!is_array($replace)) 
 			return $replace;
@@ -274,7 +274,7 @@ class ChauffeEau extends eqLogic {
 			$replace['#name#'] = (is_object($object)) ? $object->getName() . ' - ' . $replace['#name#'] : $replace['#name#'];
 		}
       		return $this->postToHtml($_version, template_replace($replace, getTemplate('core', $version, 'eqLogic', 'ChauffeEau')));
-  	}
+  	}*/
 	public static $_widgetPossibility = array('custom' => array(
 	        'visibility' => true,
 	        'displayName' => true,
