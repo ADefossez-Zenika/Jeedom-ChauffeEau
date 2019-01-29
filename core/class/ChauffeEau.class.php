@@ -160,8 +160,6 @@ class ChauffeEau extends eqLogic {
 		foreach($Programation as $key => $ConigSchedule){
 			if($ConigSchedule["id"] == ''){
 				$id=rand(0,32767);
-				//while(array_search($id, array_column($this->getConfiguration('programation'), 'id')) !== FALSE)
-				//	$id=rand(0,32767);
 				$ConigSchedule["id"]=$id;
 			}
 			$ConigSchedule["url"] = network::getNetworkAccess('external') . '/plugins/reveil/core/api/jeeReveil.php?apikey=' . jeedom::getApiKey('reveil') . '&id=' . $this->getId() . '&prog=' . $ConigSchedule["id"] . '&day=%DAY&heure=%H&minute=%M&seuil=%S';
@@ -173,11 +171,11 @@ class ChauffeEau extends eqLogic {
 		if (!$this->getIsEnable()) 
 			return;
 		switch($this->getCmd(null,'etatCommut')->execCmd()){
-			case 'armed':
+			case 'Marche Forcée':
 				// Mode Forcée
 				$this->PowerStart();
 			break;
-			case 'auto':
+			case 'Automatique':
 				//Mode automatique
 				$TempSouhaite = $this->getCmd(null,'consigne')->execCmd();
 				$TempActuel= jeedom::evaluateExpression($this->getConfiguration('TempActuel'));
@@ -203,11 +201,11 @@ class ChauffeEau extends eqLogic {
 				else
 					$this->EvaluatePowerStop();
 			break;
-			case 'released':
+			case 'Off':
 				// Mode Stop
 				$this->PowerStop();
 			break;
-			case 'delestage':
+			case 'Délestage':
 				// Mode Délestage
 				$this->PowerStop();
 				cache::set('ChauffeEau::Delestage::'.$this->getId(),true, 0);
@@ -295,11 +293,11 @@ class ChauffeEau extends eqLogic {
 			$State=cache::byKey('ChauffeEau::Power::'.$ChauffeEau->getId());
 			if(is_object($State)){
 				if($_option['value'] && !$State->getValue(false))
-					$ChauffeEau->checkAndUpdateCmd('etatCommut','armed');
+					$ChauffeEau->checkAndUpdateCmd('etatCommut','Marche Forcée');
 				if(!$_option['value'] && $State->getValue(false))
-					$ChauffeEau->checkAndUpdateCmd('etatCommut','released');
+					$ChauffeEau->checkAndUpdateCmd('etatCommut','Off');
 				/*if($_option['value'] && $State->getValue(false))
-					$ChauffeEau->checkAndUpdateCmd('etatCommut','auto');*/
+					$ChauffeEau->checkAndUpdateCmd('etatCommut','Automatique');*/
 				cache::set('ChauffeEau::Repeat::'.$ChauffeEau->getId(),false, 0);
 				$ChauffeEau->CheckChauffeEau();
 			}
@@ -682,16 +680,16 @@ class ChauffeEauCmd extends cmd {
 	public function execute($_options = null) {
 		switch($this->getLogicalId()){
 			case 'armed':
-				$this->getEqLogic()->checkAndUpdateCmd('etatCommut','armed');
+				$this->getEqLogic()->checkAndUpdateCmd('etatCommut','Marche Forcée');
 			break;
 			case 'released':
-				$this->getEqLogic()->checkAndUpdateCmd('etatCommut','released');
+				$this->getEqLogic()->checkAndUpdateCmd('etatCommut','Off');
 			break;
 			case 'auto':
-				$this->getEqLogic()->checkAndUpdateCmd('etatCommut','auto');
+				$this->getEqLogic()->checkAndUpdateCmd('etatCommut','Automatique');
 			break;
 			case 'delestage':
-				$this->getEqLogic()->checkAndUpdateCmd('etatCommut','delestage');
+				$this->getEqLogic()->checkAndUpdateCmd('etatCommut','Délestage');
 			break;
 		}
 		$this->getEqLogic()->CheckChauffeEau();
