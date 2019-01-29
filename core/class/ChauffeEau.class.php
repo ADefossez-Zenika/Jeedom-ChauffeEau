@@ -621,10 +621,7 @@ class ChauffeEau extends eqLogic {
 	public function postSave() {
 		$this->AddCommande("Date de début","NextStart","info",'string',true);
 		$this->AddCommande("Date de fin","NextStop","info",'string',true);
-		$this->AddCommande("Temps estimé","PowerTime","info",'numeric',true);
-		$this->AddCommande("Température du ballon","TempActuel","info",'numeric',true,'°C');
-		$this->AddCommande("Consigne appliquée","consigne","info",'numeric',true,'°C','Consigne');
-		$this->AddCommande("Risque","BacteryProtect","info",'binary',true);
+		$this->AddCommande("Temps estimé","PowerTime","info",'numeric',true,'s');
 		$state=$this->AddCommande("Etat du chauffe-eau","state","info",'binary',true,'','State');
 		$state->event(false);
 		$state->setCollectDate(date('Y-m-d H:i:s'));
@@ -645,6 +642,9 @@ class ChauffeEau extends eqLogic {
 		$Auto=$this->AddCommande("Délestage","delestage","action","other",true);
 		$Auto->setValue($isArmed->getId());
 		$Auto->save();
+		$this->AddCommande("Risque","BacteryProtect","info",'binary',true,'alert');
+		$this->AddCommande("Température du ballon","TempActuel","info",'numeric',true,'°C');
+		$this->AddCommande("Consigne appliquée","consigne","info",'numeric',true,'°C','Consigne');
 		$this->createDeamon();
 		cache::set('ChauffeEau::Hysteresis::'.$this->getId(),false, 0);
 		$Puissance = cache::byKey('ChauffeEau::Puissance::'.$this->getId());
