@@ -172,11 +172,9 @@ class ChauffeEau extends eqLogic {
 			return;
 		switch($this->getCmd(null,'etatCommut')->execCmd()){
 			case 'Marche Forcée':
-				// Mode Forcée
 				$this->PowerStart();
 			break;
 			case 'Automatique':
-				//Mode automatique
 				$TempSouhaite = $this->getCmd(null,'consigne')->execCmd();
 				$TempActuel= jeedom::evaluateExpression($this->getConfiguration('TempActuel'));
 				$this->checkAndUpdateCmd('TempActuel',$TempActuel);	
@@ -202,11 +200,9 @@ class ChauffeEau extends eqLogic {
 					$this->EvaluatePowerStop();
 			break;
 			case 'Off':
-				// Mode Stop
 				$this->PowerStop();
 			break;
 			case 'Délestage':
-				// Mode Délestage
 				$this->PowerStop();
 				cache::set('ChauffeEau::Delestage::'.$this->getId(),true, 0);
 			break;
@@ -253,27 +249,6 @@ class ChauffeEau extends eqLogic {
       			$this->refreshWidget();
 		}
 	}
-	/*public function toHtml($_version = 'dashboard') {
-		$replace = $this->preToHtml($_version);
-		if (!is_array($replace)) 
-			return $replace;
-		$version = jeedom::versionAlias($_version);
-		$cmdColor = ($this->getPrimaryCategory() == '') ? '' : jeedom::getConfiguration('eqLogic:category:' . $this->getPrimaryCategory() . ':' . $vcolor);
-		$replace['#cmdColor#'] = $cmdColor;
-		if ($this->getDisplay('hideOn' . $version) == 1)
-			return '';
-		foreach ($this->getCmd() as $cmd) {
-			if ($cmd->getDisplay('hideOn' . $version) == 1)
-				continue;
-			$replace['#'.$cmd->getLogicalId().'#']= $cmd->toHtml($_version, $cmdColor);
-		}
-		$replace['#tempBallon#'] = jeedom::evaluateExpression($this->getConfiguration('TempActuel'));
-		if ($_version == 'dview' || $_version == 'mview') {
-			$object = $this->getObject();
-			$replace['#name#'] = (is_object($object)) ? $object->getName() . ' - ' . $replace['#name#'] : $replace['#name#'];
-		}
-      		return $this->postToHtml($_version, template_replace($replace, getTemplate('core', $version, 'eqLogic', 'ChauffeEau')));
-  	}*/
 	public static $_widgetPossibility = array('custom' => array(
 	        'visibility' => true,
 	        'displayName' => true,
@@ -382,14 +357,12 @@ class ChauffeEau extends eqLogic {
 				case 'Temp':
 					$NextProg = $NextProg + $this->EvaluatePowerTime();
 					$this->checkAndUpdateCmd('NextStop',date('d/m/Y H:i',$NextProg));
-					//cache::set('ChauffeEau::Stop::Time::'.$this->getId(),$NextProg, 0);
 				return 	$NextProg;
 				case 'Heure':
 				return false;
 				case '30':
 					$NextProg = $NextProg+(30*60);
 					$this->checkAndUpdateCmd('NextStop',date('d/m/Y H:i',$NextProg));
-					//cache::set('ChauffeEau::Stop::Time::'.$this->getId(),$NextProg, 0);
 				return $NextProg;
 			}
 		}
@@ -624,7 +597,7 @@ class ChauffeEau extends eqLogic {
 		$state->setCollectDate(date('Y-m-d H:i:s'));
 		$state->save();
 		$isArmed=$this->AddCommande("Etat fonctionnement","etatCommut","info","string",true);
-		$isArmed->event('auto');
+		$isArmed->event('Automatique');
 		$isArmed->setCollectDate(date('Y-m-d H:i:s'));
 		$isArmed->save();
 		$Armed=$this->AddCommande("Marche forcée","armed","action","other",true);
