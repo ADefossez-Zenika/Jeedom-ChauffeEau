@@ -184,15 +184,15 @@ class ChauffeEau extends eqLogic {
 				$this->CheckDeltaTemp($TempActuel);
 				//if($this->getConfiguration('BacteryProtect'))
 					$this->checkBacteryProtect($TempActuel);
-				$NextProg = cache::byKey('ChauffeEau::Stop::Time::'.$this->getId())->getValue(0);
-				if($NextProg == 0){
+				//$NextProg = cache::byKey('ChauffeEau::Stop::Time::'.$this->getId())->getValue(0);
+				//if($NextProg == 0){
 					$NextProg=$this->NextProg();
 					if($NextProg != null){
 						$this->checkAndUpdateCmd('NextStop',date('d/m/Y H:i',$NextProg));
-						cache::set('ChauffeEau::Stop::Time::'.$this->getId(),$NextProg, 0);
+						//cache::set('ChauffeEau::Stop::Time::'.$this->getId(),$NextProg, 0);
 					}else 
-						continue;							
-				}
+						return;							
+				//}
 				$PowerTime=$this->EvaluatePowerTime();
 				$NextStart=$NextProg-$PowerTime;
 				$this->checkAndUpdateCmd('NextStart',date('d/m/Y H:i',$NextStart));
@@ -354,7 +354,7 @@ class ChauffeEau extends eqLogic {
 		}
 	}
 	public function DispoEnd(){
-		cache::set('ChauffeEau::Stop::Time::'.$this->getId(),0, 0);
+		//cache::set('ChauffeEau::Stop::Time::'.$this->getId(),0, 0);
 		cache::set('ChauffeEau::Delestage::'.$this->getId(),false, 0);
 		$this->checkAndUpdateCmd('NextStop',date('d/m/Y H:i'));
 		log::add('ChauffeEau','debug',$this->getHumanName().' : Temps supperieur a l\'heure programmée');
@@ -397,14 +397,14 @@ class ChauffeEau extends eqLogic {
 				case 'Temp':
 					$NextProg = $NextProg + $this->EvaluatePowerTime();
 					$this->checkAndUpdateCmd('NextStop',date('d/m/Y H:i',$NextProg));
-					cache::set('ChauffeEau::Stop::Time::'.$this->getId(),$NextProg, 0);
+					//cache::set('ChauffeEau::Stop::Time::'.$this->getId(),$NextProg, 0);
 				return 	$NextProg;
 				case 'Heure':
 				return false;
 				case '30':
 					$NextProg = $NextProg+(30*60);
 					$this->checkAndUpdateCmd('NextStop',date('d/m/Y H:i',$NextProg));
-					cache::set('ChauffeEau::Stop::Time::'.$this->getId(),$NextProg, 0);
+					//cache::set('ChauffeEau::Stop::Time::'.$this->getId(),$NextProg, 0);
 				return $NextProg;
 			}
 		}
@@ -666,9 +666,9 @@ class ChauffeEau extends eqLogic {
       		$cache = cache::byKey('ChauffeEau::Start::Temps::'.$this->getId());
       		if(is_object($cache))
           		$cache->remove();
-      		$cache = cache::byKey('ChauffeEau::Stop::Time::'.$this->getId());
-      		if(is_object($cache))
-          		$cache->remove();
+      		//$cache = cache::byKey('ChauffeEau::Stop::Time::'.$this->getId());
+      		//if(is_object($cache))
+          	//	$cache->remove();
       		$cache = cache::byKey('ChauffeEau::Power::'.$this->getId());
       		if(is_object($cache))
           		$cache->remove();
