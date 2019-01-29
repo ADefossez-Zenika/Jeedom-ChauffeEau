@@ -184,17 +184,17 @@ class ChauffeEau extends eqLogic {
 				$NextProg=$this->NextProg();
 				if($NextProg === false)
 					return;
-				if(mktime() > $NextProg){
+				$NextStart = DateTime::createFromFormat("d/m/Y H:i", $this->getCmd(null,'NextStart')->execCmd());
+				$NextStop = DateTime::createFromFormat("d/m/Y H:i", $this->getCmd(null,'NextStop')->execCmd());
+				if(mktime() > $NextStop->getTimestamp()){
 					//Action si le cycle est terminée
-					$NextProg=$this->EvaluateDelestage($NextProg);
-					if($NextProg === false){
+					$NextProg=$this->EvaluateDelestage($NextStart->getTimestamp());
+					if($NextStart->getTimestamp() === false){
 						$this->DispoEnd();
 						return;
 					}
 				}
-				//Heure Start = Heure de dispo - Temps de chauffe + Pas d'integration
-				$HeureStart = $NextProg-$PowerTime+60;
-				if(mktime() > $HeureStart)	
+				if(mktime() > $NextStart->getTimestamp() + 60)	
 					$this->checkHysteresis($TempActuel, $TempSouhaite);
 				else
 					$this->EvaluatePowerStop();
@@ -214,14 +214,12 @@ class ChauffeEau extends eqLogic {
 			$TemperatureBasse = $TemperatureConsigne - 0.5;
 		$TemperatureHaute = $TemperatureConsigne + 0.5;
 		if($Temperature < $TemperatureBasse){
-			$this->EvaluatePowerStop();
-		}elseif($Temperature > $TemperatureHaute){
-			$this->EvaluatePowerStop();
-		}else{
 			if($this->EvaluateCondition()){	
-				if($this->getCmd(null,'state')->execCmd())
+				if(!$this->getCmd(null,'state')->execCmd())
 					$this->PowerStart();	
 			}
+		}elseif($Temperature > $TemperatureHaute){
+			$this->EvaluatePowerStop();
 		}
 	}
 	public function UpdateDynamic($id,$days,$heure,$minute,$seuil){
@@ -316,7 +314,7 @@ class ChauffeEau extends eqLogic {
 	public function DispoEnd(){
 		cache::set('ChauffeEau::Delestage::'.$this->getId(),false, 0);
 		$this->checkAndUpdateCmd('NextStop',date('d/m/Y H:i'));
-		log::add('ChauffeEau','debug',$this->getHumanName().' : Temps superieur a l\'heure programmée');
+		log::add('ChauffeEau','debug',$this->getHumanName().' : Temps supérieur a l\'heure programmée');
 		if(cache::byKey('ChauffeEau::Repeat::'.$this->getId())->getValue(true))
 			$this->EvaluatePowerStop();
 		else
@@ -374,7 +372,7 @@ class ChauffeEau extends eqLogic {
 			$DeltaTemp=$TempActuel-$LastTemp->getValue($TempActuel);
 			$this->setDeltaTemp($DeltaTemp);
 			if($DeltaTemp > $this->getDeltaTemp()){
-				//log::add('ChauffeEau','info',$this->getHumanName().' : Il y a un chutte de température de '.$DeltaTemp.' => Vous prenez une douche');
+				log::add('ChauffeEau','info',$this->getHumanName().' : Il y a un chutte de température de '.$DeltaTemp.' => Vous prenez une douche');
 			}	
 		}
 		cache::set('ChauffeEau::LastTemp::'.$this->getId(),$TempActuel, 0);
@@ -439,7 +437,7 @@ class ChauffeEau extends eqLogic {
 		//log::add('ChauffeEau','debug',$this->getHumanName().' : Le prochain disponibilité est '. date("d/m/Y H:i", $nextTime));
 		if(!$validProg)	
 			return false;
-		return $nextTime;
+		return true;
 	}
 	public function EvaluatePowerTime() {	
 		$PowerTime = 0;
@@ -534,25 +532,25 @@ class ChauffeEau extends eqLogic {
 		foreach($this->getConfiguration('condition') as $Condition){		
 			if (isset($Condition['enable']) && $Condition['enable'] == 0)
 				continue;
-			$expression = jeedom::evaluateExpression($Condition['expression']);
+			$_scenario = null;
+			$expression = scenarioExpression::setTags($Condition['expression'], $_scenario, true);
 			$message = __('Evaluation de la condition : ['.jeedom::toHumanReadable($Condition['expression']).'][', __FILE__) . trim($expression) . '] = ';
 			$result = evaluate($expression);
-			if (is_bool($result)) {
-				if ($result) {
-					$message .= __('Vrai', __FILE__);
-				} else {
-					$message .= __('Faux', __FILE__);
-				}
-			} else {
-				$message .= $result;
-			}
-			log::add('ChauffeEau','debug',$this->getHumanName().' : '.$message);
-			if(!$result){
-				log::add('ChauffeEau','debug',$this->getHumanName().' : Les conditions ne sont pas remplies');
-				return false;
-			}
+			$message .=$this->boolToText($result);
+			log::add('ChauffeEau','info',$this->getHumanName().'[Condition] : '.$message);
+			if(!$result)
+				return false;	
 		}
 		return true;
+	}
+	public function boolToText($value){
+		if (is_bool($value)) {
+			if ($value) 
+				return __('Vrai', __FILE__);
+			else 
+				return __('Faux', __FILE__);
+		} else 
+			return $value;
 	}
 	public function ExecuteAction($cmd) {
 		if (isset($cmd['enable']) && $cmd['enable'] == 0)
