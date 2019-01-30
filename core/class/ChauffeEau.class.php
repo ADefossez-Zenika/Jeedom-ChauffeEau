@@ -371,7 +371,7 @@ class ChauffeEau extends eqLogic {
 			$LastTemp = cache::byKey('ChauffeEau::LastTemp::'.$this->getId());	
 			$DeltaTemp=$TempActuel-$LastTemp->getValue($TempActuel);
 			$this->setDeltaTemp($DeltaTemp);
-			if($DeltaTemp > $this->getDeltaTemp()){
+			if($DeltaTemp > $this->getDeltaTemp() * 0.8){//Recherche d'une chute de plus de 20%
 				log::add('ChauffeEau','info',$this->getHumanName().' : Il y a un chute de température de '.$DeltaTemp.' => Vous prenez une douche');
 			}	
 		}
