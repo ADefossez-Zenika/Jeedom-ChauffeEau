@@ -314,7 +314,7 @@ class ChauffeEau extends eqLogic {
 	public function DispoEnd(){
 		cache::set('ChauffeEau::Delestage::'.$this->getId(),false, 0);
 		$this->checkAndUpdateCmd('NextStop',date('d/m/Y H:i'));
-		log::add('ChauffeEau','debug',$this->getHumanName().' : Temps supérieur a l\'heure programmée');
+		log::add('ChauffeEau','debug',$this->getHumanName().' : Temps suprieur a l\'heure programmée');
 		if(cache::byKey('ChauffeEau::Repeat::'.$this->getId())->getValue(true))
 			$this->EvaluatePowerStop();
 		else
@@ -338,7 +338,7 @@ class ChauffeEau extends eqLogic {
 			if($DeltaTemp > 1){
 				$DeltaTime=time()-$StartTime->getValue(time());
 				if($DeltaTime > 1){
-					log::add('ChauffeEau','info',$this->getHumanName().' : Le chauffe eau a montée de '.$DeltaTemp.'°C sur une periode de '.$DeltaTime.'s');
+					log::add('ChauffeEau','info',$this->getHumanName().' : Élévation de température de '.$DeltaTemp.'°C sur une période de '.$DeltaTime.'s');
 					$Ratio = cache::byKey('ChauffeEau::Ratio::'.$this->getId());
 					$value = json_decode($Ratio->getValue('[]'), true);
 					$value[] =intval(round($DeltaTime/$DeltaTemp));
@@ -372,7 +372,7 @@ class ChauffeEau extends eqLogic {
 			$DeltaTemp=$TempActuel-$LastTemp->getValue($TempActuel);
 			$this->setDeltaTemp($DeltaTemp);
 			if($DeltaTemp > $this->getDeltaTemp()){
-				log::add('ChauffeEau','info',$this->getHumanName().' : Il y a un chutte de température de '.$DeltaTemp.' => Vous prenez une douche');
+				log::add('ChauffeEau','info',$this->getHumanName().' : Il y a un chute de température de '.$DeltaTemp.' => Vous prenez une douche');
 			}	
 		}
 		cache::set('ChauffeEau::LastTemp::'.$this->getId(),$TempActuel, 0);
@@ -509,7 +509,7 @@ class ChauffeEau extends eqLogic {
 		$Energie=$this->getConfiguration('Capacite')*$DeltaTemp*4185;
 		$Puissance = round($Energie/$DeltaTime);
 		$this->setPuissance($Puissance);
-		log::add('ChauffeEau','debug',$this->getHumanName().' : La puissance estimé du ballon est de '.$Puissance);
+		log::add('ChauffeEau','debug',$this->getHumanName().' : La puissance estimée du ballon est de '.$Puissance.' Watt');
 	} 
 	public function setPuissance($Puissance) {
 		$cache = cache::byKey('ChauffeEau::Puissance::'.$this->getId());
