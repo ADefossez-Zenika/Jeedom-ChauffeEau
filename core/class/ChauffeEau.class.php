@@ -193,11 +193,13 @@ class ChauffeEau extends eqLogic {
 						$this->DispoEnd();
 						return;
 					}
-				}
-				if(mktime() > $NextStart->getTimestamp() + 60)	
+				}elseif(mktime() > $NextStart->getTimestamp() + 60){
+					if($this->EvaluateCondition()){	
+						if(!$this->getCmd(null,'state')->execCmd())
+							$this->PowerStart();	
+					}
+				}else
 					$this->checkHysteresis($TempActuel, $TempSouhaite);
-				else
-					$this->EvaluatePowerStop();
 			break;
 			case 'Off':
 				$this->PowerStop();
