@@ -193,13 +193,9 @@ class ChauffeEau extends eqLogic {
 						$this->DispoEnd();
 						return;
 					}
-				}elseif(mktime() > $NextStart->getTimestamp() + 60){
-					if($this->EvaluateCondition()){	
-						if(!$this->getCmd(null,'state')->execCmd())
-							$this->PowerStart();	
-					}
-				}else
+				}elseif(mktime() > $NextStart->getTimestamp()){
 					$this->checkHysteresis($TempActuel, $TempSouhaite);
+				}
 			break;
 			case 'Off':
 				$this->PowerStop();
@@ -432,8 +428,10 @@ class ChauffeEau extends eqLogic {
 				$nextTime = mktime()+$PowerTime;	
 			}
 		}
-		$this->checkAndUpdateCmd('NextStop',date('d/m/Y H:i',$nextTime));
-		$this->checkAndUpdateCmd('NextStart',date('d/m/Y H:i',$nextTime-$PowerTime));
+		if(!$this->getCmd(null,'state')->execCmd()){
+			$this->checkAndUpdateCmd('NextStop',date('d/m/Y H:i',$nextTime));
+			$this->checkAndUpdateCmd('NextStart',date('d/m/Y H:i',$nextTime-$PowerTime));
+		}
 		$this->checkAndUpdateCmd('consigne',jeedom::evaluateExpression($TempSouhaite));
 		$this->checkAndUpdateCmd('TempActuel',$TempActuel);
 		//log::add('ChauffeEau','debug',$this->getHumanName().' : Le prochain disponibilité est '. date("d/m/Y H:i", $nextTime));
