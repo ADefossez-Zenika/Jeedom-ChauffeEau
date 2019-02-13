@@ -483,7 +483,7 @@ class ChauffeEau extends eqLogic {
 				$TempActuel += $DeltaTemp;
 			}else{
 				//on baisse la température
-				$DeltaTemp= 0.1;
+				$DeltaTemp= 0.01;
 				$TempActuel -= $DeltaTemp;
 			}
 		}else{
