@@ -468,7 +468,10 @@ class ChauffeEau extends eqLogic {
 		return $PowerTime;
 	} 
 	public function BacteryProtect(){		
-		$TempActuel = jeedom::evaluateExpression($this->getConfiguration('TempActuel'));
+		if($this->getConfiguration('TempActuel') == '')
+			$TempActuel=$this->EstimateTempActuel();
+		else
+			$TempActuel=jeedom::evaluateExpression($this->getConfiguration('TempActuel');
 		$this->checkAndUpdateCmd('TempActuel',$TempActuel);	
 		if($this->getConfiguration('BacteryProtect')){
 			if($TempActuel < 20 && $TempActuel > 55){
