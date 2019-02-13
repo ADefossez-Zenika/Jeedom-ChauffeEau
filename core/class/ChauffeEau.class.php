@@ -487,7 +487,8 @@ class ChauffeEau extends eqLogic {
 		}
 		return array($DeltaTemp, $Temps);
 	}
-	public function EstimateTempActuel($TempActuel){
+	public function EstimateTempActuel(){
+		$TempActuel=$this->getCmd(null,'TempActuel')->execCmd();
 		$EtatChauffeEau=$this->getCmd(null,'state')->execCmd();
 		if($EtatChauffeEau){ 
 			//on augmente la température
