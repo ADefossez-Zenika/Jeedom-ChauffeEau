@@ -494,7 +494,7 @@ class ChauffeEau extends eqLogic {
 			$Capacite = $this->getConfiguration('Capacite');
 			$Puissance = $this->getPuissance();
 			$Energie= 60 * $Puissance;
-			$DeltaTemp = $Energie / ($Capacite*4181)
+			$DeltaTemp = $Energie / ($Capacite*4181);
 			return $TempActuel + $DeltaTemp;
 		}else{
 			//on baisse la température
