@@ -176,7 +176,10 @@ class ChauffeEau extends eqLogic {
 			break;
 			case 'Automatique':
 				$TempSouhaite = $this->getCmd(null,'consigne')->execCmd();
-				$TempActuel= jeedom::evaluateExpression($this->getConfiguration('TempActuel'));
+				if($this->getConfiguration('TempActuel') == '')
+					$TempActuel=$this->EstimateTempActuel();
+				else
+					$TempActuel=jeedom::evaluateExpression($this->getConfiguration('TempActuel');
 				$this->checkAndUpdateCmd('TempActuel',$TempActuel);	
 				$this->CheckDeltaTemp($TempActuel);
 				//if($this->getConfiguration('BacteryProtect'))
@@ -280,7 +283,12 @@ class ChauffeEau extends eqLogic {
 		if($this->getConfiguration('Etat') == '')
 			$this->checkAndUpdateCmd('state',1);
 		log::add('ChauffeEau','info',$this->getHumanName().' : Alimentation électrique du chauffe-eau');
-		cache::set('ChauffeEau::Start::Temperature::'.$this->getId(),jeedom::evaluateExpression($this->getConfiguration('TempActuel')), 0);
+		if($this->getConfiguration('TempActuel') == '')
+			$TempActuel=$this->EstimateTempActuel();
+		else
+			$TempActuel=jeedom::evaluateExpression($this->getConfiguration('TempActuel');
+		$this->checkAndUpdateCmd('TempActuel',$TempActuel);	
+		cache::set('ChauffeEau::Start::Temperature::'.$this->getId(),$TempActuel), 0);
 		cache::set('ChauffeEau::Start::Time::'.$this->getId(),time(), 0);
 		if(cache::byKey('ChauffeEau::Repeat::'.$this->getId())->getValue(true)){
 			foreach($this->getConfiguration('Action') as $cmd){
@@ -328,7 +336,10 @@ class ChauffeEau extends eqLogic {
 		cache::set('ChauffeEau::Power::'.$this->getId(),false, 0);
 		if($this->getCmd(null,'state')->execCmd()){
 			$this->PowerStop();
-			$TempActuel= jeedom::evaluateExpression($this->getConfiguration('TempActuel'));
+			if($this->getConfiguration('TempActuel') == '')
+				$TempActuel=$this->EstimateTempActuel();
+			else
+				$TempActuel= jeedom::evaluateExpression($this->getConfiguration('TempActuel'));
 			$this->checkAndUpdateCmd('TempActuel',$TempActuel);	
 			$StartTime = cache::byKey('ChauffeEau::Start::Time::'.$this->getId());	
 			$StartTemps = cache::byKey('ChauffeEau::Start::Temperature::'.$this->getId());
@@ -393,7 +404,10 @@ class ChauffeEau extends eqLogic {
 	}
 	public function NextProg(){
 		$validProg=false;
-		$TempActuel=jeedom::evaluateExpression($this->getConfiguration('TempActuel'));
+		if($this->getConfiguration('TempActuel') == '')
+			$TempActuel=$this->EstimateTempActuel();
+		else
+			$TempActuel=jeedom::evaluateExpression($this->getConfiguration('TempActuel'));
 		$PowerTime=$this->EvaluatePowerTime();
 		$TempSouhaite=60;
 		foreach($this->getConfiguration('programation') as $ConigSchedule){
@@ -472,6 +486,21 @@ class ChauffeEau extends eqLogic {
 			$DeltaTemp = $this->getCmd(null,'consigne')->execCmd() - $TempActuel;
 		}
 		return array($DeltaTemp, $Temps);
+	}
+	public function EstimateTempActuel($TempActuel){
+		$EtatChauffeEau=$this->getCmd(null,'state')->execCmd();
+		if($EtatChauffeEau){ 
+			//on augmente la température
+			$Capacite = $this->getConfiguration('Capacite');
+			$Puissance = $this->getPuissance();
+			$Energie= 60 * $Puissance;
+			$DeltaTemp = $Energie / ($Capacite*4181)
+			return $TempActuel + $DeltaTemp;
+		}else{
+			//on baisse la température
+			$DeltaTemp= 0.1;
+			return $TempActuel - $DeltaTemp;
+		}
 	}
 	public function checkBacteryProtect($TempActuel){
 		$BacteryProtect = $this->getCmd(null,'BacteryProtect')->execCmd();
