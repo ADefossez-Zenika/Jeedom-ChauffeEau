@@ -188,8 +188,8 @@ class ChauffeEau extends eqLogic {
 				$NextStop = DateTime::createFromFormat("d/m/Y H:i", $this->getCmd(null,'NextStop')->execCmd());
 				if(mktime() > $NextStop->getTimestamp()){
 					//Action si le cycle est terminée
-					$NextProg=$this->EvaluateDelestage($NextStart->getTimestamp());
-					if($NextStart->getTimestamp() === false){
+					$NextProg=$this->EvaluateDelestage($NextStop->getTimestamp());
+					if($NextProg === false){
 						$this->DispoEnd();
 						return;
 					}
@@ -346,20 +346,20 @@ class ChauffeEau extends eqLogic {
 			}	
 		}
 	}
-	public function EvaluateDelestage($NextProg){
+	public function EvaluateDelestage($NextStop){
 		$Delestage = cache::byKey('ChauffeEau::Delestage::'.$this->getId())->getValue(false);
 		if($Delestage){
 			switch($this->getConfiguration('delestage')){
 				case 'Temp':
-					$NextProg = $NextProg + $this->EvaluatePowerTime();
-					$this->checkAndUpdateCmd('NextStop',date('d/m/Y H:i',$NextProg));
-				return 	$NextProg;
+					$NextStop = $NextStop + $this->EvaluatePowerTime();
+					$this->checkAndUpdateCmd('NextStop',date('d/m/Y H:i',$NextStop));
+				return 	$NextStop;
 				case 'Heure':
 				return false;
 				case '30':
-					$NextProg = $NextProg+(30*60);
-					$this->checkAndUpdateCmd('NextStop',date('d/m/Y H:i',$NextProg));
-				return $NextProg;
+					$NextStop = $NextStop+(30*60);
+					$this->checkAndUpdateCmd('NextStop',date('d/m/Y H:i',$NextStop));
+				return $NextStop;
 			}
 		}
 		return false;
