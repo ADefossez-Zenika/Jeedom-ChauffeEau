@@ -471,10 +471,10 @@ class ChauffeEau extends eqLogic {
 		return array($DeltaTemp, $Temps);
 	}
 	public function EstimateTempActuel(){
+		$TempActuelCmd=$this->getCmd(null,'TempActuel');
 		if($this->getConfiguration('TempActuel') == ''){
-			$TempActuelCmd=$this->getCmd(null,'TempActuel');
 			$TempActuel=$TempActuelCmd->execCmd();
-			$DeltaTime= time() - DateTime::createFromFormat("d/m/Y H:i", $TempActuelCmd->getCollectDate())->getTimestamp();
+			$DeltaTime= time() - DateTime::createFromFormat("Y-m-d H:i:s", $TempActuelCmd->getCollectDate())->getTimestamp();
 			$EtatChauffeEau=$this->getCmd(null,'state')->execCmd();
 			if($EtatChauffeEau){ 
 				//on augmente la température
@@ -485,14 +485,16 @@ class ChauffeEau extends eqLogic {
 				$TempActuel += $DeltaTemp;
 			}else{
 				//on baisse la température
-				$DeltaTemp= $DeltaTime * 0.0004;
+				$DeltaTemp= $DeltaTime * 0.0005;
 				$TempActuel -= $DeltaTemp;
 			}
 			$TempActuel = round($TempActuel,1);
 		}else{
 			$TempActuel=jeedom::evaluateExpression($this->getConfiguration('TempActuel'));
 		}
-		$this->checkAndUpdateCmd('TempActuel',$TempActuel);
+      
+		if($TempActuel != $TempActuelCmd->execCmd())
+			$this->checkAndUpdateCmd('TempActuel',$TempActuel);
 		return $TempActuel;
 		
 	}
