@@ -401,7 +401,6 @@ class ChauffeEau extends eqLogic {
 					if($jour > 6)
 						$jour= $jour-7;
 					if($ConigSchedule[$jour]){
-						$TempSouhaite= jeedom::evaluateExpression($ConigSchedule["consigne"]);
 						$offset+=$day;
 						$timestamp=mktime ($ConigSchedule["Heure"], $ConigSchedule["Minute"], 0, date("n") , date("j") , date("Y"))+ (3600 * 24) * $offset;
 						/*if($ConigSchedule["isSeuil"]){
@@ -414,6 +413,7 @@ class ChauffeEau extends eqLogic {
 				if($nextTime == null || $nextTime > $timestamp){
 					$validProg = true;
 					$nextTime=$timestamp;
+					$TempSouhaite= jeedom::evaluateExpression($ConigSchedule["consigne"]);
 				}
 			}elseif($ConigSchedule["isSeuil"] && $ConigSchedule[date('w')]){
 				$validProg = false;
