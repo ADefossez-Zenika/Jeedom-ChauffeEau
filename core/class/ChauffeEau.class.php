@@ -47,9 +47,9 @@ class ChauffeEau extends eqLogic {
 					$State=cache::byKey('ChauffeEau::Power::'.$ChauffeEau->getId());
 					if(is_object($State)){
 						if($State->getValue(false))
-							$ChauffeEau->PowerStart();
+							$ChauffeEau->ActionPowerStart();
 						else
-							$ChauffeEau->PowerStop();
+							$ChauffeEau->ActionPowerStop();
 					}
 				}
 			}
@@ -67,9 +67,9 @@ class ChauffeEau extends eqLogic {
 					$State=cache::byKey('ChauffeEau::Power::'.$ChauffeEau->getId());
 					if(is_object($State)){
 						if($State->getValue(false))
-							$ChauffeEau->PowerStart();
+							$ChauffeEau->ActionPowerStart();
 						else
-							$ChauffeEau->PowerStop();
+							$ChauffeEau->ActionPowerStop();
 					}
 				}
 			}
@@ -87,9 +87,9 @@ class ChauffeEau extends eqLogic {
 					$State=cache::byKey('ChauffeEau::Power::'.$ChauffeEau->getId());
 					if(is_object($State)){
 						if($State->getValue(false))
-							$ChauffeEau->PowerStart();
+							$ChauffeEau->ActionPowerStart();
 						else
-							$ChauffeEau->PowerStop();
+							$ChauffeEau->ActionPowerStop();
 					}
 				}
 			}
@@ -107,9 +107,9 @@ class ChauffeEau extends eqLogic {
 					$State=cache::byKey('ChauffeEau::Power::'.$ChauffeEau->getId());
 					if(is_object($State)){
 						if($State->getValue(false))
-							$ChauffeEau->PowerStart();
+							$ChauffeEau->ActionPowerStart();
 						else
-							$ChauffeEau->PowerStop();
+							$ChauffeEau->ActionPowerStop();
 					}
 				}
 			}
@@ -127,9 +127,9 @@ class ChauffeEau extends eqLogic {
 					$State=cache::byKey('ChauffeEau::Power::'.$ChauffeEau->getId());
 					if(is_object($State)){
 						if($State->getValue(false))
-							$ChauffeEau->PowerStart();
+							$ChauffeEau->ActionPowerStart();
 						else
-							$ChauffeEau->PowerStop();
+							$ChauffeEau->ActionPowerStop();
 					}
 				}
 			}
@@ -147,9 +147,9 @@ class ChauffeEau extends eqLogic {
 					$State=cache::byKey('ChauffeEau::Power::'.$ChauffeEau->getId());
 					if(is_object($State)){
 						if($State->getValue(false))
-							$ChauffeEau->PowerStart();
+							$ChauffeEau->ActionPowerStart();
 						else
-							$ChauffeEau->PowerStop();
+							$ChauffeEau->ActionPowerStop();
 					}
 				}
 			}
@@ -177,7 +177,6 @@ class ChauffeEau extends eqLogic {
 			case 'Automatique':
 				$TempSouhaite = $this->getCmd(null,'consigne')->execCmd();
 				$TempActuel=$this->EstimateTempActuel();	
-				$this->CheckDeltaTemp($TempActuel);
 				//if($this->getConfiguration('BacteryProtect'))
 					$this->checkBacteryProtect($TempActuel);
 				$NextProg=$this->NextProg();
@@ -282,6 +281,9 @@ class ChauffeEau extends eqLogic {
 		$TempActuel=$this->EstimateTempActuel();	
 		cache::set('ChauffeEau::Start::Temperature::'.$this->getId(),$TempActuel, 0);
 		cache::set('ChauffeEau::Start::Time::'.$this->getId(),time(), 0);
+		$this->ActionPowerStart();
+	}
+	public function ActionPowerStart(){
 		if(cache::byKey('ChauffeEau::Repeat::'.$this->getId())->getValue(true)){
 			foreach($this->getConfiguration('Action') as $cmd){
 				foreach($cmd['declencheur'] as $declencheur){
@@ -298,6 +300,9 @@ class ChauffeEau extends eqLogic {
 		if($this->getConfiguration('Etat') == '')
 			$this->checkAndUpdateCmd('state',0);
 		log::add('ChauffeEau','info',$this->getHumanName().' : Coupure de l\'alimentation électrique du chauffe-eau');
+		$this->ActionPowerStop();
+	}
+	public function ActionPowerStop(){
 		if(cache::byKey('ChauffeEau::Repeat::'.$this->getId())->getValue(true)){
 			foreach($this->getConfiguration('Action') as $cmd){
 				foreach($cmd['declencheur'] as $declencheur){
@@ -363,17 +368,6 @@ class ChauffeEau extends eqLogic {
 		}
 		return false;
 	}
-	public function CheckDeltaTemp($TempActuel){
-		if(!$this->getCmd(null,'state')->execCmd()){
-			$LastTemp = cache::byKey('ChauffeEau::LastTemp::'.$this->getId());	
-			$DeltaTemp=$TempActuel-$LastTemp->getValue($TempActuel);
-			$this->setDeltaTemp($DeltaTemp);
-			if($DeltaTemp > $this->getDeltaTemp() * 0.8){//Recherche d'une chute de plus de 20%
-				log::add('ChauffeEau','info',$this->getHumanName().' : Il y a un chute de température de '.$DeltaTemp.' => Vous prenez une douche');
-			}	
-		}
-		cache::set('ChauffeEau::LastTemp::'.$this->getId(),$TempActuel, 0);
-	}	
 	public function setDeltaTemp($DeltaTemp) {
 		$cache = cache::byKey('ChauffeEau::DeltaTemp::'.$this->getId());
 		$value = json_decode($cache->getValue('[]'), true);
