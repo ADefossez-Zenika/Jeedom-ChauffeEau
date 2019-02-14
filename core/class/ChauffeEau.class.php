@@ -162,7 +162,7 @@ class ChauffeEau extends eqLogic {
 				$id=rand(0,32767);
 				$ConigSchedule["id"]=$id;
 			}
-			$ConigSchedule["url"] = network::getNetworkAccess('external') . '/plugins/reveil/core/api/jeeReveil.php?apikey=' . jeedom::getApiKey('reveil') . '&id=' . $this->getId() . '&prog=' . $ConigSchedule["id"] . '&day=%DAY&heure=%H&minute=%M&seuil=%S';
+			$ConigSchedule["url"] = network::getNetworkAccess('external') . '/plugins/ChauffeEau/core/api/jeeChauffeEau.php?apikey=' . jeedom::getApiKey('ChauffeEau') . '&id=' . $this->getId() . '&prog=' . $ConigSchedule["id"] . '&day=%DAY&heure=%H&minute=%M&seuil=%S';
 			$Programation[$key]=$ConigSchedule;
 		}
 		$this->setConfiguration('programation', $Programation);
