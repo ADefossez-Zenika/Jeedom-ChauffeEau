@@ -465,6 +465,17 @@ class ChauffeEau extends eqLogic {
 		}
 		return array($DeltaTemp, $Temps);
 	}
+	public function getTemperatureDelta($TempActuel) {
+		$Temperatures=array(0,10,20,45,50,60,70,90);
+		$Pertes=array(0.000005,0.00001,0.00005,0.0005,0.0005,0.00005,0.00001,0.000005);
+		foreach($Temperatures as $key => $Temperature){
+			if($TempActuel >= $Temperatures && $TempActuel < $Temperatures[$key+1]){
+				$coef=$Temperatures[$key+1]/$Temperatures;
+				return $Pertes[$key] * $coef;
+			}
+		}
+		return 0;
+	}
 	public function EstimateTempActuel(){
 		$TempActuelCmd=$this->getCmd(null,'TempActuel');
 		if($this->getConfiguration('TempActuel') == ''){
@@ -480,7 +491,7 @@ class ChauffeEau extends eqLogic {
 				$TempActuel += $DeltaTemp;
 			}else{
 				//on baisse la température
-				$DeltaTemp= $DeltaTime * 0.0005;
+				$DeltaTemp= $DeltaTime * $this->getTemperatureDelta($TempActuel);;
 				$TempActuel -= $DeltaTemp;
 			}
 			$TempActuel = round($TempActuel,1);
