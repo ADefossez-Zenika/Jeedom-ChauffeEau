@@ -148,14 +148,44 @@ $eqLogics = eqLogic::byType('ChauffeEau');
 								</div>
 							</div>
 							<div class="form-group">
-								<label class="col-sm-4 control-label" >{{Sélectionner une commande ou estimer la température actuelle de l'eau}}</label>
+								<label class="col-sm-4 control-label" >{{Simuler la temperature du balon}}</label>
+								<div class="col-sm-7">
+									<label>{{Activer}}</label>
+									<input type="checkbox" class="eqLogicAttr" data-label-text="{{Activer}}" data-l1key="configuration" data-l2key="TempEauEstime"/>
+								</div>
+							</div>
+							<div class="form-group TempEauReel">
+								<label class="col-sm-4 control-label" >{{Sélectionner une commande de la température actuelle de l'eau}}</label>
 								<div class="col-sm-7 input-group">
-									<input class="eqLogicAttr form-control input-sm" data-l1key="configuration"  data-l2key="TempActuel" placeholder="{{Sélectionner un objet Jeedom de température, ou Saisisser une valeur par defaut}}">
+									<input class="eqLogicAttr form-control input-sm" data-l1key="configuration"  data-l2key="TempActuel" placeholder="{{Sélectionner un objet Jeedom de température, ou saisissez une valeur par defaut}}">
 									<span class="input-group-btn">
 										<a class="btn btn-success btn-sm bt_selectCmdExpression" >
 											<i class="fa fa-list-alt"></i>
 										</a>
 									</span>
+								</div>
+							</div>  
+							<div class="form-group TempEauEstime">
+								<label class="col-sm-4 control-label" >{{Température de la piece}}</label>
+								<div class="col-sm-7 input-group">
+									<input class="eqLogicAttr form-control input-sm" data-l1key="configuration"  data-l2key="TempLocal" placeholder="{{Sélectionner un objet Jeedom de température, ou Saisisser une valeur par defaut}}">
+									<span class="input-group-btn">
+										<a class="btn btn-success btn-sm bt_selectCmdExpression" >
+											<i class="fa fa-list-alt"></i>
+										</a>
+									</span>
+								</div>
+							</div> 
+							<div class="form-group TempEauEstime">
+								<label class="col-sm-4 control-label" >{{Nombre de douche}}</label>
+								<div class="col-sm-7 input-group">
+									<input class="eqLogicAttr form-control input-sm" data-l1key="configuration"  data-l2key="nbDouche" placeholder="{{Saisissez une valeur par defaut ou un varriable}}">
+								</div>
+							</div>
+							<div class="form-group TempEauEstime">
+								<label class="col-sm-4 control-label" >{{Nombre de bain}}</label>
+								<div class="col-sm-7 input-group">
+									<input class="eqLogicAttr form-control input-sm" data-l1key="configuration"  data-l2key="nbBain" placeholder="{{Saisissez une valeur par defaut ou un varriable}}">
 								</div>
 							</div>  
 						</fieldset>
