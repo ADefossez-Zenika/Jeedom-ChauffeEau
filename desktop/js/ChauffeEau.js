@@ -253,7 +253,9 @@ $("body").on('change',".expressionAttr[data-l1key=isHoraire]",function(){
 		$(this).closest('td').find('.expressionAttr[data-l1key=Minute]').hide();
 	}
 });
-$(".eqLogicAttr[data-l2key=TempEauEstime]").off().on('change',function(){
+$(this).closest('form-horizontal').find('.TempEauReel').show();
+$(this).closest('form-horizontal').find('.TempEauEstime').hide();
+$("body").on('change',".eqLogicAttr[data-l2key=TempEauEstime]",function(){
 	if($(this).is(':checked')){
 		$(this).closest('form-horizontal').find('.TempEauReel').hide();
 		$(this).closest('form-horizontal').find('.TempEauEstime').show();
