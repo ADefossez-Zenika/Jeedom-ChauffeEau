@@ -176,7 +176,7 @@ $eqLogics = eqLogic::byType('ChauffeEau');
 									</span>
 								</div>
 							</div> 
-							<div class="form-group TempEauEstime">
+							<!--div class="form-group TempEauEstime">
 								<label class="col-sm-4 control-label" >{{Nombre de douche}}</label>
 								<div class="col-sm-7 input-group">
 									<input class="eqLogicAttr form-control input-sm" data-l1key="configuration"  data-l2key="nbDouche" placeholder="{{Saisissez une valeur par defaut ou un varriable}}">
@@ -187,7 +187,7 @@ $eqLogics = eqLogic::byType('ChauffeEau');
 								<div class="col-sm-7 input-group">
 									<input class="eqLogicAttr form-control input-sm" data-l1key="configuration"  data-l2key="nbBain" placeholder="{{Saisissez une valeur par defaut ou un varriable}}">
 								</div>
-							</div>  
+							</div-->  
 						</fieldset>
 					</form>
 				</div>
