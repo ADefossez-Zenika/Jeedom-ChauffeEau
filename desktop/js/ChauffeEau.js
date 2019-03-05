@@ -253,6 +253,17 @@ $("body").on('change',".expressionAttr[data-l1key=isHoraire]",function(){
 		$(this).closest('td').find('.expressionAttr[data-l1key=Minute]').hide();
 	}
 });
+$('.TempEauReel').show();
+$('.TempEauEstime').hide();
+$(".eqLogicAttr[data-l2key=TempEauEstime]").off().on('change',function(){
+	if($(this).is(':checked')){
+		$('.TempEauReel').hide();
+		$('.TempEauEstime').show();
+	}else{			
+		$('.TempEauReel').show();
+		$('.TempEauEstime').hide();
+	}
+});
 $("body").on('click', ".listAction", function() {
 	var el = $(this).closest('tr').find('.expressionAttr[data-l1key=cmd]');
 	jeedom.getSelectActionModal({}, function (result) {
