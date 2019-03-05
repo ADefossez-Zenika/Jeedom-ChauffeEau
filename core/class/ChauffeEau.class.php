@@ -473,10 +473,6 @@ class ChauffeEau extends eqLogic {
 		$cache = cache::byKey('ChauffeEau::DeltaTemp::'.$this->getId());
 		$Caracterisation = json_decode($cache->getValue('[]'), true);
 		$Caracterisation[$TempActuel] = $DeltaTemp;
-		foreach($Caracterisation as $Temperature => $Perte){
-			if($DeltaTemp > $Perte)
-			
-		}
 		cache::set('ChauffeEau::DeltaTemp::'.$this->getId(), json_encode(ksort($Caracterisation)), 0);
 		log::add('ChauffeEau','debug',$this->getHumanName().'[Caracterisation Température] '.json_encode(ksort($Caracterisation)));
 	}
