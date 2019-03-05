@@ -466,15 +466,19 @@ class ChauffeEau extends eqLogic {
 		return round(array_sum($value)/count($value),0);
 	}*/
 	public function setDeltaTemperature($TempActuel) {
-		$TempActuelCmd=$this->getCmd(null,'TempActuel');
-		$DeltaTime= time() - DateTime::createFromFormat("Y-m-d H:i:s", $TempActuelCmd->getCollectDate())->getTimestamp();
-		$DeltaTemp = ($TempActuelCmd->execCmd() - $TempActuel) / $DeltaTime;// delta de temperature par seconde
-			
-		$cache = cache::byKey('ChauffeEau::DeltaTemp::'.$this->getId());
-		$Caracterisation = json_decode($cache->getValue('[]'), true);
-		$Caracterisation[$TempActuel] = $DeltaTemp;
-		cache::set('ChauffeEau::DeltaTemp::'.$this->getId(), json_encode(ksort($Caracterisation)), 0);
-		log::add('ChauffeEau','debug',$this->getHumanName().'[Caracterisation Température] '.json_encode(ksort($Caracterisation)));
+		$LastTempsCmd=$this->getCmd(null,'TempActuel');
+		if(is_object($LastTempsCmd)){
+			$LastTempsCollectDate=DateTime::createFromFormat("Y-m-d H:i:s", $LastTempsCmd->getCollectDate());
+			if($LastTempsCollectDate !== false){
+				$DeltaTime= time() - $LastTempsCollectDate->getTimestamp();
+				$DeltaTemp = ($LastTempsCmd->execCmd() - $TempActuel) / $DeltaTime;// delta de temperature par seconde
+				$cache = cache::byKey('ChauffeEau::DeltaTemp::'.$this->getId());
+				$Caracterisation = json_decode($cache->getValue('[]'), true);
+				$Caracterisation[$TempActuel] = $DeltaTemp;
+				cache::set('ChauffeEau::DeltaTemp::'.$this->getId(), json_encode(ksort($Caracterisation)), 0);
+				log::add('ChauffeEau','debug',$this->getHumanName().'[Caracterisation Température] '.json_encode(ksort($Caracterisation)));
+			}
+		}
 	}
 	public function getDeltaTemperature($TempActuel) {
 		$Temperatures=array(0,10,20,45,50,60,70,90);
