@@ -368,22 +368,6 @@ class ChauffeEau extends eqLogic {
 		}
 		return false;
 	}
-	public function setDeltaTemp($DeltaTemp) {
-		$cache = cache::byKey('ChauffeEau::DeltaTemp::'.$this->getId());
-		$value = json_decode($cache->getValue('[]'), true);
-		$Moyenne=intval(trim($this->getDeltaTemp()));
-		if($DeltaTemp > $Moyenne * 1.1)
-			$DeltaTemp =$Moyenne * 1.1;
-		elseif($DeltaTemp < $Moyenne * 0.9)
-			$DeltaTemp =$Moyenne * 0.9;
-		$value[] =intval(trim($DeltaTemp));
-		cache::set('ChauffeEau::DeltaTemp::'.$this->getId(), json_encode(array_slice($value, -10, 10)), 0);
-	}
-	public function getDeltaTemp() {
-		$cache = cache::byKey('ChauffeEau::DeltaTemp::'.$this->getId());
-		$value = json_decode($cache->getValue('[]'), true);
-		return round(array_sum($value)/count($value),0);
-	}
 	public function NextProg(){
 		$validProg=false;
 		$TempActuel=$this->EstimateTempActuel();
@@ -465,13 +449,44 @@ class ChauffeEau extends eqLogic {
 		}
 		return array($DeltaTemp, $Temps);
 	}
+	/*public function setDeltaTemp($DeltaTemp) {
+		$cache = cache::byKey('ChauffeEau::DeltaTemp::'.$this->getId());
+		$value = json_decode($cache->getValue('[]'), true);
+		$Moyenne=intval(trim($this->getDeltaTemp()));
+		if($DeltaTemp > $Moyenne * 1.1)
+			$DeltaTemp =$Moyenne * 1.1;
+		elseif($DeltaTemp < $Moyenne * 0.9)
+			$DeltaTemp =$Moyenne * 0.9;
+		$value[] =intval(trim($DeltaTemp));
+		cache::set('ChauffeEau::DeltaTemp::'.$this->getId(), json_encode(array_slice($value, -10, 10)), 0);
+	}
+	public function getDeltaTemp() {
+		$cache = cache::byKey('ChauffeEau::DeltaTemp::'.$this->getId());
+		$value = json_decode($cache->getValue('[]'), true);
+		return round(array_sum($value)/count($value),0);
+	}*/
+	public function setDeltaTemperature($TempActuel) {
+		$TempActuelCmd=$this->getCmd(null,'TempActuel');
+		$DeltaTime= time() - DateTime::createFromFormat("Y-m-d H:i:s", $TempActuelCmd->getCollectDate())->getTimestamp();
+		$DeltaTemp = ($TempActuelCmd->execCmd() - $TempActuel) / $DeltaTime;// delta de temperature par seconde
+			
+		$cache = cache::byKey('ChauffeEau::DeltaTemp::'.$this->getId());
+		$Caracterisation = json_decode($cache->getValue('[]'), true);
+		$Caracterisation[$TempActuel] = $DeltaTemp;
+		foreach($Caracterisation as $Temperature => $Perte){
+			if($DeltaTemp > $Perte)
+			
+		}
+		cache::set('ChauffeEau::DeltaTemp::'.$this->getId(), json_encode(ksort($Caracterisation)), 0);
+		log::add('ChauffeEau','debug',$this->getHumanName().'[Caracterisation Température] '.json_encode(ksort($Caracterisation)));
+	}
 	public function getDeltaTemperature($TempActuel) {
 		$Temperatures=array(0,10,20,45,50,60,70,90);
 		$Pertes=array(0,0.00001,0.00005,0.0001,0.0005,0.00065,0.0009);
 		foreach($Temperatures as $key => $Temperature){
 			if($TempActuel >= $Temperature && $TempActuel < $Temperatures[$key+1]){
-				$coef=$Temperatures[$key+1]/$Temperature;
-				return $Pertes[$key] * $coef;
+				//$coef=$Temperatures[$key+1]/$Temperature;
+				return $Pertes[$key];// * $coef;
 			}
 		}
 		return 0;
@@ -502,6 +517,7 @@ class ChauffeEau extends eqLogic {
 			$TempActuel = round($TempActuel,1);
 		}else{
 			$TempActuel=jeedom::evaluateExpression($this->getConfiguration('TempActuel'));
+			$this->setDeltaTemperature($TempActuel);
 		}
       
 		if($TempActuel != $TempActuelCmd->execCmd())
