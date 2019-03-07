@@ -355,15 +355,11 @@ class ChauffeEau extends eqLogic {
 		if($Delestage){
 			switch($this->getConfiguration('delestage')){
 				case 'Temp':
-					$NextStop = $NextStop + $this->EvaluatePowerTime();
-					$this->checkAndUpdateCmd('NextStop',date('d/m/Y H:i',$NextStop));
-				return 	$NextStop;
+				return $NextStop + $this->EvaluatePowerTime();
 				case 'Heure':
 				return false;
 				case '30':
-					$NextStop = $NextStop+(30*60);
-					$this->checkAndUpdateCmd('NextStop',date('d/m/Y H:i',$NextStop));
-				return $NextStop;
+				return $NextStop+(30*60);
 			}
 		}
 		return false;
