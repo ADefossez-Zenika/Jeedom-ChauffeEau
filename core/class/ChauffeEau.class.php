@@ -213,6 +213,8 @@ class ChauffeEau extends eqLogic {
 			if($this->EvaluateCondition()){	
 				if(!$this->getCmd(null,'state')->execCmd())
 					$this->PowerStart();	
+			}else{
+				$this->PowerStop();
 			}
 		}elseif($Temperature > $TemperatureHaute){
 			$this->EvaluatePowerStop();
@@ -285,6 +287,7 @@ class ChauffeEau extends eqLogic {
 	}
 	public function ActionPowerStart(){
 		if(cache::byKey('ChauffeEau::Repeat::'.$this->getId())->getValue(true)){
+			cache::set('ChauffeEau::Run::'.$this->getId(),true, 0);
 			foreach($this->getConfiguration('Action') as $cmd){
 				foreach($cmd['declencheur'] as $declencheur){
 					if($declencheur == 'on')
@@ -316,12 +319,12 @@ class ChauffeEau extends eqLogic {
 	}
 	public function DispoEnd(){
 		cache::set('ChauffeEau::Delestage::'.$this->getId(),false, 0);
-		$this->checkAndUpdateCmd('NextStop',date('d/m/Y H:i'));
 		log::add('ChauffeEau','debug',$this->getHumanName().' : Temps suprieur a l\'heure programmée');
 		if(cache::byKey('ChauffeEau::Repeat::'.$this->getId())->getValue(true))
 			$this->EvaluatePowerStop();
 		else
 			cache::set('ChauffeEau::Repeat::'.$this->getId(),true);
+		cache::set('ChauffeEau::Run::'.$this->getId(),false, 0);
 		foreach($this->getConfiguration('Action') as $cmd){
 			foreach($cmd['declencheur'] as $declencheur){
 				if($declencheur == 'dispo')
@@ -402,7 +405,7 @@ class ChauffeEau extends eqLogic {
 				$nextTime = mktime()+$PowerTime;	
 			}
 		}
-		if(!$this->getCmd(null,'state')->execCmd()){
+		if(!cache::byKey('ChauffeEau::Run::'.$this->getId())->getValue(false)){
 			$this->checkAndUpdateCmd('NextStop',date('d/m/Y H:i',$nextTime));
 			$this->checkAndUpdateCmd('NextStart',date('d/m/Y H:i',$nextTime-$PowerTime));
 		}
@@ -445,22 +448,6 @@ class ChauffeEau extends eqLogic {
 		}
 		return array($DeltaTemp, $Temps);
 	}
-	/*public function setDeltaTemp($DeltaTemp) {
-		$cache = cache::byKey('ChauffeEau::DeltaTemp::'.$this->getId());
-		$value = json_decode($cache->getValue('[]'), true);
-		$Moyenne=intval(trim($this->getDeltaTemp()));
-		if($DeltaTemp > $Moyenne * 1.1)
-			$DeltaTemp =$Moyenne * 1.1;
-		elseif($DeltaTemp < $Moyenne * 0.9)
-			$DeltaTemp =$Moyenne * 0.9;
-		$value[] =intval(trim($DeltaTemp));
-		cache::set('ChauffeEau::DeltaTemp::'.$this->getId(), json_encode(array_slice($value, -10, 10)), 0);
-	}
-	public function getDeltaTemp() {
-		$cache = cache::byKey('ChauffeEau::DeltaTemp::'.$this->getId());
-		$value = json_decode($cache->getValue('[]'), true);
-		return round(array_sum($value)/count($value),0);
-	}*/
 	public function setDeltaTemperature($TempActuel) {
 		$LastTempsCmd=$this->getCmd(null,'TempActuel');
 		if(is_object($LastTempsCmd)){
@@ -492,8 +479,7 @@ class ChauffeEau extends eqLogic {
 		if($this->getConfiguration('TempEauEstime')){
 			$TempActuel=$TempActuelCmd->execCmd();
 			$DeltaTime= time() - DateTime::createFromFormat("Y-m-d H:i:s", $TempActuelCmd->getCollectDate())->getTimestamp();
-			$EtatChauffeEau=$this->getCmd(null,'state')->execCmd();
-			if($EtatChauffeEau){ 
+			if(cache::byKey('ChauffeEau::Run::'.$this->getId())->getValue(false)){
 				//on augmente la température
 				$Capacite = $this->getConfiguration('Capacite');
 				$Puissance = $this->getPuissance();
