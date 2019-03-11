@@ -486,6 +486,8 @@ class ChauffeEau extends eqLogic {
 				$Energie= $DeltaTime * $Puissance;
 				$DeltaTemp = $Energie / ($Capacite*4181);
 				$TempActuel += $DeltaTemp;
+				if($TempActuel > 95)
+					$TempActuel=95;
 			}else{
 				//on baisse la température
 				$TempLocal=jeedom::evaluateExpression($this->getConfiguration('TempLocal'));
@@ -499,7 +501,7 @@ class ChauffeEau extends eqLogic {
 			$TempActuel = round($TempActuel,1);
 		}else{
 			$TempActuel=jeedom::evaluateExpression($this->getConfiguration('TempActuel'));
-			$this->setDeltaTemperature($TempActuel);
+			//$this->setDeltaTemperature($TempActuel);
 		}
       
 		if($TempActuel != $TempActuelCmd->execCmd())
