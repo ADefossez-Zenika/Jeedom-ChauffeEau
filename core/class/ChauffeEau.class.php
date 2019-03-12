@@ -177,7 +177,7 @@ class ChauffeEau extends eqLogic {
 			case 'Automatique':
 				$TempSouhaite = $this->getCmd(null,'consigne')->execCmd();
 				$TempActuel=$this->EstimateTempActuel();	
-				//if($this->getConfiguration('BacteryProtect'))
+				if($this->getConfiguration('BacteryProtect'))
 					$this->checkBacteryProtect($TempActuel);
 				$NextProg=$this->NextProg();
 				if($NextProg === false)
@@ -283,11 +283,11 @@ class ChauffeEau extends eqLogic {
 		$TempActuel=$this->EstimateTempActuel();	
 		cache::set('ChauffeEau::Start::Temperature::'.$this->getId(),$TempActuel, 0);
 		cache::set('ChauffeEau::Start::Time::'.$this->getId(),time(), 0);
+		cache::set('ChauffeEau::Run::'.$this->getId(),true, 0);
 		$this->ActionPowerStart();
 	}
 	public function ActionPowerStart(){
 		if(cache::byKey('ChauffeEau::Repeat::'.$this->getId())->getValue(true)){
-			cache::set('ChauffeEau::Run::'.$this->getId(),true, 0);
 			foreach($this->getConfiguration('Action') as $cmd){
 				foreach($cmd['declencheur'] as $declencheur){
 					if($declencheur == 'on')
