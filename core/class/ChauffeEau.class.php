@@ -172,7 +172,8 @@ class ChauffeEau extends eqLogic {
 			return;
 		switch($this->getCmd(null,'etatCommut')->execCmd()){
 			case 'Marche Forcée':
-				$this->PowerStart();
+				if(!$this->getCmd(null,'state')->execCmd())
+					$this->PowerStart();
 			break;
 			case 'Automatique':
 				$TempSouhaite = $this->getCmd(null,'consigne')->execCmd();
@@ -196,11 +197,14 @@ class ChauffeEau extends eqLogic {
 				}
 			break;
 			case 'Off':
-				$this->PowerStop();
+				if($this->getCmd(null,'state')->execCmd())
+					$this->PowerStop();
 			break;
 			case 'Délestage':
-				$this->PowerStop();
-				cache::set('ChauffeEau::Delestage::'.$this->getId(),true, 0);
+				if($this->getCmd(null,'state')->execCmd()){
+					$this->PowerStop();
+					cache::set('ChauffeEau::Delestage::'.$this->getId(),true, 0);
+				}
 			break;
 		}
 	}
@@ -214,7 +218,8 @@ class ChauffeEau extends eqLogic {
 				if(!$this->getCmd(null,'state')->execCmd())
 					$this->PowerStart();	
 			}else{
-				$this->PowerStop();
+				if($this->getCmd(null,'state')->execCmd())
+					$this->PowerStop();
 			}
 		}elseif($Temperature >= $TemperatureHaute){
 			if($this->getCmd(null,'state')->execCmd())
@@ -326,23 +331,21 @@ class ChauffeEau extends eqLogic {
 	}
 	public function EvaluatePowerStop(){
 		cache::set('ChauffeEau::Power::'.$this->getId(),false, 0);
-		if($this->getCmd(null,'state')->execCmd()){
-			$this->PowerStop();
-			$TempActuel=$this->EstimateTempActuel();
-			$StartTime = cache::byKey('ChauffeEau::Start::Time::'.$this->getId());	
-			$StartTemps = cache::byKey('ChauffeEau::Start::Temperature::'.$this->getId());
-			$DeltaTemp=$TempActuel-$StartTemps->getValue($TempActuel);
-			if($DeltaTemp > 1){
-				$DeltaTime=time()-$StartTime->getValue(time());
-				if($DeltaTime > 1){
-					log::add('ChauffeEau','info',$this->getHumanName().' : Élévation de température de '.$DeltaTemp.'°C sur une période de '.$DeltaTime.'s');
-					$Ratio = cache::byKey('ChauffeEau::Ratio::'.$this->getId());
-					$value = json_decode($Ratio->getValue('[]'), true);
-					$value[] =intval(round($DeltaTime/$DeltaTemp));
-					cache::set('ChauffeEau::Ratio::'.$this->getId(), json_encode(array_slice($value, -10, 10)), 0);
-					$this->Puissance($DeltaTemp,$DeltaTime);
-				}
-			}	
+		$this->PowerStop();
+		$TempActuel=$this->EstimateTempActuel();
+		$StartTime = cache::byKey('ChauffeEau::Start::Time::'.$this->getId());	
+		$StartTemps = cache::byKey('ChauffeEau::Start::Temperature::'.$this->getId());
+		$DeltaTemp=$TempActuel-$StartTemps->getValue($TempActuel);
+		if($DeltaTemp > 1){
+			$DeltaTime=time()-$StartTime->getValue(time());
+			if($DeltaTime > 1){
+				log::add('ChauffeEau','info',$this->getHumanName().' : Élévation de température de '.$DeltaTemp.'°C sur une période de '.$DeltaTime.'s');
+				$Ratio = cache::byKey('ChauffeEau::Ratio::'.$this->getId());
+				$value = json_decode($Ratio->getValue('[]'), true);
+				$value[] =intval(round($DeltaTime/$DeltaTemp));
+				cache::set('ChauffeEau::Ratio::'.$this->getId(), json_encode(array_slice($value, -10, 10)), 0);
+				$this->Puissance($DeltaTemp,$DeltaTime);
+			}
 		}
 	}
 	public function EvaluateDelestage($NextStop){
@@ -400,9 +403,9 @@ class ChauffeEau extends eqLogic {
 		if(!cache::byKey('ChauffeEau::Run::'.$this->getId())->getValue(false)){
 			$this->checkAndUpdateCmd('NextStop',date('d/m/Y H:i',$nextTime));
 			$this->checkAndUpdateCmd('NextStart',date('d/m/Y H:i',$nextTime-$PowerTime));
+			//log::add('ChauffeEau','debug',$this->getHumanName().' : Le prochain disponibilité est '. date("d/m/Y H:i", $nextTime));
 		}
 		$this->checkAndUpdateCmd('consigne',jeedom::evaluateExpression($TempSouhaite));
-		//log::add('ChauffeEau','debug',$this->getHumanName().' : Le prochain disponibilité est '. date("d/m/Y H:i", $nextTime));
 		if(!$validProg)	
 			return false;
 		return true;
@@ -470,7 +473,10 @@ class ChauffeEau extends eqLogic {
 		$TempActuelCmd=$this->getCmd(null,'TempActuel');
 		if($this->getConfiguration('TempEauEstime')){
 			$TempActuel=$TempActuelCmd->execCmd();
-			$DeltaTime= time() - DateTime::createFromFormat("Y-m-d H:i:s", $TempActuelCmd->getCollectDate())->getTimestamp();
+			$LastUpdate=$TempActuelCmd->getCollectDate();
+			if($LastUpdate == '')
+				$LastUpdate=date('Y-m-d H:i:s');
+			$DeltaTime= time() - DateTime::createFromFormat("Y-m-d H:i:s", $LastUpdate)->getTimestamp();
 			if(cache::byKey('ChauffeEau::Run::'.$this->getId())->getValue(false)){
 				//on augmente la température
 				$Capacite = $this->getConfiguration('Capacite');
