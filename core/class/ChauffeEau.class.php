@@ -470,7 +470,10 @@ class ChauffeEau extends eqLogic {
 		$TempActuelCmd=$this->getCmd(null,'TempActuel');
 		if($this->getConfiguration('TempEauEstime')){
 			$TempActuel=$TempActuelCmd->execCmd();
-			$DeltaTime= time() - DateTime::createFromFormat("Y-m-d H:i:s", $TempActuelCmd->getCollectDate())->getTimestamp();
+			$LastUpdate=$TempActuelCmd->getCollectDate();
+			if($LastUpdate == '')
+				$LastUpdate=date('Y-m-d H:i:s');
+			$DeltaTime= time() - DateTime::createFromFormat("Y-m-d H:i:s", $LastUpdate)->getTimestamp();
 			if(cache::byKey('ChauffeEau::Run::'.$this->getId())->getValue(false)){
 				//on augmente la température
 				$Capacite = $this->getConfiguration('Capacite');
