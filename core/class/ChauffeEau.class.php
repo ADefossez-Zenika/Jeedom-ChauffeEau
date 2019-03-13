@@ -562,10 +562,9 @@ class ChauffeEau extends eqLogic {
 				continue;
 			$_scenario = null;
 			$expression = scenarioExpression::setTags($Condition['expression'], $_scenario, true);
-			$message = __('Evaluation de la condition : ['.jeedom::toHumanReadable($Condition['expression']).'][', __FILE__) . trim($expression) . '] = ';
 			$result = evaluate($expression);
-			$message .=$this->boolToText($result);
-			log::add('ChauffeEau','info',$this->getHumanName().'[Condition] : '.$message);
+			if(!$result || !cache::byKey('ChauffeEau::Run::'.$this->getId())->getValue(false))
+				log::add('ChauffeEau','info',$this->getHumanName().'[Condition] : Evaluation de la condition : ['.jeedom::toHumanReadable($Condition['expression']).'][' . trim($expression) . '] = '.$this->boolToText($result));
 			if(!$result)
 				return false;	
 		}
