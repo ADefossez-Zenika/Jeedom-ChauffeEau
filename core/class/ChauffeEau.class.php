@@ -400,9 +400,9 @@ class ChauffeEau extends eqLogic {
 		if(!cache::byKey('ChauffeEau::Run::'.$this->getId())->getValue(false)){
 			$this->checkAndUpdateCmd('NextStop',date('d/m/Y H:i',$nextTime));
 			$this->checkAndUpdateCmd('NextStart',date('d/m/Y H:i',$nextTime-$PowerTime));
+			//log::add('ChauffeEau','debug',$this->getHumanName().' : Le prochain disponibilité est '. date("d/m/Y H:i", $nextTime));
 		}
 		$this->checkAndUpdateCmd('consigne',jeedom::evaluateExpression($TempSouhaite));
-		//log::add('ChauffeEau','debug',$this->getHumanName().' : Le prochain disponibilité est '. date("d/m/Y H:i", $nextTime));
 		if(!$validProg)	
 			return false;
 		return true;
