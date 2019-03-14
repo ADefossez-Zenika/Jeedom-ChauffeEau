@@ -444,8 +444,8 @@ class ChauffeEau extends eqLogic {
 		}
 	}
 	public function getDeltaTemperature($TempActuel) {
-		$Temperatures=array(0,10,20,45,50,60,70,90);
-		$Pertes=array(0,0.00001,0.00005,0.0001,0.0005,0.00065,0.0009);
+		$Temperatures=array(0,10,20,45,50,60,70,90,100);
+		$Pertes=array(0,0.00001,0.00005,0.0001,0.0005,0.00065,0.0009,0.09);
 		foreach($Temperatures as $key => $Temperature){
 			if($TempActuel >= $Temperature && $TempActuel < $Temperatures[$key+1]){
 				//$coef=$Temperatures[$key+1]/$Temperature;
