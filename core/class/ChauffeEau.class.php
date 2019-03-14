@@ -43,14 +43,11 @@ class ChauffeEau extends eqLogic {
 		foreach(eqLogic::byType('ChauffeEau') as $ChauffeEau){	
 			if($ChauffeEau->getIsEnable()){
 				$ChauffeEau->CheckChauffeEau();	
-				if ($ChauffeEau->getConfiguration('RepeatCmd') == "cron"){
-					$State=cache::byKey('ChauffeEau::Power::'.$ChauffeEau->getId());
-					if(is_object($State)){
-						if($State->getValue(false))
-							$ChauffeEau->ActionPowerStart();
-						else
-							$ChauffeEau->ActionPowerStop();
-					}
+				if ($ChauffeEau->getConfiguration('RepeatCmd') == "cron"){			
+					if($ChauffeEau->getCmd(null,'state')->execCmd())
+						$ChauffeEau->ActionPowerStart();
+					else
+						$ChauffeEau->ActionPowerStop();
 				}
 			}
 		}
@@ -63,14 +60,11 @@ class ChauffeEau extends eqLogic {
 			return;
 		foreach(eqLogic::byType('ChauffeEau') as $ChauffeEau){		
 			if($ChauffeEau->getIsEnable()){
-				if ($ChauffeEau->getConfiguration('RepeatCmd') == "cron5"){
-					$State=cache::byKey('ChauffeEau::Power::'.$ChauffeEau->getId());
-					if(is_object($State)){
-						if($State->getValue(false))
-							$ChauffeEau->ActionPowerStart();
-						else
-							$ChauffeEau->ActionPowerStop();
-					}
+				if ($ChauffeEau->getConfiguration('RepeatCmd') == "cron5"){			
+					if($ChauffeEau->getCmd(null,'state')->execCmd())
+						$ChauffeEau->ActionPowerStart();
+					else
+						$ChauffeEau->ActionPowerStop();
 				}
 			}
 		}
@@ -83,14 +77,11 @@ class ChauffeEau extends eqLogic {
 			return;
 		foreach(eqLogic::byType('ChauffeEau') as $ChauffeEau){		
 			if($ChauffeEau->getIsEnable()){
-				if ($ChauffeEau->getConfiguration('RepeatCmd') == "cron15"){
-					$State=cache::byKey('ChauffeEau::Power::'.$ChauffeEau->getId());
-					if(is_object($State)){
-						if($State->getValue(false))
-							$ChauffeEau->ActionPowerStart();
-						else
-							$ChauffeEau->ActionPowerStop();
-					}
+				if ($ChauffeEau->getConfiguration('RepeatCmd') == "cron15"){					
+					if($ChauffeEau->getCmd(null,'state')->execCmd())
+						$ChauffeEau->ActionPowerStart();
+					else
+						$ChauffeEau->ActionPowerStop();
 				}
 			}
 		}
@@ -103,14 +94,11 @@ class ChauffeEau extends eqLogic {
 			return;
 		foreach(eqLogic::byType('ChauffeEau') as $ChauffeEau){		
 			if($ChauffeEau->getIsEnable()){
-				if ($ChauffeEau->getConfiguration('RepeatCmd') == "cron30"){
-					$State=cache::byKey('ChauffeEau::Power::'.$ChauffeEau->getId());
-					if(is_object($State)){
-						if($State->getValue(false))
-							$ChauffeEau->ActionPowerStart();
-						else
-							$ChauffeEau->ActionPowerStop();
-					}
+				if ($ChauffeEau->getConfiguration('RepeatCmd') == "cron30"){			
+					if($ChauffeEau->getCmd(null,'state')->execCmd())
+						$ChauffeEau->ActionPowerStart();
+					else
+						$ChauffeEau->ActionPowerStop();
 				}
 			}
 		}
@@ -123,14 +111,11 @@ class ChauffeEau extends eqLogic {
 			return;
 		foreach(eqLogic::byType('ChauffeEau') as $ChauffeEau){		
 			if($ChauffeEau->getIsEnable()){
-				if ($ChauffeEau->getConfiguration('RepeatCmd') == "cronHourly"){
-					$State=cache::byKey('ChauffeEau::Power::'.$ChauffeEau->getId());
-					if(is_object($State)){
-						if($State->getValue(false))
-							$ChauffeEau->ActionPowerStart();
-						else
-							$ChauffeEau->ActionPowerStop();
-					}
+				if ($ChauffeEau->getConfiguration('RepeatCmd') == "cronHourly"){			
+					if($ChauffeEau->getCmd(null,'state')->execCmd())
+						$ChauffeEau->ActionPowerStart();
+					else
+						$ChauffeEau->ActionPowerStop();
 				}
 			}
 		}
@@ -143,14 +128,11 @@ class ChauffeEau extends eqLogic {
 			return;
 		foreach(eqLogic::byType('ChauffeEau') as $ChauffeEau){		
 			if($ChauffeEau->getIsEnable()){
-				if ($ChauffeEau->getConfiguration('RepeatCmd') == "cronDaily"){
-					$State=cache::byKey('ChauffeEau::Power::'.$ChauffeEau->getId());
-					if(is_object($State)){
-						if($State->getValue(false))
-							$ChauffeEau->ActionPowerStart();
-						else
-							$ChauffeEau->ActionPowerStop();
-					}
+				if ($ChauffeEau->getConfiguration('RepeatCmd') == "cronDaily"){			
+					if($ChauffeEau->getCmd(null,'state')->execCmd())
+						$ChauffeEau->ActionPowerStart();
+					else
+						$ChauffeEau->ActionPowerStop();
 				}
 			}
 		}
@@ -194,17 +176,17 @@ class ChauffeEau extends eqLogic {
 					}
 				}elseif(mktime() > $NextStart->getTimestamp()){
 					$this->checkHysteresis($TempActuel, $TempSouhaite);
+				}else{
+					$this->PowerStop();
 				}
+					
 			break;
 			case 'Off':
-				if($this->getCmd(null,'state')->execCmd())
-					$this->PowerStop();
+				$this->PowerStop();
 			break;
 			case 'Délestage':
-				if($this->getCmd(null,'state')->execCmd()){
-					$this->PowerStop();
-					cache::set('ChauffeEau::Delestage::'.$this->getId(),true, 0);
-				}
+				$this->PowerStop();
+				cache::set('ChauffeEau::Delestage::'.$this->getId(),true, 0);
 			break;
 		}
 	}
@@ -215,14 +197,11 @@ class ChauffeEau extends eqLogic {
 		$TemperatureHaute = $TemperatureConsigne + 0.5;
 		if($Temperature <= $TemperatureBasse){
 			if($this->EvaluateCondition()){	
-				if(!$this->getCmd(null,'state')->execCmd())
-					$this->PowerStart();	
+				$this->PowerStart();	
 			}else{
-				if($this->getCmd(null,'state')->execCmd())
-					$this->PowerStop();
+				$this->PowerStop();
 			}
 		}elseif($Temperature >= $TemperatureHaute){
-			if($this->getCmd(null,'state')->execCmd())
 				$this->EvaluatePowerStop();
 		}
 	}
@@ -266,21 +245,20 @@ class ChauffeEau extends eqLogic {
 		$ChauffeEau = eqLogic::byId($_option['ChauffeEau_id']);
 		if (is_object($ChauffeEau) && $ChauffeEau->getIsEnable()) {
 			log::add('ChauffeEau','info',$ChauffeEau->getHumanName().' : l\'etat du chauffe eau est passé a '.$_option['value']);
+			$State=$ChauffeEau->getCmd(null,'state')->execCmd());
+			if($_option['value'] && !$State)
+				$ChauffeEau->checkAndUpdateCmd('etatCommut','Marche Forcée');
+			if(!$_option['value'] && $State)
+				$ChauffeEau->checkAndUpdateCmd('etatCommut','Off');
+			/*if($_option['value'] && $Stat
+				$ChauffeEau->checkAndUpdateCmd('etatCommut','Automatique');*/
 			$ChauffeEau->checkAndUpdateCmd('state',$_option['value']);
-			$State=cache::byKey('ChauffeEau::Power::'.$ChauffeEau->getId());
-			if(is_object($State)){
-				if($_option['value'] && !$State->getValue(false))
-					$ChauffeEau->checkAndUpdateCmd('etatCommut','Marche Forcée');
-				if(!$_option['value'] && $State->getValue(false))
-					$ChauffeEau->checkAndUpdateCmd('etatCommut','Off');
-				/*if($_option['value'] && $State->getValue(false))
-					$ChauffeEau->checkAndUpdateCmd('etatCommut','Automatique');*/
-				$ChauffeEau->CheckChauffeEau();
-			}
+			$ChauffeEau->CheckChauffeEau();
 		}
 	}
 	public function PowerStart(){
-		cache::set('ChauffeEau::Power::'.$this->getId(),true, 0);
+		if($this->getCmd(null,'state')->execCmd())
+			return;
 		//cache::set('ChauffeEau::Hysteresis::'.$this->getId(),true, 0);
 		if($this->getConfiguration('Etat') == '')
 			$this->checkAndUpdateCmd('state',1);
@@ -289,8 +267,7 @@ class ChauffeEau extends eqLogic {
 		cache::set('ChauffeEau::Start::Temperature::'.$this->getId(),$TempActuel, 0);
 		cache::set('ChauffeEau::Start::Time::'.$this->getId(),time(), 0);
 		cache::set('ChauffeEau::Run::'.$this->getId(),true, 0);
-		if(!$this->getCmd(null,'state')->execCmd())
-			$this->ActionPowerStart();
+		$this->ActionPowerStart();
 	}
 	public function ActionPowerStart(){
 		foreach($this->getConfiguration('Action') as $cmd){
@@ -301,11 +278,11 @@ class ChauffeEau extends eqLogic {
 		}
 	}
 	public function PowerStop(){
-		cache::set('ChauffeEau::Power::'.$this->getId(),false, 0);
+		if(!$this->getCmd(null,'state')->execCmd())
+			return;
 		if($this->getConfiguration('Etat') == '')
 			$this->checkAndUpdateCmd('state',0);
 		log::add('ChauffeEau','info',$this->getHumanName().' : Coupure de l\'alimentation électrique du chauffe-eau');
-		if($this->getCmd(null,'state')->execCmd())
 			$this->ActionPowerStop();
 	}
 	public function ActionPowerStop(){
@@ -319,8 +296,7 @@ class ChauffeEau extends eqLogic {
 	public function DispoEnd(){
 		cache::set('ChauffeEau::Delestage::'.$this->getId(),false, 0);
 		log::add('ChauffeEau','debug',$this->getHumanName().' : Fin du cycle de chauffe');
-		if($this->getCmd(null,'state')->execCmd())
-			$this->EvaluatePowerStop();
+		$this->EvaluatePowerStop();
 		cache::set('ChauffeEau::Run::'.$this->getId(),false, 0);
 		foreach($this->getConfiguration('Action') as $cmd){
 			foreach($cmd['declencheur'] as $declencheur){
@@ -330,7 +306,6 @@ class ChauffeEau extends eqLogic {
 		}
 	}
 	public function EvaluatePowerStop(){
-		cache::set('ChauffeEau::Power::'.$this->getId(),false, 0);
 		$this->PowerStop();
 		$TempActuel=$this->EstimateTempActuel();
 		$StartTime = cache::byKey('ChauffeEau::Start::Time::'.$this->getId());	
