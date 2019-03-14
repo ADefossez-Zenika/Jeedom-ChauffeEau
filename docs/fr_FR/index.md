@@ -29,6 +29,7 @@ Parametre du chauffe eaux
 * Capacité du chauffe-eau (Litre) : indiquez le volume de votre chauffe-eau
 * Puissance du chauffe-eau (Watt) : indiquez la puissance de votre chauffe-eau, cette puissance sera révalué en cours d'utilisation
 * Température Souhaitée (°C) : indiquez la température à atteindre, ou saisiez une formule
+* Simuler la temperature du balon : Si actif alors le plugin simulera une perte de temperature de votre ballon
 * Sélectionnez une commande ou estimez la température actuelle de l'eau : indiquez la température au moment de la chauffe ou choisissez un objet Jeedom représentant la valeur, ou saisiez une formule
 
 Controle du chauffe eau
