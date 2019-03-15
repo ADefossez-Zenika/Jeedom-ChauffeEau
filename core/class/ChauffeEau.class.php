@@ -346,12 +346,18 @@ class ChauffeEau extends eqLogic {
 		}
 		return false;
 	}
-	public function NextProg(){
+		public function NextProg(){
 		$validProg=false;
 		$TempActuel=$this->EstimateTempActuel();
 		$PowerTime=$this->EvaluatePowerTime();
 		$TempSouhaite=60;
 		foreach($this->getConfiguration('programation') as $ConigSchedule){
+          		if($ConigSchedule["isSeuil"] && $ConigSchedule[date('w')]){
+				$validProg = false;
+				$TempSouhaite= jeedom::evaluateExpression($ConigSchedule["consigne"]);
+				$this->checkHysteresis($TempActuel, $TempSouhaite, $ConigSchedule["seuil"]);
+                		$nextTime = mktime()+$PowerTime;	
+			}
 			if($ConigSchedule["isHoraire"]){
 				$offset=0;
 				if(date('H') > $ConigSchedule["Heure"])
@@ -365,10 +371,6 @@ class ChauffeEau extends eqLogic {
 					if($ConigSchedule[$jour]){
 						$offset+=$day;
 						$timestamp=mktime ($ConigSchedule["Heure"], $ConigSchedule["Minute"], 0, date("n") , date("j") , date("Y"))+ (3600 * 24) * $offset;
-						/*if($ConigSchedule["isSeuil"]){
-							if($TempActuel > $ConigSchedule["seuil"])
-								continue;
-						}*/
 						break;
 					}
 				}
@@ -377,11 +379,6 @@ class ChauffeEau extends eqLogic {
 					$nextTime=$timestamp;
 					$TempSouhaite= jeedom::evaluateExpression($ConigSchedule["consigne"]);
 				}
-			}elseif($ConigSchedule["isSeuil"] && $ConigSchedule[date('w')]){
-				$validProg = false;
-				$TempSouhaite= jeedom::evaluateExpression($ConigSchedule["consigne"]);
-				$this->checkHysteresis($TempActuel, $TempSouhaite, $ConigSchedule["seuil"]);
-				$nextTime = mktime()+$PowerTime;	
 			}
 		}
 		if(!cache::byKey('ChauffeEau::Run::'.$this->getId())->getValue(false)){
