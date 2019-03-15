@@ -250,18 +250,21 @@ class ChauffeEau extends eqLogic {
 		$ChauffeEau = eqLogic::byId($_option['ChauffeEau_id']);
 		if (is_object($ChauffeEau) && $ChauffeEau->getIsEnable()) {
 			log::add('ChauffeEau','info',$ChauffeEau->getHumanName().' : l\'etat du chauffe eau est passé a '.$_option['value']);
-			$State=$ChauffeEau->getCmd(null,'state')->execCmd();
-			if($_option['value'] && !$State)
-				$ChauffeEau->checkAndUpdateCmd('etatCommut','Marche Forcée');
-			if(!$_option['value'] && $State)
-				$ChauffeEau->checkAndUpdateCmd('etatCommut','Off');
-			/*if($_option['value'] && $Stat
-				$ChauffeEau->checkAndUpdateCmd('etatCommut','Automatique');*/
+			$State=cache::byKey('ChauffeEau::Power::'.$ChauffeEau->getId());
+			if(is_object($State)){
+				if($_option['value'] && !$State->getValue(false))
+					$ChauffeEau->checkAndUpdateCmd('etatCommut','Marche Forcée');
+				if(!$_option['value'] && $State->getValue(false))
+					$ChauffeEau->checkAndUpdateCmd('etatCommut','Off');
+				/*if($_option['value'] && $Stat->getValue(false))
+					$ChauffeEau->checkAndUpdateCmd('etatCommut','Automatique');*/
+			}
 			$ChauffeEau->checkAndUpdateCmd('state',$_option['value']);
 			$ChauffeEau->CheckChauffeEau();
 		}
 	}
 	public function PowerStart(){
+		cache::set('ChauffeEau::Power::'.$this->getId(),true, 0);
 		if($this->getCmd(null,'state')->execCmd())
 			return;
 		//cache::set('ChauffeEau::Hysteresis::'.$this->getId(),true, 0);
@@ -283,6 +286,7 @@ class ChauffeEau extends eqLogic {
 		}
 	}
 	public function PowerStop(){
+		cache::set('ChauffeEau::Power::'.$this->getId(),false, 0);
 		if(!$this->getCmd(null,'state')->execCmd())
 			return;
 		if($this->getConfiguration('Etat') == '')
