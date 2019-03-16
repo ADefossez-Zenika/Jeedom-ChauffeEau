@@ -34,7 +34,7 @@ class ChauffeEau extends eqLogic {
 				$listener->remove();
 			$cache = cache::byKey('ChauffeEau::Run::'.$ChauffeEau->getId());
 			if (is_object($cache)) 	
-				$listener->remove();
+				$cache->remove();
 		}
 	}
 	public static function cron() {	
