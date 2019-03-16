@@ -80,7 +80,7 @@ class ChauffeEau extends eqLogic {
 			return;
 		foreach(eqLogic::byType('ChauffeEau') as $ChauffeEau){		
 			if($ChauffeEau->getIsEnable()){
-				if ($ChauffeEau->getConfiguration('RepeatCmd') == "cron15"){					
+				if ($ChauffeEau->getConfiguration('RepeatCmd') == "cron15"){			
 					if($ChauffeEau->getCmd(null,'state')->execCmd())
 						$ChauffeEau->ActionPowerStart();
 					else
