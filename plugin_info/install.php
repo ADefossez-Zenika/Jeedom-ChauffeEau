@@ -11,6 +11,9 @@ function ChauffeEau_update(){
 		$cache = cache::byKey('ChauffeEau::DeltaTemp::'.$ChauffeEau->getId());
 		if (is_object($cache)) 	
 			$cache->remove();
+		$cache = cache::byKey('ChauffeEau::Puissance::'.$ChauffeEau->getId());
+		if (is_object($cache)) 	
+			$cache->remove();
 		$ChauffeEau->save();
 	}
 	log::add('ChauffeEau','debug','Fin du script de mise a jours');
