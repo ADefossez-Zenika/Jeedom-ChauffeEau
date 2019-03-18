@@ -356,7 +356,7 @@ class ChauffeEau extends eqLogic {
 				$validProg = false;
 				$TempSouhaite= jeedom::evaluateExpression($ConigSchedule["consigne"]);
 				$this->checkHysteresis($TempActuel, $TempSouhaite, $ConigSchedule["seuil"]);
-				if($TempActuel > $TempSouhaite){
+				if($TempActuel < $TempSouhaite){
 					$DeltaTemp= $TempActuel - $TempSouhaite;
 					$DeltaTime = $DeltaTemp / $this->getDeltaTemperature($TempActuel);
                 			$nextTime = mktime()+$PowerTime+$DeltaTime;
