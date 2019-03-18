@@ -443,13 +443,15 @@ class ChauffeEau extends eqLogic {
 				$DeltaTime= time() - $LastTempsCollectDate->getTimestamp();
 				if($DeltaTime > 0){
 					$DeltaTemp = ($LastTempsCmd->execCmd() - $TempActuel) / $DeltaTime;// delta de temperature par seconde
-					if($DeltaTemp > 0){
-						$cache = cache::byKey('ChauffeEau::DeltaTemp::'.$this->getId());
-						$Caracterisation = json_decode($cache->getValue('[]'), true);
-						$Caracterisation["Temperatures"][] = $TempActuel;
-						$Caracterisation["Pertes"][] = $DeltaTemp;
-						log::add('ChauffeEau','debug',$this->getHumanName().'[Caracterisation Température] '.json_encode($Caracterisation));
-						cache::set('ChauffeEau::DeltaTemp::'.$this->getId(), json_encode($Caracterisation), 0);
+					if($DeltaTemp > 0 ){
+						if($DeltaTemp < end($Caracterisation)["Pertes"] * 0.95 || $DeltaTemp > end($Caracterisation)["Pertes"] * 1.05){
+							$cache = cache::byKey('ChauffeEau::DeltaTemp::'.$this->getId());
+							$Caracterisation = json_decode($cache->getValue('[]'), true);
+							$Caracterisation["Temperatures"][] = $TempActuel;
+							$Caracterisation["Pertes"][] = $DeltaTemp;
+							log::add('ChauffeEau','debug',$this->getHumanName().'[Caracterisation Température] '.json_encode($Caracterisation));
+							cache::set('ChauffeEau::DeltaTemp::'.$this->getId(), json_encode($Caracterisation), 0);
+						}
 					}
 				}
 			}
@@ -496,9 +498,9 @@ class ChauffeEau extends eqLogic {
 			$TempActuel = round($TempActuel,1);
 		}else{
 			$TempActuel=jeedom::evaluateExpression($this->getConfiguration('TempActuel'));
-			//$this->setDeltaTemperature($TempActuel);
+			//
 		}
-      
+     		$this->setDeltaTemperature($TempActuel);
 		if($TempActuel != $TempActuelCmd->execCmd())
 			$this->checkAndUpdateCmd('TempActuel',$TempActuel);
 		return $TempActuel;
