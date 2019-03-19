@@ -387,7 +387,7 @@ class ChauffeEau extends eqLogic {
 					$nextTime=$timestamp;
 					$TempSouhaite= jeedom::evaluateExpression($ConigSchedule["consigne"]);
 					$DeltaTime = $nextTime - time();
-					$StartTemp = $DeltaTime * $this->getDeltaTemperature($TempActuel);
+					$StartTemp = $TempActuel + $DeltaTime * $this->getDeltaTemperature($TempActuel);
 					$PowerTime=$this->EvaluatePowerTime($StartTemp);
 				}
 			}
