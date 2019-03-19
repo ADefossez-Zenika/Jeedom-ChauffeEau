@@ -347,26 +347,22 @@ class ChauffeEau extends eqLogic {
 		return false;
 	}
 	public function NextProg(){
-		$nextTime = null;
 		$validProg=false;
 		$TempActuel=$this->EstimateTempActuel();
 		$PowerTime=$this->EvaluatePowerTime();
 		$TempSouhaite=60;
 		foreach($this->getConfiguration('programation') as $ConigSchedule){
-          		if($ConigSchedule["isSeuil"] && $ConigSchedule[date('w')]){
-				$validProg = false;
+			if($ConigSchedule["isSeuil"] && $ConigSchedule[date('w')]){
 				$TempConsigne= jeedom::evaluateExpression($ConigSchedule["consigne"]);
-				$this->checkHysteresis($TempActuel, $TempSouhaite, $ConigSchedule["seuil"]);
-				if($TempActuel < $TempConsigne){
-					$DeltaTime = ($TempConsigne - $TempActuel) / $this->getDeltaTemperature($TempActuel);
-                			$timestamp = time() + $PowerTime + $DeltaTime;
-				}else{
-                			$timestamp = time() + $PowerTime;
-				}
-				if($nextTime == null || $nextTime > $timestamp){
-					$validProg = false;
-					$nextTime = $timestamp;
-					$TempSouhaite = $TempConsigne;
+				$DeltaTime = ($TempConsigne - $TempActuel) / $this->getDeltaTemperature($TempActuel);
+                		$timestamp = time() + $PowerTime + $DeltaTime;
+				if($nextTime == null || time() <= $timestamp){
+					if($nextTime == null || $nextTime > $timestamp){
+						$this->checkHysteresis($TempActuel, $TempConsigne, $ConigSchedule["seuil"]);
+						$validProg = false;
+						$nextTime = $timestamp;
+						$TempSouhaite = $TempConsigne;
+					}
 				}
 			}
 			if($ConigSchedule["isHoraire"]){
@@ -389,6 +385,8 @@ class ChauffeEau extends eqLogic {
 					$validProg = true;
 					$nextTime=$timestamp;
 					$TempSouhaite= jeedom::evaluateExpression($ConigSchedule["consigne"]);
+					$DeltaTime = ($TempSouhaite - $TempActuel) / $this->getDeltaTemperature($TempActuel);
+                			$PowerTime += $DeltaTime;
 				}
 			}
 		}
@@ -443,13 +441,15 @@ class ChauffeEau extends eqLogic {
 				$DeltaTime= time() - $LastTempsCollectDate->getTimestamp();
 				if($DeltaTime > 0){
 					$DeltaTemp = ($LastTempsCmd->execCmd() - $TempActuel) / $DeltaTime;// delta de temperature par seconde
-					if($DeltaTemp > 0){
+					if($DeltaTemp > 0 ){
 						$cache = cache::byKey('ChauffeEau::DeltaTemp::'.$this->getId());
 						$Caracterisation = json_decode($cache->getValue('[]'), true);
-						$Caracterisation["Temperatures"][] = $TempActuel;
-						$Caracterisation["Pertes"][] = $DeltaTemp;
-						log::add('ChauffeEau','debug',$this->getHumanName().'[Caracterisation Température] '.json_encode($Caracterisation));
-						cache::set('ChauffeEau::DeltaTemp::'.$this->getId(), json_encode($Caracterisation), 0);
+						if($DeltaTemp < end($Caracterisation["Pertes"]) * 0.95 || $DeltaTemp > end($Caracterisation["Pertes"]) * 1.05){
+							$Caracterisation["Temperatures"][] = $TempActuel;
+							$Caracterisation["Pertes"][] = $DeltaTemp;
+							log::add('ChauffeEau','debug',$this->getHumanName().'[Caracterisation Température] '.json_encode($Caracterisation));
+							cache::set('ChauffeEau::DeltaTemp::'.$this->getId(), json_encode($Caracterisation), 0);
+						}
 					}
 				}
 			}
@@ -496,9 +496,9 @@ class ChauffeEau extends eqLogic {
 			$TempActuel = round($TempActuel,1);
 		}else{
 			$TempActuel=jeedom::evaluateExpression($this->getConfiguration('TempActuel'));
-			//$this->setDeltaTemperature($TempActuel);
+			//
 		}
-      
+     		$this->setDeltaTemperature($TempActuel);
 		if($TempActuel != $TempActuelCmd->execCmd())
 			$this->checkAndUpdateCmd('TempActuel',$TempActuel);
 		return $TempActuel;
