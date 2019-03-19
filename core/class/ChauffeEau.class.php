@@ -357,7 +357,7 @@ class ChauffeEau extends eqLogic {
 				$TempConsigne= jeedom::evaluateExpression($ConigSchedule["consigne"]);
 				$TempSeuil= jeedom::evaluateExpression($ConigSchedule["seuil"]);
 				$PowerTime=$this->EvaluatePowerTime($TempSeuil);
-				$DeltaTime = ($TempActuel - $TempSeuil) / $this->getDeltaTemperature($TempActuel);
+				$DeltaTime = round(($TempActuel - $TempSeuil) / $this->getDeltaTemperature($TempActuel));
                 		$timestamp = time() + $PowerTime + $DeltaTime;
 				if($nextTime == null || time() <= $timestamp){
 					if($nextTime == null || $nextTime > $timestamp){
@@ -389,7 +389,7 @@ class ChauffeEau extends eqLogic {
 					$nextTime=$timestamp;
 					$TempSouhaite= jeedom::evaluateExpression($ConigSchedule["consigne"]);
 					$DeltaTime = $nextTime - time();
-					$StartTemp = $TempActuel - $DeltaTime * $this->getDeltaTemperature($TempActuel);
+					$StartTemp = $TempActuel - round($DeltaTime * $this->getDeltaTemperature($TempActuel),1);
 					$PowerTime=$this->EvaluatePowerTime($StartTemp);
 				}
 			}
