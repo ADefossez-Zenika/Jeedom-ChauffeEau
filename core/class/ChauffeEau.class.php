@@ -354,11 +354,12 @@ class ChauffeEau extends eqLogic {
 		foreach($this->getConfiguration('programation') as $ConigSchedule){
 			if($ConigSchedule["isSeuil"] && $ConigSchedule[date('w')]){
 				$TempConsigne= jeedom::evaluateExpression($ConigSchedule["consigne"]);
-				$DeltaTime = ($TempConsigne - $TempActuel) / $this->getDeltaTemperature($TempActuel);
+				$TempSeuil= jeedom::evaluateExpression($ConigSchedule["seuil"]);
+				$DeltaTime = ($TempActuel - $TempSeuil) / $this->getDeltaTemperature($TempActuel);
                 		$timestamp = time() + $PowerTime + $DeltaTime;
 				if($nextTime == null || time() <= $timestamp){
 					if($nextTime == null || $nextTime > $timestamp){
-						$this->checkHysteresis($TempActuel, $TempConsigne, $ConigSchedule["seuil"]);
+						$this->checkHysteresis($TempActuel, $TempConsigne, $TempSeuil);
 						$validProg = false;
 						$nextTime = $timestamp;
 						$TempSouhaite = $TempConsigne;
@@ -385,8 +386,6 @@ class ChauffeEau extends eqLogic {
 					$validProg = true;
 					$nextTime=$timestamp;
 					$TempSouhaite= jeedom::evaluateExpression($ConigSchedule["consigne"]);
-					$DeltaTime = ($TempSouhaite - $TempActuel) / $this->getDeltaTemperature($TempActuel);
-                			$PowerTime += $DeltaTime;
 				}
 			}
 		}
