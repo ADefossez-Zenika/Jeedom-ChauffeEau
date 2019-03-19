@@ -352,20 +352,17 @@ class ChauffeEau extends eqLogic {
 		$PowerTime=$this->EvaluatePowerTime();
 		$TempSouhaite=60;
 		foreach($this->getConfiguration('programation') as $ConigSchedule){
-			log::add('ChauffeEau','debug',$this->getHumanName().' : Le prochain disponibilité est '. date("d/m/Y H:i", $nextTime));
-          		if($ConigSchedule["isSeuil"] && $ConigSchedule[date('w')]){
+			if($ConigSchedule["isSeuil"] && $ConigSchedule[date('w')]){
 				$TempConsigne= jeedom::evaluateExpression($ConigSchedule["consigne"]);
-				//if($TempActuel < $TempConsigne){
-					$DeltaTime = ($TempConsigne - $TempActuel) / $this->getDeltaTemperature($TempActuel);
-                			$timestamp = time() + $PowerTime + $DeltaTime;
-				//}else{
-                		//	$timestamp = time() + $PowerTime;
-				//}
-				if($nextTime == null || $nextTime > $timestamp){
-					$this->checkHysteresis($TempActuel, $TempConsigne, $ConigSchedule["seuil"]);
-					$validProg = false;
-					$nextTime = $timestamp;
-					$TempSouhaite = $TempConsigne;
+				$DeltaTime = ($TempConsigne - $TempActuel) / $this->getDeltaTemperature($TempActuel);
+                		$timestamp = time() + $PowerTime + $DeltaTime;
+				if($nextTime == null || time() <= $timestamp){
+					if($nextTime == null || $nextTime > $timestamp){
+						$this->checkHysteresis($TempActuel, $TempConsigne, $ConigSchedule["seuil"]);
+						$validProg = false;
+						$nextTime = $timestamp;
+						$TempSouhaite = $TempConsigne;
+					}
 				}
 			}
 			if($ConigSchedule["isHoraire"]){
@@ -388,6 +385,8 @@ class ChauffeEau extends eqLogic {
 					$validProg = true;
 					$nextTime=$timestamp;
 					$TempSouhaite= jeedom::evaluateExpression($ConigSchedule["consigne"]);
+					$DeltaTime = ($TempSouhaite - $TempActuel) / $this->getDeltaTemperature($TempActuel);
+                			$PowerTime += $DeltaTime;
 				}
 			}
 		}
@@ -443,7 +442,7 @@ class ChauffeEau extends eqLogic {
 				if($DeltaTime > 0){
 					$DeltaTemp = ($LastTempsCmd->execCmd() - $TempActuel) / $DeltaTime;// delta de temperature par seconde
 					if($DeltaTemp > 0 ){
-						if($DeltaTemp < end($Caracterisation)["Pertes"] * 0.95 || $DeltaTemp > end($Caracterisation)["Pertes"] * 1.05){
+						if($DeltaTemp < (end($Caracterisation)["Pertes"] * 0.95) || $DeltaTemp > (end($Caracterisation)["Pertes"] * 1.05)){
 							$cache = cache::byKey('ChauffeEau::DeltaTemp::'.$this->getId());
 							$Caracterisation = json_decode($cache->getValue('[]'), true);
 							$Caracterisation["Temperatures"][] = $TempActuel;
