@@ -337,7 +337,7 @@ class ChauffeEau extends eqLogic {
 		if($Delestage){
 			switch($this->getConfiguration('delestage')){
 				case 'Temp':
-				return $NextStop + $this->EvaluatePowerTime();
+				return $NextStop + $this->EvaluatePowerTime($this->EstimateTempActuel());
 				case 'Heure':
 				return false;
 				case '30':
@@ -349,12 +349,12 @@ class ChauffeEau extends eqLogic {
 	public function NextProg(){
 		$validProg=false;
 		$TempActuel=$this->EstimateTempActuel();
-		$PowerTime=$this->EvaluatePowerTime();
 		$TempSouhaite=60;
 		foreach($this->getConfiguration('programation') as $ConigSchedule){
 			if($ConigSchedule["isSeuil"] && $ConigSchedule[date('w')]){
 				$TempConsigne= jeedom::evaluateExpression($ConigSchedule["consigne"]);
 				$TempSeuil= jeedom::evaluateExpression($ConigSchedule["seuil"]);
+				$PowerTime=$this->EvaluatePowerTime($TempActuel);
 				$DeltaTime = ($TempActuel - $TempSeuil) / $this->getDeltaTemperature($TempActuel);
                 		$timestamp = time() + $PowerTime + $DeltaTime;
 				if($nextTime == null || time() <= $timestamp){
@@ -386,6 +386,9 @@ class ChauffeEau extends eqLogic {
 					$validProg = true;
 					$nextTime=$timestamp;
 					$TempSouhaite= jeedom::evaluateExpression($ConigSchedule["consigne"]);
+					$DeltaTime = $nextTime - time();
+					$StartTemp = $DeltaTime * $this->getDeltaTemperature($TempActuel);
+					$PowerTime=$this->EvaluatePowerTime($StartTemp);
 				}
 			}
 		}
@@ -399,9 +402,9 @@ class ChauffeEau extends eqLogic {
 			return false;
 		return true;
 	}
-	public function EvaluatePowerTime() {	
+	public function EvaluatePowerTime($StartTemp) {	
 		$PowerTime = 0;
-		list($DeltaTemp,$TempsAdditionel) = $this->BacteryProtect();
+		list($DeltaTemp,$TempsAdditionel) = $this->BacteryProtect($StartTemp);
 		if($DeltaTemp > 0){
 			$Energie=$this->getConfiguration('Capacite')*$DeltaTemp*4185;
 			$PowerTime = round($Energie/ $this->getPuissance());
@@ -413,22 +416,22 @@ class ChauffeEau extends eqLogic {
 		}
 		return $PowerTime;
 	} 
-	public function BacteryProtect(){		
-		$TempActuel=$this->EstimateTempActuel();
+	public function BacteryProtect($StartTemp){		
+		//$TempActuel=$this->EstimateTempActuel();
 		if($this->getConfiguration('BacteryProtect')){
-			if($TempActuel < 20 && $TempActuel > 55){
+			if($StartTemp < 20 && $StartTemp > 55){
 				$Temps = 0;
-				$DeltaTemp = $this->getCmd(null,'consigne')->execCmd() - $TempActuel;
-			}elseif($TempActuel > 40 && $TempActuel < 55){
+				$DeltaTemp = $this->getCmd(null,'consigne')->execCmd() - $StartTemp;
+			}elseif($StartTemp > 40 && $StartTemp < 55){
 				$Temps = 32 * 60;
-				$DeltaTemp = 60 - $TempActuel;
+				$DeltaTemp = 60 - $StartTemp;
 			}else{
 				$Temps = 2 * 60;
-				$DeltaTemp = 65 - $TempActuel;
+				$DeltaTemp = 65 - $StartTemp;
 			}
 		}else{
 			$Temps=0;
-			$DeltaTemp = $this->getCmd(null,'consigne')->execCmd() - $TempActuel;
+			$DeltaTemp = $this->getCmd(null,'consigne')->execCmd() - $StartTemp;
 		}
 		return array($DeltaTemp, $Temps);
 	}
