@@ -354,7 +354,7 @@ class ChauffeEau extends eqLogic {
 			if($ConigSchedule["isSeuil"] && $ConigSchedule[date('w')]){
 				$TempConsigne= jeedom::evaluateExpression($ConigSchedule["consigne"]);
 				$TempSeuil= jeedom::evaluateExpression($ConigSchedule["seuil"]);
-				$PowerTime=$this->EvaluatePowerTime($TempActuel);
+				$PowerTime=$this->EvaluatePowerTime($TempSeuil);
 				$DeltaTime = ($TempActuel - $TempSeuil) / $this->getDeltaTemperature($TempActuel);
                 		$timestamp = time() + $PowerTime + $DeltaTime;
 				if($nextTime == null || time() <= $timestamp){
