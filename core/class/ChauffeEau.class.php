@@ -207,7 +207,7 @@ class ChauffeEau extends eqLogic {
 				$this->PowerStop();
 			}
 		}elseif($Temperature >= $TemperatureHaute){
-				$this->EvaluatePowerStop();
+			$this->EvaluatePowerStop();
 		}
 	}
 	public function UpdateDynamic($id,$days,$heure,$minute,$seuil){
@@ -264,9 +264,9 @@ class ChauffeEau extends eqLogic {
 		}
 	}
 	public function PowerStart(){
-		cache::set('ChauffeEau::Power::'.$this->getId(),true, 0);
-		if($this->getCmd(null,'state')->execCmd())
+		if($this->getCmd(null,'state')->execCmd() == 1)
 			return;
+		cache::set('ChauffeEau::Power::'.$this->getId(),true, 0);
 		//cache::set('ChauffeEau::Hysteresis::'.$this->getId(),true, 0);
 		if($this->getConfiguration('Etat') == '')
 			$this->checkAndUpdateCmd('state',1);
@@ -286,9 +286,9 @@ class ChauffeEau extends eqLogic {
 		}
 	}
 	public function PowerStop(){
-		cache::set('ChauffeEau::Power::'.$this->getId(),false, 0);
-		if(!$this->getCmd(null,'state')->execCmd())
+		if($this->getCmd(null,'state')->execCmd() == 0)
 			return;
+		cache::set('ChauffeEau::Power::'.$this->getId(),false, 0);
 		if($this->getConfiguration('Etat') == '')
 			$this->checkAndUpdateCmd('state',0);
 		log::add('ChauffeEau','info',$this->getHumanName().' : Coupure de l\'alimentation électrique du chauffe-eau');
@@ -303,10 +303,10 @@ class ChauffeEau extends eqLogic {
 		}
 	}
 	public function DispoEnd(){
+		cache::set('ChauffeEau::Run::'.$this->getId(),false, 0);
 		cache::set('ChauffeEau::Delestage::'.$this->getId(),false, 0);
 		log::add('ChauffeEau','debug',$this->getHumanName().' : Fin du cycle de chauffe');
 		$this->EvaluatePowerStop();
-		cache::set('ChauffeEau::Run::'.$this->getId(),false, 0);
 		foreach($this->getConfiguration('Action') as $cmd){
 			foreach($cmd['declencheur'] as $declencheur){
 				if($declencheur == 'dispo')
@@ -315,6 +315,8 @@ class ChauffeEau extends eqLogic {
 		}
 	}
 	public function EvaluatePowerStop(){
+		if($this->getCmd(null,'state')->execCmd() == 0)
+			return;
 		$this->PowerStop();
 		$TempActuel=$this->EstimateTempActuel();
 		$StartTime = cache::byKey('ChauffeEau::Start::Time::'.$this->getId());	
@@ -337,7 +339,7 @@ class ChauffeEau extends eqLogic {
 		if($Delestage){
 			switch($this->getConfiguration('delestage')){
 				case 'Temp':
-				return $NextStop + $this->EvaluatePowerTime();
+				return $NextStop + $this->EvaluatePowerTime($this->EstimateTempActuel());
 				case 'Heure':
 				return false;
 				case '30':
@@ -349,12 +351,12 @@ class ChauffeEau extends eqLogic {
 	public function NextProg(){
 		$validProg=false;
 		$TempActuel=$this->EstimateTempActuel();
-		$PowerTime=$this->EvaluatePowerTime();
 		$TempSouhaite=60;
 		foreach($this->getConfiguration('programation') as $ConigSchedule){
 			if($ConigSchedule["isSeuil"] && $ConigSchedule[date('w')]){
 				$TempConsigne= jeedom::evaluateExpression($ConigSchedule["consigne"]);
 				$TempSeuil= jeedom::evaluateExpression($ConigSchedule["seuil"]);
+				$PowerTime=$this->EvaluatePowerTime($TempSeuil);
 				$DeltaTime = ($TempActuel - $TempSeuil) / $this->getDeltaTemperature($TempActuel);
                 		$timestamp = time() + $PowerTime + $DeltaTime;
 				if($nextTime == null || time() <= $timestamp){
@@ -386,6 +388,9 @@ class ChauffeEau extends eqLogic {
 					$validProg = true;
 					$nextTime=$timestamp;
 					$TempSouhaite= jeedom::evaluateExpression($ConigSchedule["consigne"]);
+					$DeltaTime = $nextTime - time();
+					$StartTemp = $TempActuel - $DeltaTime * $this->getDeltaTemperature($TempActuel);
+					$PowerTime=$this->EvaluatePowerTime($StartTemp);
 				}
 			}
 		}
@@ -399,9 +404,9 @@ class ChauffeEau extends eqLogic {
 			return false;
 		return true;
 	}
-	public function EvaluatePowerTime() {	
+	public function EvaluatePowerTime($StartTemp) {	
 		$PowerTime = 0;
-		list($DeltaTemp,$TempsAdditionel) = $this->BacteryProtect();
+		list($DeltaTemp,$TempsAdditionel) = $this->BacteryProtect($StartTemp);
 		if($DeltaTemp > 0){
 			$Energie=$this->getConfiguration('Capacite')*$DeltaTemp*4185;
 			$PowerTime = round($Energie/ $this->getPuissance());
@@ -413,22 +418,22 @@ class ChauffeEau extends eqLogic {
 		}
 		return $PowerTime;
 	} 
-	public function BacteryProtect(){		
-		$TempActuel=$this->EstimateTempActuel();
+	public function BacteryProtect($StartTemp){		
+		//$TempActuel=$this->EstimateTempActuel();
 		if($this->getConfiguration('BacteryProtect')){
-			if($TempActuel < 20 && $TempActuel > 55){
+			if($StartTemp < 20 && $StartTemp > 55){
 				$Temps = 0;
-				$DeltaTemp = $this->getCmd(null,'consigne')->execCmd() - $TempActuel;
-			}elseif($TempActuel > 40 && $TempActuel < 55){
+				$DeltaTemp = $this->getCmd(null,'consigne')->execCmd() - $StartTemp;
+			}elseif($StartTemp > 40 && $StartTemp < 55){
 				$Temps = 32 * 60;
-				$DeltaTemp = 60 - $TempActuel;
+				$DeltaTemp = 60 - $StartTemp;
 			}else{
 				$Temps = 2 * 60;
-				$DeltaTemp = 65 - $TempActuel;
+				$DeltaTemp = 65 - $StartTemp;
 			}
 		}else{
 			$Temps=0;
-			$DeltaTemp = $this->getCmd(null,'consigne')->execCmd() - $TempActuel;
+			$DeltaTemp = $this->getCmd(null,'consigne')->execCmd() - $StartTemp;
 		}
 		return array($DeltaTemp, $Temps);
 	}
@@ -473,7 +478,7 @@ class ChauffeEau extends eqLogic {
 			if($LastUpdate == '')
 				$LastUpdate=date('Y-m-d H:i:s');
 			$DeltaTime= time() - DateTime::createFromFormat("Y-m-d H:i:s", $LastUpdate)->getTimestamp();
-			if(cache::byKey('ChauffeEau::Run::'.$this->getId())->getValue(false)){
+			if($this->getCmd(null,'state')->execCmd() == 1){
 				//on augmente la température
 				$Capacite = $this->getConfiguration('Capacite');
 				$Puissance = $this->getPuissance();
