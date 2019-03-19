@@ -347,23 +347,22 @@ class ChauffeEau extends eqLogic {
 		return false;
 	}
 	public function NextProg(){
-		$nextTime = null;
 		$validProg=false;
 		$TempActuel=$this->EstimateTempActuel();
 		$PowerTime=$this->EvaluatePowerTime();
 		$TempSouhaite=60;
 		foreach($this->getConfiguration('programation') as $ConigSchedule){
+			log::add('ChauffeEau','debug',$this->getHumanName().' : Le prochain disponibilité est '. date("d/m/Y H:i", $nextTime));
           		if($ConigSchedule["isSeuil"] && $ConigSchedule[date('w')]){
-				$validProg = false;
 				$TempConsigne= jeedom::evaluateExpression($ConigSchedule["consigne"]);
-				$this->checkHysteresis($TempActuel, $TempSouhaite, $ConigSchedule["seuil"]);
-				if($TempActuel < $TempConsigne){
+				//if($TempActuel < $TempConsigne){
 					$DeltaTime = ($TempConsigne - $TempActuel) / $this->getDeltaTemperature($TempActuel);
                 			$timestamp = time() + $PowerTime + $DeltaTime;
-				}else{
-                			$timestamp = time() + $PowerTime;
-				}
+				//}else{
+                		//	$timestamp = time() + $PowerTime;
+				//}
 				if($nextTime == null || $nextTime > $timestamp){
+					$this->checkHysteresis($TempActuel, $TempConsigne, $ConigSchedule["seuil"]);
 					$validProg = false;
 					$nextTime = $timestamp;
 					$TempSouhaite = $TempConsigne;
