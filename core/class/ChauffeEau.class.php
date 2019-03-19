@@ -442,9 +442,9 @@ class ChauffeEau extends eqLogic {
 				if($DeltaTime > 0){
 					$DeltaTemp = ($LastTempsCmd->execCmd() - $TempActuel) / $DeltaTime;// delta de temperature par seconde
 					if($DeltaTemp > 0 ){
-						if($DeltaTemp < (end($Caracterisation)["Pertes"] * 0.95) || $DeltaTemp > (end($Caracterisation)["Pertes"] * 1.05)){
-							$cache = cache::byKey('ChauffeEau::DeltaTemp::'.$this->getId());
-							$Caracterisation = json_decode($cache->getValue('[]'), true);
+						$cache = cache::byKey('ChauffeEau::DeltaTemp::'.$this->getId());
+						$Caracterisation = json_decode($cache->getValue('[]'), true);
+						if($DeltaTemp < end($Caracterisation["Pertes"]) * 0.95 || $DeltaTemp > end($Caracterisation["Pertes"]) * 1.05){
 							$Caracterisation["Temperatures"][] = $TempActuel;
 							$Caracterisation["Pertes"][] = $DeltaTemp;
 							log::add('ChauffeEau','debug',$this->getHumanName().'[Caracterisation Température] '.json_encode($Caracterisation));
