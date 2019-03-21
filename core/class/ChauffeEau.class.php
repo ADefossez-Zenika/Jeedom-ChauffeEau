@@ -46,8 +46,8 @@ class ChauffeEau extends eqLogic {
 		foreach(eqLogic::byType('ChauffeEau') as $ChauffeEau){	
 			if($ChauffeEau->getIsEnable()){
 				$ChauffeEau->CheckChauffeEau();	
-				if ($ChauffeEau->getConfiguration('RepeatCmd') == "cron"){			
-					if($ChauffeEau->getCmd(null,'state')->execCmd())
+				if ($ChauffeEau->getConfiguration('RepeatCmd') == "cron"){	
+					if(cache::byKey('ChauffeEau::Power::'.$ChauffeEau->getId())->getValue(false))
 						$ChauffeEau->ActionPowerStart();
 					else
 						$ChauffeEau->ActionPowerStop();
@@ -63,8 +63,8 @@ class ChauffeEau extends eqLogic {
 			return;
 		foreach(eqLogic::byType('ChauffeEau') as $ChauffeEau){		
 			if($ChauffeEau->getIsEnable()){
-				if ($ChauffeEau->getConfiguration('RepeatCmd') == "cron5"){			
-					if($ChauffeEau->getCmd(null,'state')->execCmd())
+				if ($ChauffeEau->getConfiguration('RepeatCmd') == "cron5"){
+					if(cache::byKey('ChauffeEau::Power::'.$ChauffeEau->getId())->getValue(false))
 						$ChauffeEau->ActionPowerStart();
 					else
 						$ChauffeEau->ActionPowerStop();
@@ -80,8 +80,8 @@ class ChauffeEau extends eqLogic {
 			return;
 		foreach(eqLogic::byType('ChauffeEau') as $ChauffeEau){		
 			if($ChauffeEau->getIsEnable()){
-				if ($ChauffeEau->getConfiguration('RepeatCmd') == "cron15"){			
-					if($ChauffeEau->getCmd(null,'state')->execCmd())
+				if ($ChauffeEau->getConfiguration('RepeatCmd') == "cron15"){	
+					if(cache::byKey('ChauffeEau::Power::'.$ChauffeEau->getId())->getValue(false))
 						$ChauffeEau->ActionPowerStart();
 					else
 						$ChauffeEau->ActionPowerStop();
@@ -97,8 +97,8 @@ class ChauffeEau extends eqLogic {
 			return;
 		foreach(eqLogic::byType('ChauffeEau') as $ChauffeEau){		
 			if($ChauffeEau->getIsEnable()){
-				if ($ChauffeEau->getConfiguration('RepeatCmd') == "cron30"){			
-					if($ChauffeEau->getCmd(null,'state')->execCmd())
+				if ($ChauffeEau->getConfiguration('RepeatCmd') == "cron30"){	
+					if(cache::byKey('ChauffeEau::Power::'.$ChauffeEau->getId())->getValue(false))
 						$ChauffeEau->ActionPowerStart();
 					else
 						$ChauffeEau->ActionPowerStop();
@@ -114,8 +114,8 @@ class ChauffeEau extends eqLogic {
 			return;
 		foreach(eqLogic::byType('ChauffeEau') as $ChauffeEau){		
 			if($ChauffeEau->getIsEnable()){
-				if ($ChauffeEau->getConfiguration('RepeatCmd') == "cronHourly"){			
-					if($ChauffeEau->getCmd(null,'state')->execCmd())
+				if ($ChauffeEau->getConfiguration('RepeatCmd') == "cronHourly"){	
+					if(cache::byKey('ChauffeEau::Power::'.$ChauffeEau->getId())->getValue(false))
 						$ChauffeEau->ActionPowerStart();
 					else
 						$ChauffeEau->ActionPowerStop();
@@ -131,8 +131,8 @@ class ChauffeEau extends eqLogic {
 			return;
 		foreach(eqLogic::byType('ChauffeEau') as $ChauffeEau){		
 			if($ChauffeEau->getIsEnable()){
-				if ($ChauffeEau->getConfiguration('RepeatCmd') == "cronDaily"){			
-					if($ChauffeEau->getCmd(null,'state')->execCmd())
+				if ($ChauffeEau->getConfiguration('RepeatCmd') == "cronDaily"){		
+					if(cache::byKey('ChauffeEau::Power::'.$ChauffeEau->getId())->getValue(false))
 						$ChauffeEau->ActionPowerStart();
 					else
 						$ChauffeEau->ActionPowerStop();
@@ -198,8 +198,8 @@ class ChauffeEau extends eqLogic {
 	public function checkHysteresis($Temperature, $TemperatureConsigne, $TemperatureBasse=null){
 		// Regulation a +- 0.5°C
 		if($TemperatureBasse == null)
-			$TemperatureBasse = $TemperatureConsigne - 0.5;
-		$TemperatureHaute = $TemperatureConsigne + 0.5;
+			$TemperatureBasse = $TemperatureConsigne - $this->getConfiguration('hysteresis');
+		$TemperatureHaute = $TemperatureConsigne + $this->getConfiguration('hysteresis');
 		if($Temperature <= $TemperatureBasse){
 			if($this->EvaluateCondition()){	
 				$this->PowerStart();	
@@ -357,7 +357,7 @@ class ChauffeEau extends eqLogic {
 				$TempConsigne= jeedom::evaluateExpression($ConigSchedule["consigne"]);
 				$TempSeuil= jeedom::evaluateExpression($ConigSchedule["seuil"]);
 				$PowerTime=$this->EvaluatePowerTime($TempSeuil);
-				$DeltaTime = ($TempActuel - $TempSeuil) / $this->getDeltaTemperature($TempActuel);
+				$DeltaTime = round(($TempActuel - $TempSeuil) / $this->getDeltaTemperature($TempActuel));
                 		$timestamp = time() + $PowerTime + $DeltaTime;
 				if($nextTime == null || time() <= $timestamp){
 					if($nextTime == null || $nextTime > $timestamp){
@@ -389,7 +389,7 @@ class ChauffeEau extends eqLogic {
 					$nextTime=$timestamp;
 					$TempSouhaite= jeedom::evaluateExpression($ConigSchedule["consigne"]);
 					$DeltaTime = $nextTime - time();
-					$StartTemp = $TempActuel - $DeltaTime * $this->getDeltaTemperature($TempActuel);
+					$StartTemp = $TempActuel - round($DeltaTime * $this->getDeltaTemperature($TempActuel),1);
 					$PowerTime=$this->EvaluatePowerTime($StartTemp);
 				}
 			}
