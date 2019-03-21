@@ -172,7 +172,7 @@ function addProgramation(_programation,  _el) {
 				.append($('<label class="control-label">')
 					.text('{{Maintien de la température en fin de cycle}}'))				
 				.append($('<div class="col-sm-7">')
-					.append($('<input class="expressionAttr form-control input-sm" data-l1key="seuil" placeholder="{{Température de déclenchement}}"/>'))))
+					.append($('<input class="expressionAttr form-control input-sm" data-l1key="hysteresis" placeholder="{{Température de déclenchement}}"/>'))))
 			.append($('<div class="form-group">')
 				.append($('<label class="control-label">')
 					.text('{{Heure de disponibilité}}')
