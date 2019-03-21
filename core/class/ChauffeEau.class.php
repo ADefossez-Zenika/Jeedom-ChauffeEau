@@ -198,8 +198,8 @@ class ChauffeEau extends eqLogic {
 	public function checkHysteresis($Temperature, $TemperatureConsigne, $TemperatureBasse=null){
 		// Regulation a +- 0.5°C
 		if($TemperatureBasse == null)
-			$TemperatureBasse = $TemperatureConsigne - 0.5;
-		$TemperatureHaute = $TemperatureConsigne + 0.5;
+			$TemperatureBasse = $TemperatureConsigne - $this->getConfiguration('hysteresis');
+		$TemperatureHaute = $TemperatureConsigne + $this->getConfiguration('hysteresis');
 		if($Temperature <= $TemperatureBasse){
 			if($this->EvaluateCondition()){	
 				$this->PowerStart();	
