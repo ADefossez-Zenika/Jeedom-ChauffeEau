@@ -196,10 +196,11 @@ class ChauffeEau extends eqLogic {
 		}
 	}
 	public function checkHysteresis($Temperature, $TemperatureConsigne, $TemperatureBasse=null){
-		// Regulation a +- 0.5°C
+		// Regulation a +- 0.5°C		
+		$Hysteresis=cache::byKey('ChauffeEau::Hysteresis::'.$ChauffeEau->getId())->getValue(0.5);
 		if($TemperatureBasse == null)
-			$TemperatureBasse = $TemperatureConsigne - $this->getConfiguration('hysteresis');
-		$TemperatureHaute = $TemperatureConsigne + $this->getConfiguration('hysteresis');
+			$TemperatureBasse = $TemperatureConsigne - $Hysteresis;
+		$TemperatureHaute = $TemperatureConsigne + $Hysteresis;
 		if($Temperature <= $TemperatureBasse){
 			if($this->EvaluateCondition()){	
 				$this->PowerStart();	
@@ -361,6 +362,7 @@ class ChauffeEau extends eqLogic {
                 		$timestamp = time() + $PowerTime + $DeltaTime;
 				if($nextTime == null || time() <= $timestamp){
 					if($nextTime == null || $nextTime > $timestamp){
+						cache::set('ChauffeEau::Hysteresis::'.$this->getId(),$ConigSchedule["hysteresis"], 0);
 						$this->checkHysteresis($TempActuel, $TempConsigne, $TempSeuil);
 						$validProg = false;
 						$nextTime = $timestamp;
@@ -388,6 +390,7 @@ class ChauffeEau extends eqLogic {
 					$validProg = true;
 					$nextTime=$timestamp;
 					$TempSouhaite= jeedom::evaluateExpression($ConigSchedule["consigne"]);
+					cache::set('ChauffeEau::Hysteresis::'.$this->getId(),$ConigSchedule["hysteresis"], 0);
 					$DeltaTime = $nextTime - time();
 					$StartTemp = $TempActuel - round($DeltaTime * $this->getDeltaTemperature($TempActuel),1);
 					$PowerTime=$this->EvaluatePowerTime($StartTemp);
