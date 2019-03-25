@@ -197,8 +197,8 @@ function addProgramation(_programation,  _el) {
 				.append($('<div class="col-sm-7">')
 					.append(Heure)
 					.append(Minute))))
-		.append($('<td>')
-		       	.append($('<span class="expressionAttr" data-l1key="url">')));
+		/*.append($('<td>')
+		       	.append($('<span class="expressionAttr" data-l1key="url">'))*/);
         _el.append(tr);
         _el.find('tr:last').setValues(_programation, '.expressionAttr');
 	$('.ProgramationAttr[data-action=remove]').off().on('click',function(){
