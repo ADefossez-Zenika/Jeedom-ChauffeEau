@@ -163,7 +163,9 @@ class ChauffeEau extends eqLogic {
 			break;
 			case 'Automatique':
 				$TempSouhaite = $this->getCmd(null,'consigne')->execCmd();
-				$TempActuel=$this->EstimateTempActuel();	
+				if($this->getConfiguration('TempEauEstime'))
+					$this->EstimateTempActuel();	
+				$TempActuel=$this->getCmd(null,'TempActuel')->execCmd()
 				if($this->getConfiguration('BacteryProtect'))
 					$this->checkBacteryProtect($TempActuel);
 				$NextProg=$this->NextProg();
@@ -250,17 +252,24 @@ class ChauffeEau extends eqLogic {
 		log::add('ChauffeEau','debug','Evenement sur le retour d\'etat : '.json_encode($_option));
 		$ChauffeEau = eqLogic::byId($_option['ChauffeEau_id']);
 		if (is_object($ChauffeEau) && $ChauffeEau->getIsEnable()) {
-			log::add('ChauffeEau','info',$ChauffeEau->getHumanName().' : l\'etat du chauffe eau est passé a '.$_option['value']);
-			$State=cache::byKey('ChauffeEau::Power::'.$ChauffeEau->getId());
-			if(is_object($State)){
-				if($_option['value'] && !$State->getValue(false))
-					$ChauffeEau->checkAndUpdateCmd('etatCommut','Marche Forcée');
-				if(!$_option['value'] && $State->getValue(false))
-					$ChauffeEau->checkAndUpdateCmd('etatCommut','Off');
-				/*if($_option['value'] && $Stat->getValue(false))
-					$ChauffeEau->checkAndUpdateCmd('etatCommut','Automatique');*/
+			switch($_option['event_id']){
+				case $ChauffeEau->getConfiguration('TempActuel'):
+					$ChauffeEau->checkAndUpdateCmd('TempActuel',$_option['value']);
+				break;
+				case $ChauffeEau->getConfiguration('Etat'):
+					log::add('ChauffeEau','info',$ChauffeEau->getHumanName().' : l\'etat du chauffe eau est passé a '.$_option['value']);
+					$State=cache::byKey('ChauffeEau::Power::'.$ChauffeEau->getId());
+					if(is_object($State)){
+						if($_option['value'] && !$State->getValue(false))
+							$ChauffeEau->checkAndUpdateCmd('etatCommut','Marche Forcée');
+						if(!$_option['value'] && $State->getValue(false))
+							$ChauffeEau->checkAndUpdateCmd('etatCommut','Off');
+						/*if($_option['value'] && $Stat->getValue(false))
+							$ChauffeEau->checkAndUpdateCmd('etatCommut','Automatique');*/
+					}
+					$ChauffeEau->checkAndUpdateCmd('state',$_option['value']);
+				break;
 			}
-			$ChauffeEau->checkAndUpdateCmd('state',$_option['value']);
 			$ChauffeEau->CheckChauffeEau();
 		}
 	}
@@ -272,7 +281,9 @@ class ChauffeEau extends eqLogic {
 		if($this->getConfiguration('Etat') == '')
 			$this->checkAndUpdateCmd('state',1);
 		log::add('ChauffeEau','info',$this->getHumanName().' : Alimentation électrique du chauffe-eau');
-		$TempActuel=$this->EstimateTempActuel();	
+		if($this->getConfiguration('TempEauEstime'))
+			$this->EstimateTempActuel();	
+		$TempActuel=$this->getCmd(null,'TempActuel')->execCmd()	
 		cache::set('ChauffeEau::Start::Temperature::'.$this->getId(),$TempActuel, 0);
 		cache::set('ChauffeEau::Start::Time::'.$this->getId(),time(), 0);
 		cache::set('ChauffeEau::Run::'.$this->getId(),true, 0);
@@ -319,7 +330,9 @@ class ChauffeEau extends eqLogic {
 		if($this->getCmd(null,'state')->execCmd() == 0)
 			return;
 		$this->PowerStop();
-		$TempActuel=$this->EstimateTempActuel();
+		if($this->getConfiguration('TempEauEstime'))
+			$this->EstimateTempActuel();	
+		$TempActuel=$this->getCmd(null,'TempActuel')->execCmd()
 		$StartTime = cache::byKey('ChauffeEau::Start::Time::'.$this->getId());	
 		$StartTemps = cache::byKey('ChauffeEau::Start::Temperature::'.$this->getId());
 		$DeltaTemp=$TempActuel-$StartTemps->getValue($TempActuel);
@@ -340,7 +353,10 @@ class ChauffeEau extends eqLogic {
 		if($Delestage){
 			switch($this->getConfiguration('delestage')){
 				case 'Temp':
-				return $NextStop + $this->EvaluatePowerTime($this->EstimateTempActuel());
+				if($this->getConfiguration('TempEauEstime'))
+					$this->EstimateTempActuel();	
+				$TempActuel=$this->getCmd(null,'TempActuel')->execCmd()
+				return $NextStop + $this->EvaluatePowerTime($TempActuel);
 				case 'Heure':
 				return false;
 				case '30':
@@ -351,7 +367,9 @@ class ChauffeEau extends eqLogic {
 	}
 	public function NextProg(){
 		$validProg=false;
-		$TempActuel=$this->EstimateTempActuel();
+		if($this->getConfiguration('TempEauEstime'))
+			$this->EstimateTempActuel();	
+		$TempActuel=$this->getCmd(null,'TempActuel')->execCmd()
 		$TempSouhaite=60;
 		foreach($this->getConfiguration('programation') as $ConigSchedule){
 			if($ConigSchedule["isSeuil"] && $ConigSchedule[date('w')]){
@@ -422,7 +440,6 @@ class ChauffeEau extends eqLogic {
 		return $PowerTime;
 	} 
 	public function BacteryProtect($StartTemp){		
-		//$TempActuel=$this->EstimateTempActuel();
 		if($this->getConfiguration('BacteryProtect')){
 			if($StartTemp < 20 && $StartTemp > 55){
 				$Temps = 0;
@@ -474,8 +491,8 @@ class ChauffeEau extends eqLogic {
 		return 0;
 	}
 	public function EstimateTempActuel(){
-		$TempActuelCmd=$this->getCmd(null,'TempActuel');
 		if($this->getConfiguration('TempEauEstime')){
+			$TempActuelCmd=$this->getCmd(null,'TempActuel');
 			$TempActuel=$TempActuelCmd->execCmd();
 			$LastUpdate=$TempActuelCmd->getCollectDate();
 			if($LastUpdate == '')
@@ -501,14 +518,10 @@ class ChauffeEau extends eqLogic {
 					$TempActuel = $TempLocal;
 			}
 			$TempActuel = round($TempActuel,1);
-		}else{
-			$TempActuel=jeedom::evaluateExpression($this->getConfiguration('TempActuel'));
-			//
+			$this->setDeltaTemperature($TempActuel);
+			if($TempActuel != $TempActuelCmd->execCmd())
+				$this->checkAndUpdateCmd('TempActuel',$TempActuel);
 		}
-     		$this->setDeltaTemperature($TempActuel);
-		if($TempActuel != $TempActuelCmd->execCmd())
-			$this->checkAndUpdateCmd('TempActuel',$TempActuel);
-		return $TempActuel;
 		
 	}
 	public function checkBacteryProtect($TempActuel){
@@ -667,19 +680,23 @@ class ChauffeEau extends eqLogic {
       		$cache = cache::byKey('ChauffeEau::Power::'.$this->getId());
       		if(is_object($cache))
           		$cache->remove();
-		if ($this->getConfiguration('Etat') != ''){
+		if ($this->getConfiguration('Etat') != '' || (!$this->getConfiguration('TempEauEstime') && $this->getConfiguration('TempActuel') != '')){
 			$listener = listener::byClassAndFunction('ChauffeEau', 'pull', array('ChauffeEau_id' => $this->getId()));
 			if (!is_object($listener))
 			    $listener = new listener();
 			$listener->setClass('ChauffeEau');
 			$listener->setFunction('pull');
 			$listener->setOption(array('ChauffeEau_id' => $this->getId()));
-			$listener->emptyEvent();				
-			$listener->addEvent($this->getConfiguration('Etat'));
+			$listener->emptyEvent();	
+			if(!$this->getConfiguration('TempEauEstime') && $this->getConfiguration('TempActuel') != '')
+				$listener->addEvent($this->getConfiguration('TempActuel'));
+			if ($this->getConfiguration('Etat') != '')
+				$listener->addEvent($this->getConfiguration('Etat'));
 			$listener->save();	
 			$state=cmd::byId(str_replace('#','',$this->getConfiguration('Etat')));
 			if(is_object($state))
 				$this->checkAndUpdateCmd('state',$state->execCmd());
+			
 		}
 		$this->CheckChauffeEau();
 	}
