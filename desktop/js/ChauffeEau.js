@@ -198,9 +198,17 @@ function addProgramation(_programation,  _el) {
 					.append(Heure)
 					.append(Minute))))
 		.append($('<td>')
-		       	.append($('<span class="expressionAttr" data-l1key="url">')));
+			.append($('<div class="input-group">')
+				.append($('<input class="expressionAttr form-control input-sm cmdAction" data-l1key="url">'))
+				.append($('<span class="input-group-btn">')
+					  .append($('<a class="btn btn-success btn-sm CopyClipboard" title="{{Copier dans le presse papier}}">')
+						    .append($('<i class="fa fa-copy">'))))));
         _el.append(tr);
         _el.find('tr:last').setValues(_programation, '.expressionAttr');
+	$('.CopyClipboard').off().on('click',function(){
+		$(this).closest('td').find('.expressionAttr[data-l1key=url]').select().val();
+		document.execCommand("copy");
+	});
 	$('.ProgramationAttr[data-action=remove]').off().on('click',function(){
 		$(this).closest('tr').remove();
 	});
