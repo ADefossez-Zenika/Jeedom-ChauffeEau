@@ -153,7 +153,7 @@ function addProgramation(_programation,  _el) {
 				.append($('<label class="col-sm-4 control-label">')
 					.text('{{Consigne}}')
 					.append($('<sup>')
-						.append($('<i class="fa fa-question-circle tooltips" title="{{Saisir la température de consigne}}"></i>')))))
+						.append($('<i class="fa fa-question-circle tooltips" title="{{Saisir la température de consigne}}"></i>'))))
 				.append($('<div class="col-sm-7">')
 					.append($('<input type="text" class="expressionAttr form-control" data-l1key="consigne" placeholder="{{Température de consigne}}">'))))
 			.append($('<div class="form-group">')
