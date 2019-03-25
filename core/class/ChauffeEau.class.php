@@ -197,7 +197,7 @@ class ChauffeEau extends eqLogic {
 	}
 	public function checkHysteresis($Temperature, $TemperatureConsigne, $TemperatureBasse=null){
 		// Regulation a +- 0.5°C		
-		$Hysteresis=cache::byKey('ChauffeEau::Hysteresis::'.$ChauffeEau->getId())->getValue(0.5);
+		$Hysteresis=cache::byKey('ChauffeEau::Hysteresis::'.$this->getId())->getValue(0.5);
 		if($TemperatureBasse == null)
 			$TemperatureBasse = $TemperatureConsigne - $Hysteresis;
 		$TemperatureHaute = $TemperatureConsigne + $Hysteresis;
