@@ -201,11 +201,11 @@ function addProgramation(_programation,  _el) {
 			.append($('<a class="btn btn-xs CopyClipboard" style="margin-left: 5px;">')
 				.append($('<i class="fa fa-copy">'))
 				.text('{{Copier}}'))
-			.append($('<input class="expressionAttr" data-l1key="url">')).hide());
+			.append($('<input class="expressionAttr form-control input-sm" data-l1key="url">')));
         _el.append(tr);
         _el.find('tr:last').setValues(_programation, '.expressionAttr');
 	$('.CopyClipboard').off().on('click',function(){
-		$(this).closest('tr').find('.expressionAttr[data-l1key=url]').val().select();
+		$(this).closest('td').find('.expressionAttr[data-l1key=url]').select().val();
 		document.execCommand("copy");
 	});
 	$('.ProgramationAttr[data-action=remove]').off().on('click',function(){
