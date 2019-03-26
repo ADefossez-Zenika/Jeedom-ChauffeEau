@@ -255,11 +255,11 @@ class ChauffeEau extends eqLogic {
 		$ChauffeEau = eqLogic::byId($_option['ChauffeEau_id']);
 		if (is_object($ChauffeEau) && $ChauffeEau->getIsEnable()) {
 			switch($_option['event_id']){
-				case $ChauffeEau->getConfiguration('TempActuel'):
+				case str_replace('#','',$ChauffeEau->getConfiguration('TempActuel')):
 					$ChauffeEau->checkAndUpdateCmd('TempActuel',$_option['value']);
 					$ChauffeEau->setDeltaTemperature($_option['value']);
 				break;
-				case $ChauffeEau->getConfiguration('Etat'):
+				case str_replace('#','',$ChauffeEau->getConfiguration('Etat')):
 					log::add('ChauffeEau','info',$ChauffeEau->getHumanName().' : l\'etat du chauffe eau est passé a '.$_option['value']);
 					$State=cache::byKey('ChauffeEau::Power::'.$ChauffeEau->getId());
 					if(is_object($State)){
