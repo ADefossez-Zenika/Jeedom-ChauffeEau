@@ -1,8 +1,8 @@
 <?php
 require_once dirname(__FILE__) . '/../../../../core/php/core.inc.php';
 class ChauffeEau extends eqLogic {
-	public static $_Temperatures=array(0,10,20,45,50,60,70,90,100);
-	public static $_Pertes=array(0,0.00001,0.00005,0.0001,0.0005,0.00065,0.0009,0.09);
+	const _Temperatures=array(0,10,20,45,50,60,70,90,100);
+	const _Pertes=array(0,0.00001,0.00005,0.0001,0.0005,0.00065,0.0009,0.09);
 	
 	public static function deamon_info() {
 		$return = array();
@@ -479,10 +479,10 @@ class ChauffeEau extends eqLogic {
 		}
 	}
 	public function getDeltaTemperature($TempActuel) {
-		foreach($this->_Temperatures as $key => $Temperature){
-			if($TempActuel >= $Temperature && $TempActuel < $this->_Temperatures[$key+1]){
-				//$coef=$this->_Temperatures[$key+1]/$Temperature;
-				return $this->_Pertes[$key];// * $coef;
+		foreach(self::_Temperatures as $key => $Temperature){
+			if($TempActuel >= $Temperature && $TempActuel < self::_Temperatures[$key+1]){
+				//$coef=self::_Temperatures[$key+1]/$Temperature;
+				return self::_Pertes[$key];// * $coef;
 			}
 		}
 		return 0;
