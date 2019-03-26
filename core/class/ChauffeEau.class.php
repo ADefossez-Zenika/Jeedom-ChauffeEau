@@ -166,9 +166,8 @@ class ChauffeEau extends eqLogic {
 			break;
 			case 'Automatique':
 				$TempSouhaite = $this->getCmd(null,'consigne')->execCmd();
-				if($this->getConfiguration('TempEauEstime'))
-					$this->EstimateTempActuel();	
-				$TempActuel=$this->getCmd(null,'TempActuel')->execCmd()
+				$this->EstimateTempActuel();	
+				$TempActuel=$this->getCmd(null,'TempActuel')->execCmd();
 				if($this->getConfiguration('BacteryProtect'))
 					$this->checkBacteryProtect($TempActuel);
 				$NextProg=$this->NextProg();
@@ -285,9 +284,8 @@ class ChauffeEau extends eqLogic {
 		if($this->getConfiguration('Etat') == '')
 			$this->checkAndUpdateCmd('state',1);
 		log::add('ChauffeEau','info',$this->getHumanName().' : Alimentation électrique du chauffe-eau');
-		if($this->getConfiguration('TempEauEstime'))
-			$this->EstimateTempActuel();	
-		$TempActuel=$this->getCmd(null,'TempActuel')->execCmd()	
+		$this->EstimateTempActuel();	
+		$TempActuel=$this->getCmd(null,'TempActuel')->execCmd();
 		cache::set('ChauffeEau::Start::Temperature::'.$this->getId(),$TempActuel, 0);
 		cache::set('ChauffeEau::Start::Time::'.$this->getId(),time(), 0);
 		cache::set('ChauffeEau::Run::'.$this->getId(),true, 0);
@@ -334,9 +332,8 @@ class ChauffeEau extends eqLogic {
 		if($this->getCmd(null,'state')->execCmd() == 0)
 			return;
 		$this->PowerStop();
-		if($this->getConfiguration('TempEauEstime'))
-			$this->EstimateTempActuel();	
-		$TempActuel=$this->getCmd(null,'TempActuel')->execCmd()
+		$this->EstimateTempActuel();	
+		$TempActuel=$this->getCmd(null,'TempActuel')->execCmd();
 		$StartTime = cache::byKey('ChauffeEau::Start::Time::'.$this->getId());	
 		$StartTemps = cache::byKey('ChauffeEau::Start::Temperature::'.$this->getId());
 		$DeltaTemp=$TempActuel-$StartTemps->getValue($TempActuel);
@@ -357,9 +354,8 @@ class ChauffeEau extends eqLogic {
 		if($Delestage){
 			switch($this->getConfiguration('delestage')){
 				case 'Temp':
-				if($this->getConfiguration('TempEauEstime'))
-					$this->EstimateTempActuel();	
-				$TempActuel=$this->getCmd(null,'TempActuel')->execCmd()
+				$this->EstimateTempActuel();	
+				$TempActuel=$this->getCmd(null,'TempActuel')->execCmd();
 				return $NextStop + $this->EvaluatePowerTime($TempActuel);
 				case 'Heure':
 				return false;
@@ -371,9 +367,8 @@ class ChauffeEau extends eqLogic {
 	}
 	public function NextProg(){
 		$validProg=false;
-		if($this->getConfiguration('TempEauEstime'))
-			$this->EstimateTempActuel();	
-		$TempActuel=$this->getCmd(null,'TempActuel')->execCmd()
+		$this->EstimateTempActuel();	
+		$TempActuel=$this->getCmd(null,'TempActuel')->execCmd();
 		$TempSouhaite=60;
 		foreach($this->getConfiguration('programation') as $ConigSchedule){
 			if($ConigSchedule["isSeuil"] && $ConigSchedule[date('w')]){
