@@ -1,103 +1,115 @@
 <?php
 if (!isConnect('admin')) {
-throw new Exception('{{401 - Accès non autorisé}}');
+	throw new Exception('{{401 - Accès non autorisé}}');
 }
-sendVarToJS('eqType', 'ChauffeEau');
-$eqLogics = eqLogic::byType('ChauffeEau');
+$plugin = plugin::byId('ChauffeEau');
+sendVarToJS('eqType', $plugin->getId());
+$eqLogics = eqLogic::byType($plugin->getId());
 ?>
-<div class="row row-overflow">
-	<div class="col-lg-2">
-		<div class="bs-sidebar">
-			<ul id="ul_eqLogic" class="nav nav-list bs-sidenav">
-				<a class="btn btn-default eqLogicAction" style="width : 50%;margin-top : 5px;margin-bottom: 5px;" data-action="add"><i class="fa fa-plus-circle"></i> {{Ajouter}}</a>
-				<li class="filter" style="margin-bottom: 5px;"><input class="filter form-control input-sm" placeholder="{{Rechercher}}" style="width: 100%"/></li>
-				<?php
-					foreach ($eqLogics as $eqLogic) 
-						echo '<li class="cursor li_eqLogic" data-eqLogic_id="' . $eqLogic->getId() . '"><a>' . $eqLogic->getHumanName(true) . '</a></li>';
-				?>
-			</ul>
+
+<div class="row row-overflow">    
+   	<div class="col-xs-12 eqLogicThumbnailDisplay">
+  		<legend><i class="fas fa-cog"></i>  {{Gestion}}</legend>
+		<div class="eqLogicThumbnailContainer">
+			<div class="cursor eqLogicAction logoPrimary" data-action="add">
+				<i class="fas fa-plus-circle"></i>
+				<br>
+				<span>{{Ajouter}}</span>
+			</div>
+      			<div class="cursor eqLogicAction logoSecondary" data-action="gotoPluginConf">
+      				<i class="fas fa-wrench"></i>
+    				<br>
+    				<span>{{Configuration}}</span>
+  			</div>
+      			<div class="cursor bt_showExpressionTest logoSecondary">
+      				<i class="fas fa-check"></i>
+    				<br>
+    				<span>{{Testeur d'expression}}</span>
+  			</div>
+      			<div class="cursor eqLogicAction logoSecondary" data-action="gotoHealth">
+      				<i class="fas fa-medkit"></i>
+    				<br>
+    				<span>{{Santé}}</span>
+  			</div>	
+  		</div>
+  		<legend><i class="fas fa-table"></i> {{Mes Zones}}</legend>
+	   	<input class="form-control" placeholder="{{Rechercher}}" id="in_searchEqlogic" />
+		<div class="eqLogicThumbnailContainer">
+    		<?php
+			foreach ($eqLogics as $eqLogic) {
+				$opacity = ($eqLogic->getIsEnable()) ? '' : 'disableCard';
+				echo '<div class="eqLogicDisplayCard cursor '.$opacity.'" data-eqLogic_id="' . $eqLogic->getId() . '">';
+				echo '<img src="' . $plugin->getPathImgIcon() . '"/>';
+				echo '<br>';
+				echo '<span class="name">' . $eqLogic->getHumanName(true, true) . '</span>';
+				echo '</div>';
+			}
+		?>
 		</div>
 	</div>
-	<div class="col-lg-10 col-md-9 col-sm-8 eqLogicThumbnailDisplay" style="border-left: solid 1px #EEE; padding-left: 25px;">
-		<legend>{{Gestion}}</legend>
-		<div class="eqLogicThumbnailContainer">
-			<div class="cursor eqLogicAction" data-action="add" style="background-color : #ffffff; height : 140px;margin-bottom : 10px;padding : 5px;border-radius: 2px;width : 160px;margin-left : 10px;" >
-				<center>
-					<i class="fa fa-plus-circle" style="font-size : 5em;color:#406E88;"></i>
-				</center>
-				<span style="font-size : 1.1em;position:relative; top : 23px;word-break: break-all;white-space: pre-wrap;word-wrap: break-word;color:#406E88"><center>{{Ajouter}}</center></span>
-			</div>
-			<div class="cursor eqLogicAction" data-action="gotoPluginConf" style="height: 120px; margin-bottom: 10px; padding: 5px; border-radius: 2px; width: 160px; margin-left: 10px; position: absolute; left: 170px; top: 0px; background-color: rgb(255, 255, 255);">
-				<center>
-			      		<i class="fa fa-wrench" style="font-size : 5em;color:#767676;"></i>
-			    	</center>
-			    	<span style="font-size : 1.1em;position:relative; top : 15px;word-break: break-all;white-space: pre-wrap;word-wrap: break-word;color:#767676"><center>Configuration</center></span>
-			</div>
-			<div class="cursor bt_showExpressionTest" style="height: 120px; margin-bottom: 10px; padding: 5px; border-radius: 2px; width: 160px; margin-left: 10px; position: absolute; left: 170px; top: 0px; background-color: rgb(255, 255, 255);">
-				<center>
-			      		<i class="fa fa-check" style="font-size : 5em;color:#767676;"></i>
-			    	</center>
-			    	<span style="font-size : 1.1em;position:relative; top : 15px;word-break: break-all;white-space: pre-wrap;word-wrap: break-word;color:#767676"><center>Testeur d'expression</center></span>
-			</div>
-			<div class="cursor" id="bt_healthChauffeEau" style="background-color : #ffffff; height : 120px;margin-bottom : 10px;padding : 5px;border-radius: 2px;width : 160px;margin-left : 10px;" >
-				<center>
-					<i class="fa fa-medkit" style="font-size : 6em;color:#767676;"></i>
-				</center>
-				<span style="font-size : 1.1em;position:relative; top : 15px;word-break: break-all;white-space: pre-wrap;word-wrap: break-word;color:#767676"><center>{{Santé}}</center></span>
-			</div>
+	<div class="col-xs-12 eqLogic" style="display: none;">
+		<div class="input-group pull-right" style="display:inline-flex">
+			<span class="input-group-btn">
+				<a class="btn btn-default btn-sm eqLogicAction roundedLeft" data-action="configure">
+					<i class="fa fa-cogs"></i>
+					 {{Configuration avancée}}
+				</a>
+				<a class="btn btn-default btn-sm eqLogicAction" data-action="copy">
+					<i class="fas fa-copy"></i>
+					 {{Dupliquer}}
+				</a>
+				<a class="btn btn-sm btn-success eqLogicAction" data-action="save">
+					<i class="fas fa-check-circle"></i>
+					 {{Sauvegarder}}
+				</a>
+				<a class="btn btn-danger btn-sm eqLogicAction roundedRight" data-action="remove">
+					<i class="fas fa-minus-circle"></i>
+					 {{Supprimer}}
+				</a>
+			</span>
 		</div>
-		<legend>{{Mes Zones}}</legend>
-		<input class="form-control" placeholder="{{Rechercher}}" style="margin-bottom:4px;" id="in_searchEqlogic" />
-		<div class="eqLogicThumbnailContainer">
-			<?php
-				foreach ($eqLogics as $eqLogic) {
-					$opacity = ($eqLogic->getIsEnable()) ? '' : jeedom::getConfiguration('eqLogic:style:noactive');
-					echo '<div class="eqLogicDisplayCard cursor" data-eqLogic_id="' . $eqLogic->getId() . '" style="background-color : #ffffff; height : 200px;margin-bottom : 10px;padding : 5px;border-radius: 2px;width : 160px;margin-left : 10px;' . $opacity . '" >';
-					echo "<center>";
-					echo '<img src="plugins/ChauffeEau/plugin_info/ChauffeEau_icon.png" height="105" width="95" />';
-					echo "</center>";
-					echo '<span class="name" style="font-size : 1.1em;position:relative; top : 15px;word-break: break-all;white-space: pre-wrap;word-wrap: break-word;"><center>' . $eqLogic->getHumanName(true, true) . '</center></span>';
-					echo '</div>';
-				}
-			?>
-		</div>
-	</div>  
-	<div class="col-lg-10 col-md-9 col-sm-8 eqLogic" style="border-left: solid 1px #EEE; padding-left: 25px;display: none;">
-		<a class="btn btn-success btn-sm eqLogicAction pull-right" data-action="save"><i class="fa fa-check-circle"></i> Sauvegarder</a>
-		<a class="btn btn-danger btn-sm eqLogicAction pull-right" data-action="remove"><i class="fa fa-minus-circle"></i> Supprimer</a>
-		<a class="btn btn-default btn-sm eqLogicAction pull-right" data-action="configure"><i class="fa fa-cogs"></i></a>
-		<a class="btn btn-default btn-sm eqLogicAction pull-right expertModeVisible " data-action="copy"><i class="fa fa-copy"></i></a>
 		<ul class="nav nav-tabs" role="tablist">
-			<li role="presentation">
+    			<li role="presentation">
 				<a href="#" class="eqLogicAction" aria-controls="home" role="tab" data-toggle="tab" data-action="returnToThumbnailDisplay">
 					<i class="fa fa-arrow-circle-left"></i>
 				</a>
 			</li>
-			<li role="presentation" class="active">
-				<a href="#eqlogictab" aria-controls="home" role="tab" data-toggle="tab" aria-expanded="true">
-					<i class="fa fa-tachometer"></i> Equipement</a>
+    			<li role="presentation" class="active">
+				<a href="#eqlogictab" aria-controls="home" role="tab" data-toggle="tab">
+				<i class="fa fa-tachometer"></i> 
+					{{Equipement}}
+				</a>
 			</li>
-			<li role="presentation">
-				<a href="#commandtab" aria-controls="profile" role="tab" data-toggle="tab" aria-expanded="false">
-					<i class="fa fa-list-alt"></i> Commandes</a>
+    			<li role="presentation">
+				<a href="#commandtab" aria-controls="profile" role="tab" data-toggle="tab">
+					<i class="fa fa-list-alt"></i> 
+					{{Commandes}}
+				</a>
 			</li>
 			<li role="presentation" class="">
 				<a href="#programationtab" aria-controls="profile" role="tab" data-toggle="tab" aria-expanded="false">
-					<i class="fa fa-calendar"></i> {{Programmation}}</a>
+					<i class="fa fa-calendar"></i>
+					 {{Programmation}}
+				</a>
 			</li>
 			<li role="presentation">
 				<a href="#conditiontab" aria-controls="profile" role="tab" data-toggle="tab" aria-expanded="false">
-					<i class="fa fa-asterisk"></i> {{Conditions}}</a>
+					<i class="fa fa-asterisk"></i>
+					 {{Conditions}}
+				</a>
 			</li>
 			<li role="presentation">
 				<a href="#actionTab" aria-controls="profile" role="tab" data-toggle="tab" aria-expanded="false">
-					<i class="fa fa-list-alt"></i> {{Actions}}</a>
+					<i class="fa fa-list-alt"></i>
+					 {{Actions}}
+				</a>
 			</li>
-		</ul>
+  		</ul>
 		<div class="tab-content" style="height:calc(100% - 50px);overflow:auto;overflow-x: hidden;">
 			<div role="tabpanel" class="tab-pane active" id="eqlogictab">
+				<br/>
 				<div class="col-sm-6">
-					<form class="form-horizontal">
+    					<form class="form-horizontal">
 						<legend>Général</legend>
 						<fieldset>
 							<div class="form-group ">
@@ -265,7 +277,7 @@ $eqLogics = eqLogic::byType('ChauffeEau');
 							<sup>
 								<i class="fa fa-question-circle tooltips" title="Saisir toutes les programmations pour la zone"></i>
 							</sup>
-							<a class="btn btn-success btn-xs ProgramationAttr" data-action="add" style="margin-left: 5px;">
+							<a class="btn btn-success btn-sm ProgramationAttr pull-right" data-action="add" style="margin-top: 5px;">
 								<i class="fa fa-plus-circle"></i>
 								{{Ajouter une programmation}}
 							</a>
