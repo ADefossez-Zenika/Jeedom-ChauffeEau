@@ -522,14 +522,11 @@ class ChauffeEau extends eqLogic {
 		
 	}
 	public function checkBacteryProtect($TempActuel){
-		$BacteryProtect = $this->getCmd(null,'BacteryProtect');
+		$BacteryProtect=$this->getCmd(null,'BacteryProtect');
 		$LastUpdate=$BacteryProtect->getCollectDate();
-		log::add('ChauffeEau','debug',$this->getHumanName().' : $LastUpdate '.$LastUpdate);
 		if($LastUpdate == '')
 			$LastUpdate=date('Y-m-d H:i:s');
 		$DeltaTime= time() - DateTime::createFromFormat("Y-m-d H:i:s", $LastUpdate)->getTimestamp();
-		
-		log::add('ChauffeEau','debug',$this->getHumanName().' : $DeltaTime '.$DeltaTime.' °C');
 		if($BacteryProtect->execCmd()){
 			if($TempActuel >= 70 && $DeltaTime >= 1*60)
 				$this->checkAndUpdateCmd('BacteryProtect',false);
