@@ -268,7 +268,7 @@ function addAction(_action,  _el) {
 }
 function addParameters() {
 	return $('<td>')
-		.append($('<select class="expressionAttr form-control input-sm cmdAction" data-l1key="declencheur" multiple>')
+		.append($('<select class="expressionAttr form-control custom-select cmdAction" data-l1key="declencheur" multiple>')
 			.append($('<option value="on">')
 				.text('{{Allumage du chauffe-eau}}'))
 			.append($('<option value="off">')
