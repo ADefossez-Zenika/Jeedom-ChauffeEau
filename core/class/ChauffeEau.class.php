@@ -522,35 +522,24 @@ class ChauffeEau extends eqLogic {
 		
 	}
 	public function checkBacteryProtect($TempActuel){
-		$BacteryProtect = $this->getCmd(null,'BacteryProtect')->execCmd();
-		if($BacteryProtect){
-			$TempsBacteryProtect = cache::byKey('ChauffeEau::BacteryProtect::Start::'.$this->getId());
-			if($TempActuel > 70){
-				if(!is_object($TempsBacteryProtect))
-					cache::set('ChauffeEau::BacteryProtect::Start::'.$this->getId(), time(), 0);	
-				if($TempsBacteryProtect->getValue(time()) - time() > 1*60)
-					$this->checkAndUpdateCmd('BacteryProtect',false);
-			}elseif($TempActuel > 65){
-				if(!is_object($TempsBacteryProtect))
-					cache::set('ChauffeEau::BacteryProtect::Start::'.$this->getId(), time(), 0);	
-				if($TempsBacteryProtect->getValue(time()) - time() > 2*60)
-					$this->checkAndUpdateCmd('BacteryProtect',false);
-			}elseif($TempActuel > 60){
-				if(!is_object($TempsBacteryProtect))
-					cache::set('ChauffeEau::BacteryProtect::Start::'.$this->getId(), time(), 0);	
-				if($TempsBacteryProtect->getValue(time()) - time() > 30*60)
-					$this->checkAndUpdateCmd('BacteryProtect',false);
-			}else{
-				if(is_object($TempsBacteryProtect))
-					$TempsBacteryProtect->remove();
-				$TempsBacteryProtectAlert = cache::byKey('ChauffeEau::BacteryProtect::Alert::'.$this->getId());
-				if($TempActuel > 25 && $TempActuel < 47){
-					if(!is_object($TempsBacteryProtectAlert))
-						cache::set('ChauffeEau::BacteryProtect::Alert::'.$this->getId(), time(), 0);
-					if($TempsBacteryProtectAlert->getValue(time()) - time() > 4*60*60)	
-						$this->checkAndUpdateCmd('BacteryProtect',true);
-				}
-			}
+		$BacteryProtect=$this->getCmd(null,'BacteryProtect');
+		$LastUpdate=$BacteryProtect->getCollectDate();
+		if($LastUpdate == '')
+			$LastUpdate=date('Y-m-d H:i:s');
+		$DeltaTime= time() - DateTime::createFromFormat("Y-m-d H:i:s", $LastUpdate)->getTimestamp();
+		if($BacteryProtect->execCmd()){
+			if($TempActuel >= 70 && $DeltaTime >= 1*60)
+				$this->checkAndUpdateCmd('BacteryProtect',false);
+			elseif($TempActuel >= 65 && $DeltaTime >= 2*60)
+				$this->checkAndUpdateCmd('BacteryProtect',false);
+			elseif($TempActuel >= 60 && $DeltaTime >= 30*60)
+				$this->checkAndUpdateCmd('BacteryProtect',false);
+		}else{
+			//On leve le flag si la température de l'eau est comprise entre 25 et 47°C pendant plus de 4H
+			if($TempActuel > 25 && $TempActuel < 47 && $DeltaTime > 4*60*60)
+				$this->checkAndUpdateCmd('BacteryProtect',true);
+			if($TempActuel > 47)
+				$this->checkAndUpdateCmd('BacteryProtect',false);
 		}
 	}
 	public function Puissance($DeltaTemp,$DeltaTime) {
