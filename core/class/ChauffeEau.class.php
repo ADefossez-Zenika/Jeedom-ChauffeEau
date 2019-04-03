@@ -1,8 +1,8 @@
 <?php
 require_once dirname(__FILE__) . '/../../../../core/php/core.inc.php';
 class ChauffeEau extends eqLogic {
-	const _Temperatures=array(0,10,20,45,50,60,70,90,100);
-	const _Pertes=array(0,0.00001,0.00005,0.0001,0.0005,0.00065,0.0009,0.09);
+	const _Temperatures=array(0,20,60,100);
+	const _Pertes=array(0,0.00001,0.003,0.09);
 	
 	public static function deamon_info() {
 		$return = array();
