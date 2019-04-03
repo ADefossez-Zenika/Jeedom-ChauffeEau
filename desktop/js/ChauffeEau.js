@@ -2,11 +2,11 @@ $("#table_cmd").sortable({axis: "y", cursor: "move", items: ".cmd", placeholder:
 $("#table_programation").sortable({axis: "y", cursor: "move", items: ".ProgramationGroup", placeholder: "ui-state-highlight", tolerance: "intersect", forcePlaceholderSize: true});
 $("#table_condition").sortable({axis: "y", cursor: "move", items: ".ConditionGroup", placeholder: "ui-state-highlight", tolerance: "intersect", forcePlaceholderSize: true});
 $("#table_action").sortable({axis: "y", cursor: "move", items: ".ActionGroup", placeholder: "ui-state-highlight", tolerance: "intersect", forcePlaceholderSize: true});
-$('.bt_showExpressionTest').off('click').on('click', function () {
+$('.eqLogicAction[data-action=gotoExpressionTest]').off().on('click', function () {
 	$('#md_modal').dialog({title: "{{Testeur d'expression}}"});
 	$("#md_modal").load('index.php?v=d&modal=expression.test').dialog('open');
 });
-$('#bt_healthChauffeEau').on('click', function () {
+$('.eqLogicAction[data-action=gotoHealth]').off().on('click', function () {
 	$('#md_modal').dialog({title: "{{Santé des Chauffe-Eau}}"});
 	$('#md_modal').load('index.php?v=d&plugin=ChauffeEau&modal=health').dialog('open');
 });
