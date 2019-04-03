@@ -21,7 +21,7 @@ $eqLogics = eqLogic::byType($plugin->getId());
     				<br>
     				<span>{{Configuration}}</span>
   			</div>
-      			<div class="cursor bt_showExpressionTest logoSecondary">
+      			<div class="cursor eqLogicAction logoSecondary" data-action="gotoExpressionTest">
       				<i class="fas fa-check"></i>
     				<br>
     				<span>{{Testeur d'expression}}</span>
