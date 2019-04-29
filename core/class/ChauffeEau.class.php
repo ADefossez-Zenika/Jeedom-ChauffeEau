@@ -2,7 +2,7 @@
 require_once dirname(__FILE__) . '/../../../../core/php/core.inc.php';
 class ChauffeEau extends eqLogic {
 	const _Temperatures=array(0,20,60,100);
-	const _Pertes=array(0.00001,0.003,0.01,0.09);
+	const _Pertes=array(0.00001,0.0003,0.01,0.09);
 	
 	public static function deamon_info() {
 		$return = array();
