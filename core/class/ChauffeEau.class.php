@@ -457,13 +457,15 @@ class ChauffeEau extends eqLogic {
 		return array($DeltaTemp, $Temps);
 	}
 	public function setDeltaTemperature($TempActuel) {
-		$LastTempsCmd=$this->getCmd(null,'TempActuel');
-		if(is_object($LastTempsCmd)){
-			$LastTempsCollectDate=DateTime::createFromFormat("Y-m-d H:i:s", $LastTempsCmd->getCollectDate());
+		$TempActuelCmd=$this->getCmd(null,'TempActuel');
+		if(is_object($TempActuelCmd)){
+			$LastTemps = $TempActuelCmd->execCmd();
+			$LastUpdate=$TempActuelCmd->getCollectDate();
+			$LastTempsCollectDate=DateTime::createFromFormat("Y-m-d H:i:s", $LastUpdate);
 			if($LastTempsCollectDate !== false){
 				$DeltaTime= time() - $LastTempsCollectDate->getTimestamp();
 				if($DeltaTime > 0){
-					$DeltaTemp = ($LastTempsCmd->execCmd() - $TempActuel) / $DeltaTime;// delta de temperature par seconde
+					$DeltaTemp = ($LastTemps - $TempActuel) / $DeltaTime;// delta de temperature par seconde
 					if($DeltaTemp > 0 ){
 						$cache = cache::byKey('ChauffeEau::DeltaTemp::'.$this->getId());
 						$Caracterisation = json_decode($cache->getValue('[]'), true);
