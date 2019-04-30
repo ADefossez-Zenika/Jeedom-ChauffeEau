@@ -109,3 +109,19 @@ La commande "Délestage" permet de forcer l'extinction du chauffe-eau mais en ay
 
 > En fonction de l'etat du chauffe-eau vu par le plugin et l'etat reel, le plugin changera automatiquement le mode.
 Par exemple, vous forcé l'allumage du chauffe-eau en manuel, le retour d'etat reel passe a on alors que le plugin attend un off, il comprend alors que nous souhaitons faire un marche forcé et passe par se mode pour ne pas interfer dans votre decision manuel
+
+FAQ
+===
+
+Le plugin change automatiquement de mode de fonctionnement
+---
+> Le changement automatique de gestion se fait sur l'incoherance de l'etat reel et l'etat de pilotage du plugin.
+Se mode automatique est important pour qu'une manipulation manuel ou scenario soit prioritaire.
+Dans une premier temps, il faut s'assurer qu'aucune action exterieur au plugin soit faite.
+Dans un second temps il faut verifier la synchronisation des etats.
+L'etat reel doit etre identique a l'etat de pilotage. Si ce n'est pas le cas il faut verifier la  *répétition de votre commande d'état*.
+Pour le corriger, rendez-vous sur la page de configuration du plugin de contrôle de votre module et double-cliquez sur la commande de retour d'état.
+Jeedom va vous ouvrir la page de paramètre avancé
+Allez dans l'onglet **Configuration** >> **Autres** et passez le paramètre **Gestion de la répétition des valeurs** sur **Toujours répéter**
+
+![Ecran de configuration des paramètres avancés d'une commande](../images/AllwaysRepetition.jpg)
