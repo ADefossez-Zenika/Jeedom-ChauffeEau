@@ -40,6 +40,9 @@ class ChauffeEau extends eqLogic {
 			$cache = cache::byKey('ChauffeEau::Run::'.$ChauffeEau->getId());
 			if (is_object($cache)) 	
 				$cache->remove();
+			$CartoChauffeEau = cache::byKey('ChauffeEau::DeltaTemp::'.$ChauffeEau->getId());
+			if (is_object($CartoChauffeEau)) 	
+				$CartoChauffeEau->remove();
 		}
 	}
 	public static function cron() {	
@@ -305,6 +308,7 @@ class ChauffeEau extends eqLogic {
 		if($this->getCmd(null,'state')->execCmd() == 0)
 			return;
 		cache::set('ChauffeEau::Power::'.$this->getId(),false, 0);
+		cache::set('ChauffeEau::BacteryProtect::'.$this->getId(), false, 0);
 		if($this->getConfiguration('Etat') == '')
 			$this->checkAndUpdateCmd('state',0);
 		log::add('ChauffeEau','info',$this->getHumanName().' : Coupure de l\'alimentation électrique du chauffe-eau');
@@ -411,8 +415,7 @@ class ChauffeEau extends eqLogic {
 					$TempSouhaite= jeedom::evaluateExpression($ConigSchedule["consigne"]);
 					cache::set('ChauffeEau::Hysteresis::'.$this->getId(),$ConigSchedule["hysteresis"], 0);
 					$DeltaTime = $nextTime - time();
-					$StartTemp = $TempActuel - round($DeltaTime * $this->getDeltaTemperature($TempActuel),1);
-					$PowerTime=$this->EvaluatePowerTime($StartTemp);
+					$PowerTime=$this->EvaluatePowerTime($this->getStartTemperature($TempActuel,$DeltaTime));
 				}
 			}
 		}
@@ -421,7 +424,7 @@ class ChauffeEau extends eqLogic {
 			$this->checkAndUpdateCmd('NextStart',date('d/m/Y H:i',$nextTime-$PowerTime));
 			//log::add('ChauffeEau','debug',$this->getHumanName().' : Le prochain disponibilité est '. date("d/m/Y H:i", $nextTime));
 		}
-		if(!$this->getConfiguration('BacteryProtect') || !$this->getCmd(null,'BacteryProtect')->execCmd())
+		if(!cache::byKey('ChauffeEau::BacteryProtect::'.$this->getId())->getValue(false))
 			$this->checkAndUpdateCmd('consigne',jeedom::evaluateExpression($TempSouhaite));
 		if(!$validProg)	
 			return false;
@@ -469,24 +472,38 @@ class ChauffeEau extends eqLogic {
 		$BacteryProtectCmd=$this->getCmd(null,'BacteryProtect');
 		$BacteryProtect=$BacteryProtectCmd->execCmd();
 		if($this->getConfiguration('BacteryProtect') && $BacteryProtect){
-			log::add('ChauffeEau','debug',$this->getHumanName().'[BacteryProtect] Strategie de protection active et en cours');
+			if(!cache::byKey('ChauffeEau::BacteryProtect::'.$this->getId())->getValue(false))
+				log::add('ChauffeEau','debug',$this->getHumanName().'[BacteryProtect] Strategie de protection active et en cours');
 			$LastUpdate=$BacteryProtectCmd->getCollectDate();
 			if($LastUpdate == '')
 				$LastUpdate=date('Y-m-d H:i:s');
 			$DeltaTime= time() - DateTime::createFromFormat("Y-m-d H:i:s", $LastUpdate)->getTimestamp();			
 			if($StartTemp > 40 && $StartTemp < 55){
 				if($DeltaTime < self::_TempsNettoyageRapide){
-					log::add('ChauffeEau','debug',$this->getHumanName().'[BacteryProtect] Consigne a 60°C et temps additionnel de 32min');			
+					if(!cache::byKey('ChauffeEau::BacteryProtect::'.$this->getId())->getValue(false))
+						log::add('ChauffeEau','debug',$this->getHumanName().'[BacteryProtect] Consigne a 60°C et temps additionnel de 32min');			
 					$this->checkAndUpdateCmd('consigne',60);
 					return 32 * 60;
 				}else{
-					log::add('ChauffeEau','debug',$this->getHumanName().'[BacteryProtect] Consigne a 65°C et temps additionnel de 120s');			
+					if(!cache::byKey('ChauffeEau::BacteryProtect::'.$this->getId())->getValue(false))
+						log::add('ChauffeEau','debug',$this->getHumanName().'[BacteryProtect] Consigne a 65°C et temps additionnel de 120s');			
 					$this->checkAndUpdateCmd('consigne',65);
 					return 2 * 60;
 				}
+				cache::set('ChauffeEau::BacteryProtect::'.$this->getId(), true, 0);
 			}
 		}
 		return 0;
+	}
+	public function getCartoChauffeEau() {
+		$CartoChauffeEau = cache::byKey('ChauffeEau::DeltaTemp::'.$this->getId());
+		if(is_object($CartoChauffeEau)){
+			$Caracterisation = json_decode($cache->getValue('[]'), true);
+			return array($Caracterisation["Temperatures"],$Caracterisation["Pertes"]);
+		}
+		$CartoTemperatures= self::_Temperatures;
+		$CartoPertes= self::_Pertes;
+		return array($CartoTemperatures,$CartoPertes);
 	}
 	public function setDeltaTemperature($TempActuel) {
 		$TempActuelCmd=$this->getCmd(null,'TempActuel');
@@ -513,13 +530,26 @@ class ChauffeEau extends eqLogic {
 		}
 	}
 	public function getDeltaTemperature($TempActuel) {
-		foreach(self::_Temperatures as $key => $Temperature){
-			if($TempActuel >= $Temperature && $TempActuel < self::_Temperatures[$key+1]){
-				//$coef=self::_Temperatures[$key+1]/$Temperature;
-				return self::_Pertes[$key];// * $coef;
+		list($CartoTemperatures,$CartoPertes)= $this->getCartoChauffeEau();
+		foreach($CartoTemperatures as $key => $Temperature){
+			if($TempActuel >= $Temperature && $TempActuel < $CartoTemperatures[$key+1]){
+				return $CartoPertes[$key];
 			}
 		}
 		return 0;
+	}
+	public function getStartTemperature($Temperature,$DeltaTime) {
+		list($CartoTemperatures,$CartoPertes)= $this->getCartoChauffeEau();
+		while($DeltaTime > 0){
+			foreach($CartoTemperatures as $key => $CartoTemp){
+				if($Temperature >= $CartoTemp && $Temperature < $CartoTemperatures[$key+1]){
+					$TimeToStep= ($Temperature - $CartoTemp) / $CartoPertes[$key];
+					$Temperature -= $TimeToStep * $CartoPertes[$key];
+					$DeltaTime -=$TimeToStep;
+				}
+			}
+		}
+		return round($Temperature,1);
 	}
 	public function EstimateTempActuel(){
 		if($this->getConfiguration('TempEauEstime')){
@@ -669,6 +699,7 @@ class ChauffeEau extends eqLogic {
 		$this->CheckChauffeEau();
 	}
 	public function createDeamon() {
+		cache::set('ChauffeEau::BacteryProtect::'.$this->getId(), false, 0);
 		$listener = listener::byClassAndFunction('ChauffeEau', 'pull', array('ChauffeEau_id' => $this->getId()));
 		if (is_object($listener)) 	
 			$listener->remove();
