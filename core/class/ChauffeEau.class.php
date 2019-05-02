@@ -471,36 +471,37 @@ class ChauffeEau extends eqLogic {
 	public function BacteryProtect($StartTemp){		
 		$BacteryProtectCmd=$this->getCmd(null,'BacteryProtect');
 		$BacteryProtect=$BacteryProtectCmd->execCmd();
+		$TempsAdditionnel=0;
 		if($this->getConfiguration('BacteryProtect') && $BacteryProtect){
 			if(!cache::byKey('ChauffeEau::BacteryProtect::'.$this->getId())->getValue(false))
 				log::add('ChauffeEau','debug',$this->getHumanName().'[BacteryProtect] Strategie de protection active et en cours');
 			$LastUpdate=$BacteryProtectCmd->getCollectDate();
 			if($LastUpdate == '')
 				$LastUpdate=date('Y-m-d H:i:s');
-			$DeltaTime= time() - DateTime::createFromFormat("Y-m-d H:i:s", $LastUpdate)->getTimestamp();			
-			if($StartTemp > 40 && $StartTemp < 55){
-				if($DeltaTime < self::_TempsNettoyageRapide){
-					if(!cache::byKey('ChauffeEau::BacteryProtect::'.$this->getId())->getValue(false))
-						log::add('ChauffeEau','debug',$this->getHumanName().'[BacteryProtect] Consigne a 60°C et temps additionnel de 32min');			
-					$this->checkAndUpdateCmd('consigne',60);
-					return 32 * 60;
-				}else{
+			$DeltaTime= time() - DateTime::createFromFormat("Y-m-d H:i:s", $LastUpdate)->getTimestamp();		
+			if($StartTemp >= 40 && $StartTemp < 55){
+				if($DeltaTime > self::_TempsNettoyageRapide){
 					if(!cache::byKey('ChauffeEau::BacteryProtect::'.$this->getId())->getValue(false))
 						log::add('ChauffeEau','debug',$this->getHumanName().'[BacteryProtect] Consigne a 65°C et temps additionnel de 120s');			
 					$this->checkAndUpdateCmd('consigne',65);
-					return 2 * 60;
+					$TempsAdditionnel = 2 * 60;
+				}else{
+					if(!cache::byKey('ChauffeEau::BacteryProtect::'.$this->getId())->getValue(false))
+						log::add('ChauffeEau','debug',$this->getHumanName().'[BacteryProtect] Consigne a 60°C et temps additionnel de 32min');			
+					$this->checkAndUpdateCmd('consigne',60);
+					$TempsAdditionnel = 32 * 60;
 				}
 				cache::set('ChauffeEau::BacteryProtect::'.$this->getId(), true, 0);
 			}
 		}
-		return 0;
+		return $TempsAdditionnel;
 	}
 	public function getCartoChauffeEau() {
-		$CartoChauffeEau = cache::byKey('ChauffeEau::DeltaTemp::'.$this->getId());
+		/*$CartoChauffeEau = cache::byKey('ChauffeEau::DeltaTemp::'.$this->getId());
 		if(is_object($CartoChauffeEau)){
 			$Caracterisation = json_decode($CartoChauffeEau->getValue('[]'), true);
 			return array($Caracterisation["Temperatures"],$Caracterisation["Pertes"]);
-		}
+		}*/
 		$CartoTemperatures= self::_Temperatures;
 		$CartoPertes= self::_Pertes;
 		return array($CartoTemperatures,$CartoPertes);
