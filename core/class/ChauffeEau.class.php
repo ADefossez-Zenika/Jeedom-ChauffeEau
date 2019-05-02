@@ -498,7 +498,7 @@ class ChauffeEau extends eqLogic {
 	public function getCartoChauffeEau() {
 		$CartoChauffeEau = cache::byKey('ChauffeEau::DeltaTemp::'.$this->getId());
 		if(is_object($CartoChauffeEau)){
-			$Caracterisation = json_decode($cache->getValue('[]'), true);
+			$Caracterisation = json_decode($CartoChauffeEau->getValue('[]'), true);
 			return array($Caracterisation["Temperatures"],$Caracterisation["Pertes"]);
 		}
 		$CartoTemperatures= self::_Temperatures;
