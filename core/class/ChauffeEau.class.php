@@ -3,6 +3,8 @@ require_once dirname(__FILE__) . '/../../../../core/php/core.inc.php';
 class ChauffeEau extends eqLogic {
 	const _Temperatures=array(0,20,60,100);
 	const _Pertes=array(0.00001,0.0003,0.01,0.09);
+	const _TempsNettoyage= 4* 60 * 60;
+	const _TempsNettoyageRapide= 4* 60 * 60;
 	
 	public static function deamon_info() {
 		$return = array();
@@ -419,14 +421,16 @@ class ChauffeEau extends eqLogic {
 			$this->checkAndUpdateCmd('NextStart',date('d/m/Y H:i',$nextTime-$PowerTime));
 			//log::add('ChauffeEau','debug',$this->getHumanName().' : Le prochain disponibilité est '. date("d/m/Y H:i", $nextTime));
 		}
-		$this->checkAndUpdateCmd('consigne',jeedom::evaluateExpression($TempSouhaite));
+		if(!$this->getConfiguration('BacteryProtect') || !$this->getCmd(null,'BacteryProtect')->execCmd())
+			$this->checkAndUpdateCmd('consigne',jeedom::evaluateExpression($TempSouhaite));
 		if(!$validProg)	
 			return false;
 		return true;
 	}
 	public function EvaluatePowerTime($StartTemp) {	
 		$PowerTime = 0;
-		list($DeltaTemp,$TempsAdditionel) = $this->BacteryProtect($StartTemp);
+		$TempsAdditionel = $this->BacteryProtect($StartTemp);
+		$DeltaTemp = $this->getCmd(null,'consigne')->execCmd() - $StartTemp;
 		if($DeltaTemp > 0){
 			$Energie=$this->getConfiguration('Capacite')*$DeltaTemp*4185;
 			$PowerTime = round($Energie/ $this->getPuissance());
@@ -438,23 +442,51 @@ class ChauffeEau extends eqLogic {
 		}
 		return $PowerTime;
 	} 
-	public function BacteryProtect($StartTemp){		
-		if($this->getConfiguration('BacteryProtect')){
-			if($StartTemp < 20 && $StartTemp > 55){
-				$Temps = 0;
-				$DeltaTemp = $this->getCmd(null,'consigne')->execCmd() - $StartTemp;
-			}elseif($StartTemp > 40 && $StartTemp < 55){
-				$Temps = 32 * 60;
-				$DeltaTemp = 60 - $StartTemp;
-			}else{
-				$Temps = 2 * 60;
-				$DeltaTemp = 65 - $StartTemp;
-			}
+	public function checkBacteryProtect($TempActuel){
+		$BacteryProtectCmd=$this->getCmd(null,'BacteryProtect');
+		$BacteryProtect=$BacteryProtectCmd->execCmd();
+		$LastUpdate=$BacteryProtectCmd->getCollectDate();
+		if($LastUpdate == '')
+			$LastUpdate=date('Y-m-d H:i:s');
+		$DeltaTime= time() - DateTime::createFromFormat("Y-m-d H:i:s", $LastUpdate)->getTimestamp();
+		if($BacteryProtect){
+			if($TempActuel >= 70 && $DeltaTime >= 1*60)
+				$this->checkAndUpdateCmd('BacteryProtect',false);
+			elseif($TempActuel >= 65 && $DeltaTime >= 2*60)
+				$this->checkAndUpdateCmd('BacteryProtect',false);
+			elseif($TempActuel >= 60 && $DeltaTime >= 30*60)
+				$this->checkAndUpdateCmd('BacteryProtect',false);
 		}else{
-			$Temps=0;
-			$DeltaTemp = $this->getCmd(null,'consigne')->execCmd() - $StartTemp;
+			//On leve le flag si la température de l'eau est comprise entre 25 et 47°C pendant plus de 4H
+			log::add('ChauffeEau','debug',$this->getHumanName().'[BacteryProtect] La température de l\'eau est comprise entre 25°C et 47°C pendant plus de 4H, nous allons nettoyer le ballon');
+			if($TempActuel > 25 && $TempActuel < 47 && $DeltaTime > self::_TempsNettoyage)
+				$this->checkAndUpdateCmd('BacteryProtect',true);
+			if($TempActuel > 47)
+				$this->checkAndUpdateCmd('BacteryProtect',false);
 		}
-		return array($DeltaTemp, $Temps);
+	}
+	public function BacteryProtect($StartTemp){		
+		$BacteryProtectCmd=$this->getCmd(null,'BacteryProtect');
+		$BacteryProtect=$BacteryProtectCmd->execCmd();
+		if($this->getConfiguration('BacteryProtect') && $BacteryProtect){
+			log::add('ChauffeEau','debug',$this->getHumanName().'[BacteryProtect] Strategie de protection active et en cours');
+			$LastUpdate=$BacteryProtectCmd->getCollectDate();
+			if($LastUpdate == '')
+				$LastUpdate=date('Y-m-d H:i:s');
+			$DeltaTime= time() - DateTime::createFromFormat("Y-m-d H:i:s", $LastUpdate)->getTimestamp();			
+			if($StartTemp > 40 && $StartTemp < 55){
+				if($DeltaTime < self::_TempsNettoyageRapide){
+					log::add('ChauffeEau','debug',$this->getHumanName().'[BacteryProtect] Consigne a 60°C et temps additionnel de 32min');			
+					$this->checkAndUpdateCmd('consigne',60);
+					return 32 * 60;
+				}else{
+					log::add('ChauffeEau','debug',$this->getHumanName().'[BacteryProtect] Consigne a 65°C et temps additionnel de 120s');			
+					$this->checkAndUpdateCmd('consigne',65);
+					return 2 * 60;
+				}
+			}
+		}
+		return 0;
 	}
 	public function setDeltaTemperature($TempActuel) {
 		$TempActuelCmd=$this->getCmd(null,'TempActuel');
@@ -517,32 +549,10 @@ class ChauffeEau extends eqLogic {
 					$TempActuel = $TempLocal;
 			}
 			$TempActuel = round($TempActuel,1);
-			$this->setDeltaTemperature($TempActuel);
 			if($TempActuel != $TempActuelCmd->execCmd())
 				$this->checkAndUpdateCmd('TempActuel',$TempActuel);
 		}
 		
-	}
-	public function checkBacteryProtect($TempActuel){
-		$BacteryProtect=$this->getCmd(null,'BacteryProtect');
-		$LastUpdate=$BacteryProtect->getCollectDate();
-		if($LastUpdate == '')
-			$LastUpdate=date('Y-m-d H:i:s');
-		$DeltaTime= time() - DateTime::createFromFormat("Y-m-d H:i:s", $LastUpdate)->getTimestamp();
-		if($BacteryProtect->execCmd()){
-			if($TempActuel >= 70 && $DeltaTime >= 1*60)
-				$this->checkAndUpdateCmd('BacteryProtect',false);
-			elseif($TempActuel >= 65 && $DeltaTime >= 2*60)
-				$this->checkAndUpdateCmd('BacteryProtect',false);
-			elseif($TempActuel >= 60 && $DeltaTime >= 30*60)
-				$this->checkAndUpdateCmd('BacteryProtect',false);
-		}else{
-			//On leve le flag si la température de l'eau est comprise entre 25 et 47°C pendant plus de 4H
-			if($TempActuel > 25 && $TempActuel < 47 && $DeltaTime > 4*60*60)
-				$this->checkAndUpdateCmd('BacteryProtect',true);
-			if($TempActuel > 47)
-				$this->checkAndUpdateCmd('BacteryProtect',false);
-		}
 	}
 	public function Puissance($DeltaTemp,$DeltaTime) {
 		$Energie=$this->getConfiguration('Capacite')*$DeltaTemp*4185;
