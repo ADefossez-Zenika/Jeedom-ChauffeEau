@@ -6,6 +6,14 @@ Il va estimer le temps nécessaire pour une chauffe complète de votre ballon.
 Si votre installation est equipé d'une sonde de température, le plugin stopera la chauffe des qu'il attendra sa température désiré.
 Aprés l'heure programmée, le plugin stopera le chauffage et attendera le prochain crénaux reduit du temps de chauffage calculé.
 
+Le plugin embarque une regulation configurable par hystérésis
+
+### Principe du mode hystérésis
+
+Par exemple, si on règle l’hystérésis à 1°C et que la valeur de consigne vaut 19°C, alors le chauffage s’active lorsque la température passe en dessous de 18°C et s’arrête dès qu’il atteint 20°C.
+
+![introduction03](../images/PrincipeHysteresis.png) 
+
 Paramètrage du plugin
 ==========  
 
@@ -30,10 +38,13 @@ Parametre du chauffe eaux
 * Puissance du chauffe-eau (Watt) : indiquez la puissance de votre chauffe-eau, cette puissance sera révalué en cours d'utilisation
 * Température Souhaitée (°C) : indiquez la température à atteindre, ou saisiez une formule
 * Simuler la temperature du balon : Si actif alors le plugin simulera une perte de temperature de votre ballon
-* Sélectionnez une commande ou estimez la température actuelle de l'eau : indiquez la température au moment de la chauffe ou choisissez un objet Jeedom représentant la valeur, ou saisiez une formule
+* Sélectionner une commande de la température actuelle de l'eau : Choisissez un objet Jeedom représentant la valeur
+* Température de la piece : Temperature de la piece du balon (valeur mini de la simulation de temperature)
 
 Controle du chauffe eau
 ---
+
+* Protection Bacteriologique (BETA): ce mode si actif permet au plugin de lancé automatiquement un nettoyage bacteriologique
 * Répéter les commandes d'allumage et d'extinction : Permet donc configurer une recurence d'emission des ordres de commande et de s'assurer que le chauffe eau est toujours dans l'etat attendue
 * Commande d'etat du chauffe-eau : sélectionnez la commande d'etat de votre chauffe-eau afin de permetre au plugin de se mettre a jours > La commande de retour d'etat doit etre d'un sous-type binaire (0 => Eteint, 1 => Allumée)
 * Temps additionnel (min) : Ce temps définie en minute permet d'ajouté eu temps calculé un temps de sécurité au demarrage
@@ -41,19 +52,16 @@ Controle du chauffe eau
 
 Programmation
 ==========
-Nous avans la possibilité de cree plusieurs programmation  de notre chauffe eau, en fonction des jours de la semaine, de l'heure de disponibilité de l'eau chaude ou d'un seuil de température. 
+Nous avans la possibilité de cree plusieurs programmation de notre chauffe eau, en fonction des jours de la semaine, de l'heure de disponibilité de l'eau chaude ou d'un seuil de température. 
 ![introduction02](../images/ConfigurationProgramation.jpg)  
 
-Programmation hystérésis
+Pour chaque programmation, nous pouvons determiner, une consigne, l'hystérésis, et le type de regulation active avec ses paramtres.
+
+Programmation déclanché par Température
 ---
 
-Lorsque vous sélectionnez une programmation par seuil, vous allez créer une regulation par Hystérésis, la mise en route de votre chauffage se produit dès que la température est inférieure au seuil et il s’éteint dès que la température dépasse la consigne .
+Si la regulation par Température est actif alors le plugin cherchera l'heure d'atteinte de la valeur de seui et se declanchera uniquement en dessous de cette valeur.
 
-### Principe du mode hystérésis
-
-Par exemple, si on règle l’hystérésis à 1°C et que la valeur de consigne vaut 19°C, alors le chauffage s’active lorsque la température passe en dessous de 18°C et s’arrête dès qu’il atteint 20°C.
-
-![introduction03](../images/PrincipeHysteresis.png) 
 
 Programmation Horaire
 ---
@@ -90,11 +98,14 @@ Chaque condition de la liste formera un ET
 Actions
 ==========
 
-Il est possible de configurer le séquencement des actions a réaliser pour chaque phases de la commande de chauffage.
-Chaque action configurée sera exécutée dans l'ordre choisi.
-Nous pouvons aussi bien ajouter une commande qu'un scénario
-
 ![introduction01](../images/ConfigurationAction.jpg)
+
+Les actions sont executé dans l'ordre d'apparition en fonction de leur declancheurs.
+Il existe 3 declanchement
+* Allumage du chauffe-eau : Toutes les actions que l'on souhaite lorsque le plugin ordonera un allumage
+* Extinction du chauffe-eau : Toutes les actions que l'on souhaite lorsque le plugin ordonera une extinction
+* Heure de dispo : Toutes les actions que l'on souhaite lorsque le plugin mettera fin a son cycle
+
 
 Mode de fonctionnement
 ==========
@@ -109,3 +120,24 @@ La commande "Délestage" permet de forcer l'extinction du chauffe-eau mais en ay
 
 > En fonction de l'etat du chauffe-eau vu par le plugin et l'etat reel, le plugin changera automatiquement le mode.
 Par exemple, vous forcé l'allumage du chauffe-eau en manuel, le retour d'etat reel passe a on alors que le plugin attend un off, il comprend alors que nous souhaitons faire un marche forcé et passe par se mode pour ne pas interfer dans votre decision manuel
+
+FAQ
+===
+
+Je veux que le plugin ne se déclanche qu'en heure creuse
+---
+> Pour cette problematique, propre a la france, il est facile d'ajouter une condition qui n'autorisera le declanchement uniquement dans la periode qui defini les heures creuse.
+Tous commes pour les autres specificité tarifaire existante.
+
+Le plugin change automatiquement de mode de fonctionnement
+---
+> Le changement automatique de gestion se fait sur l'incoherance de l'etat reel et l'etat de pilotage du plugin.
+Se mode automatique est important pour qu'une manipulation manuel ou scenario soit prioritaire.
+Dans une premier temps, il faut s'assurer qu'aucune action exterieur au plugin soit faite.
+Dans un second temps il faut verifier la synchronisation des etats.
+L'etat reel doit etre identique a l'etat de pilotage. Si ce n'est pas le cas il faut verifier la  *répétition de votre commande d'état*.
+Pour le corriger, rendez-vous sur la page de configuration du plugin de contrôle de votre module et double-cliquez sur la commande de retour d'état.
+Jeedom va vous ouvrir la page de paramètre avancé
+Allez dans l'onglet **Configuration**>>**Autres**et passez le paramètre**Gestion de la répétition des valeurs**sur**Toujours répéter**
+
+![Ecran de configuration des paramètres avancés d'une commande](../images/AllwaysRepetition.jpg)
