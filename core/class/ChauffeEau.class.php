@@ -448,10 +448,9 @@ class ChauffeEau extends eqLogic {
 	public function checkBacteryProtect($TempActuel){
 		$BacteryProtectCmd=$this->getCmd(null,'BacteryProtect');
 		$BacteryProtect=$BacteryProtectCmd->execCmd();
-		$LastUpdate=$BacteryProtectCmd->getCollectDate();
-		if($LastUpdate == '')
-			$LastUpdate=date('Y-m-d H:i:s');
-		$DeltaTime= time() - DateTime::createFromFormat("Y-m-d H:i:s", $LastUpdate)->getTimestamp();
+		if($TempActuel >= 60)
+			cache::set('ChauffeEau::TimeBacteryProtect::'.$this->getId(), time() - DateTime::createFromFormat("Y-m-d H:i:s", $BacteryProtectCmd->getCollectDate())->getTimestamp(), 0);
+		$DeltaTime = cache::byKey('ChauffeEau::TimeBacteryProtect::'.$this->getId())->getValue(0);
 		if($BacteryProtect){
 			if($TempActuel >= 70 && $DeltaTime >= 1*60)
 				$this->checkAndUpdateCmd('BacteryProtect',false);
