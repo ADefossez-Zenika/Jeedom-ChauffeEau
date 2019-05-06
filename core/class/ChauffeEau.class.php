@@ -460,10 +460,10 @@ class ChauffeEau extends eqLogic {
 			elseif($TempActuel >= 60 && $DeltaTime >= 30*60)
 				$this->checkAndUpdateCmd('BacteryProtect',false);
 		}else{
-			//On leve le flag si la température de l'eau est comprise entre 25 et 47°C pendant plus de 4H
-			log::add('ChauffeEau','debug',$this->getHumanName().'[BacteryProtect] La température de l\'eau est comprise entre 25°C et 47°C pendant plus de 4H, nous allons nettoyer le ballon');
-			if($TempActuel > 25 && $TempActuel < 47 && $DeltaTime > self::_TempsNettoyage)
+			if($TempActuel > 25 && $TempActuel < 47 && $DeltaTime > self::_TempsNettoyage){
 				$this->checkAndUpdateCmd('BacteryProtect',true);
+				log::add('ChauffeEau','debug',$this->getHumanName().'[BacteryProtect] La température de l\'eau est comprise entre 25°C et 47°C pendant plus de '.self::_TempsNettoyage.'s, nous allons nettoyer le ballon');
+			}
 			if($TempActuel > 47)
 				$this->checkAndUpdateCmd('BacteryProtect',false);
 		}
@@ -545,12 +545,15 @@ class ChauffeEau extends eqLogic {
 	}
 	public function getStartTemperature($Temperature,$DeltaTime) {
 		list($CartoTemperatures,$CartoPertes)= $this->getCartoChauffeEau();
-		while($DeltaTime > 0){
+		while($DeltaTime - $this->EvaluatePowerTime($Temperature) > 0){
 			foreach($CartoTemperatures as $key => $CartoTemp){
 				if($Temperature >= $CartoTemp && $Temperature < $CartoTemperatures[$key+1]){
 					$TimeToStep= ($Temperature - $CartoTemp) / $CartoPertes[$key];
+					if($TimeToStep > $DeltaTime)
+						$TimeToStep=$DeltaTime;
 					$Temperature -= $TimeToStep * $CartoPertes[$key];
 					$DeltaTime -=$TimeToStep;
+					break;
 				}
 			}
 		}
