@@ -545,7 +545,7 @@ class ChauffeEau extends eqLogic {
 	}
 	public function getStartTemperature($Temperature,$DeltaTime) {
 		list($CartoTemperatures,$CartoPertes)= $this->getCartoChauffeEau();
-		while($DeltaTime - $this->EvaluatePowerTime($Temperature-) > 0){
+		while($DeltaTime - $this->EvaluatePowerTime($Temperature) > 0){
 			foreach($CartoTemperatures as $key => $CartoTemp){
 				if($Temperature >= $CartoTemp && $Temperature < $CartoTemperatures[$key+1]){
 					$TimeToStep= ($Temperature - $CartoTemp) / $CartoPertes[$key];
