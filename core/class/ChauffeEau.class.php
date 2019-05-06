@@ -333,6 +333,7 @@ class ChauffeEau extends eqLogic {
 					$this->ExecuteAction($cmd);
 			}
 		}
+		log::add('ChauffeEau','debug',$this->getHumanName().'[Caracterisation Température] '.json_encode(cache::byKey('ChauffeEau::DeltaTemp::'.$this->getId())->getValue('[]')));
 	}
 	public function EvaluatePowerStop(){
 		if($this->getCmd(null,'state')->execCmd() == 0)
@@ -496,11 +497,17 @@ class ChauffeEau extends eqLogic {
 		return $TempsAdditionnel;
 	}
 	public function getCartoChauffeEau() {
-		/*$CartoChauffeEau = cache::byKey('ChauffeEau::DeltaTemp::'.$this->getId());
+		$CartoChauffeEau = cache::byKey('ChauffeEau::DeltaTemp::'.$this->getId());
 		if(is_object($CartoChauffeEau)){
-			$Caracterisation = json_decode($CartoChauffeEau->getValue('[]'), true);
-			return array($Caracterisation["Temperatures"],$Caracterisation["Pertes"]);
-		}*/
+			$Caracterisations = json_decode($CartoChauffeEau->getValue('[]'), true);
+			if(count($Caracterisations)){
+				foreach ($Caracterisations as Temperature => $Perte){
+					$Temperatures[] = Temperature;
+					$Pertes[] = $Perte;
+				}
+				return array($Temperatures,$Pertes);
+			}
+		}
 		$CartoTemperatures= self::_Temperatures;
 		$CartoPertes= self::_Pertes;
 		return array($CartoTemperatures,$CartoPertes);
@@ -518,10 +525,8 @@ class ChauffeEau extends eqLogic {
 					if($DeltaTemp > 0 ){
 						$cache = cache::byKey('ChauffeEau::DeltaTemp::'.$this->getId());
 						$Caracterisation = json_decode($cache->getValue('[]'), true);
-						if($DeltaTemp < end($Caracterisation["Pertes"]) * 0.95 || $DeltaTemp > end($Caracterisation["Pertes"]) * 1.05){
-							$Caracterisation["Temperatures"][] = $TempActuel;
-							$Caracterisation["Pertes"][] = $DeltaTemp;
-							log::add('ChauffeEau','debug',$this->getHumanName().'[Caracterisation Température] '.json_encode($Caracterisation));
+						if($DeltaTemp < $Caracterisation[round($TempActuel)] * 0.95 || $DeltaTemp > $Caracterisation[round($TempActuel)] * 1.05){
+							$Caracterisation[round($TempActuel)] = ($DeltaTemp + $Caracterisation[round($TempActuel)]) /2;
 							cache::set('ChauffeEau::DeltaTemp::'.$this->getId(), json_encode($Caracterisation), 0);
 						}
 					}
