@@ -549,8 +549,11 @@ class ChauffeEau extends eqLogic {
 			foreach($CartoTemperatures as $key => $CartoTemp){
 				if($Temperature >= $CartoTemp && $Temperature < $CartoTemperatures[$key+1]){
 					$TimeToStep= ($Temperature - $CartoTemp) / $CartoPertes[$key];
+					if($TimeToStep > $DeltaTime)
+						$TimeToStep=$DeltaTime;
 					$Temperature -= $TimeToStep * $CartoPertes[$key];
 					$DeltaTime -=$TimeToStep;
+					break;
 				}
 			}
 		}
