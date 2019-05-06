@@ -501,8 +501,8 @@ class ChauffeEau extends eqLogic {
 		if(is_object($CartoChauffeEau)){
 			$Caracterisations = json_decode($CartoChauffeEau->getValue('[]'), true);
 			if(count($Caracterisations)){
-				foreach ($Caracterisations as Temperature => $Perte){
-					$Temperatures[] = Temperature;
+				foreach ($Caracterisations as $Temperature => $Perte){
+					$Temperatures[] = $Temperature;
 					$Pertes[] = $Perte;
 				}
 				return array($Temperatures,$Pertes);
