@@ -361,13 +361,14 @@ class ChauffeEau extends eqLogic {
 		if($Delestage){
 			switch($this->getConfiguration('delestage')){
 				case 'Temp':
-				$this->EstimateTempActuel();	
-				$TempActuel=$this->getCmd(null,'TempActuel')->execCmd();
-				return $NextStop + $this->EvaluatePowerTime($TempActuel);
+					$this->EstimateTempActuel();	
+					$TempActuel=$this->getCmd(null,'TempActuel')->execCmd();
+					$Consigne=$this->getCmd(null,'consigne')->execCmd();
+					return $NextStop + $this->EvaluatePowerTime($Consigne,$TempActuel);
 				case 'Heure':
-				return false;
+					return false;
 				case '30':
-				return $NextStop+(30*60);
+					return $NextStop+(30*60);
 			}
 		}
 		return false;
@@ -381,7 +382,7 @@ class ChauffeEau extends eqLogic {
 			if($ConigSchedule["isSeuil"] && $ConigSchedule[date('w')]){
 				$TempConsigne= jeedom::evaluateExpression($ConigSchedule["consigne"]);
 				$TempSeuil= jeedom::evaluateExpression($ConigSchedule["seuil"]);
-				$PowerTime=$this->EvaluatePowerTime($TempSeuil);
+				$PowerTime=$this->EvaluatePowerTime($TempConsigne,$TempSeuil);
 				$DeltaTime = round(($TempActuel - $TempSeuil) / $this->getDeltaTemperature($TempActuel));
                 		$timestamp = time() + $PowerTime + $DeltaTime;
 				if($nextTime == null || time() <= $timestamp){
@@ -416,7 +417,7 @@ class ChauffeEau extends eqLogic {
 					$TempSouhaite= jeedom::evaluateExpression($ConigSchedule["consigne"]);
 					cache::set('ChauffeEau::Hysteresis::'.$this->getId(),$ConigSchedule["hysteresis"], 0);
 					$DeltaTime = $nextTime - time();
-					$PowerTime=$this->EvaluatePowerTime($this->getStartTemperature($TempActuel,$DeltaTime));
+					$PowerTime=$this->EvaluatePowerTime($TempSouhaite,$this->getStartTemperature($TempSouhaite,$TempActuel,$DeltaTime));
 				}
 			}
 		}
@@ -431,10 +432,10 @@ class ChauffeEau extends eqLogic {
 			return false;
 		return true;
 	}
-	public function EvaluatePowerTime($StartTemp) {	
+	public function EvaluatePowerTime($Consigne,$StartTemp) {	
 		$PowerTime = 0;
 		$TempsAdditionel = $this->BacteryProtect($StartTemp);
-		$DeltaTemp = $this->getCmd(null,'consigne')->execCmd() - $StartTemp;
+		$DeltaTemp = $Consigne - $StartTemp;
 		if($DeltaTemp > 0){
 			$Energie=$this->getConfiguration('Capacite')*$DeltaTemp*4185;
 			$PowerTime = round($Energie/ $this->getPuissance());
@@ -513,15 +514,14 @@ class ChauffeEau extends eqLogic {
 		return array($CartoTemperatures,$CartoPertes);
 	}
 	public function setDeltaTemperature($TempActuel) {
-		$TempActuelCmd=$this->getCmd(null,'TempActuel');
-		if(is_object($TempActuelCmd)){
-			$LastTemps = $TempActuelCmd->execCmd();
-			$LastUpdate=$TempActuelCmd->getCollectDate();
-			$LastTempsCollectDate=DateTime::createFromFormat("Y-m-d H:i:s", $LastUpdate);
-			if($LastTempsCollectDate !== false){
-				$DeltaTime= time() - $LastTempsCollectDate->getTimestamp();
+		$TemperatureEauCmd=$this->getCmd(null,'TempActuel');
+		if(is_object($TemperatureEauCmd)){
+			$LastTemperatureEau = $TemperatureEauCmd->execCmd();
+			$LastTemperatureEauCollectDate=DateTime::createFromFormat("Y-m-d H:i:s", $TemperatureEauCmd->getCollectDate());
+			if($LastTemperatureEauCollectDate !== false){
+				$DeltaTime= time() - $LastTemperatureEauCollectDate->getTimestamp();
 				if($DeltaTime > 0){
-					$DeltaTemp = ($LastTemps - $TempActuel) / $DeltaTime;// delta de temperature par seconde
+					$DeltaTemp = ($LastTemperatureEau - $TempActuel) / $DeltaTime;// delta de temperature par seconde
 					if($DeltaTemp > 0 ){
 						$cache = cache::byKey('ChauffeEau::DeltaTemp::'.$this->getId());
 						$Caracterisation = json_decode($cache->getValue('[]'), true);
@@ -543,9 +543,9 @@ class ChauffeEau extends eqLogic {
 		}
 		return 0;
 	}
-	public function getStartTemperature($Temperature,$DeltaTime) {
+	public function getStartTemperature($Consigne,$Temperature,$DeltaTime) {
 		list($CartoTemperatures,$CartoPertes)= $this->getCartoChauffeEau();
-		while($DeltaTime - $this->EvaluatePowerTime($Temperature) > 0){
+		while($DeltaTime - $this->EvaluatePowerTime($Consigne,$Temperature) > 0){
 			foreach($CartoTemperatures as $key => $CartoTemp){
 				if($Temperature >= $CartoTemp && $Temperature < $CartoTemperatures[$key+1]){
 					$TimeToStep= ($Temperature - $CartoTemp) / $CartoPertes[$key];
@@ -563,10 +563,7 @@ class ChauffeEau extends eqLogic {
 		if($this->getConfiguration('TempEauEstime')){
 			$TempActuelCmd=$this->getCmd(null,'TempActuel');
 			$TempActuel=$TempActuelCmd->execCmd();
-			$LastUpdate=$TempActuelCmd->getCollectDate();
-			if($LastUpdate == '')
-				$LastUpdate=date('Y-m-d H:i:s');
-			$DeltaTime= time() - DateTime::createFromFormat("Y-m-d H:i:s", $LastUpdate)->getTimestamp();
+			$DeltaTime= time() - DateTime::createFromFormat("Y-m-d H:i:s", $TempActuelCmd->getCollectDate())->getTimestamp();
 			if($this->getCmd(null,'state')->execCmd() == 1){
 				//on augmente la température
 				$Capacite = $this->getConfiguration('Capacite');
