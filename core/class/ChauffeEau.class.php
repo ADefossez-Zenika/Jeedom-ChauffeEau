@@ -501,7 +501,7 @@ class ChauffeEau extends eqLogic {
 		$CartoChauffeEau = cache::byKey('ChauffeEau::DeltaTemp::'.$this->getId());
 		if(is_object($CartoChauffeEau)){
 			$Caracterisations = json_decode($CartoChauffeEau->getValue('[]'), true);
-			if(count($Caracterisations)){
+			if(count($Caracterisations) > 3){
 				foreach ($Caracterisations as $Temperature => $Perte){
 					$Temperatures[] = $Temperature;
 					$Pertes[] = $Perte;
