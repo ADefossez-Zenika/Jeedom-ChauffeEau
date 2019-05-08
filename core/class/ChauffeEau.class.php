@@ -556,6 +556,8 @@ class ChauffeEau extends eqLogic {
 					break;
 				}
 			}
+			if($TimeToStep == 0)
+				break;
 		}
 		return round($Temperature,1);
 	}
