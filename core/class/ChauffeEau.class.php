@@ -450,18 +450,35 @@ class ChauffeEau extends eqLogic {
 	public function checkBacteryProtect($TempActuel){
 		$BacteryProtectCmd=$this->getCmd(null,'BacteryProtect');
 		$BacteryProtect=$BacteryProtectCmd->execCmd();
-		$DeltaTime = time() - DateTime::createFromFormat("Y-m-d H:i:s", $BacteryProtectCmd->getValueDate())->getTimestamp();
+		$DeltaTime = cache::byKey('ChauffeEau::TimeBacteryProtect::'.$this->getId())->getValue(0);
 		if($BacteryProtect){
-			if($TempActuel >= 70 && $DeltaTime >= 1*60)
+			if($TempActuel >= 70){
+				if($DeltaTime >= 60)
+					$DeltaTime = 60;
+				else
+					$DeltaTime -= 60;
+			}elseif($TempActuel >= 65){
+				if($DeltaTime >= 2*60)
+					$DeltaTime = 2 * 60;
+				else
+					$DeltaTime -= 60;
+			}elseif($TempActuel >= 60){
+				if($DeltaTime >= 30*60)
+					$DeltaTime = 30*60;
+				else
+					$DeltaTime -= 60;
+			}
+			if($DeltaTime == 0)
 				$this->checkAndUpdateCmd('BacteryProtect',false);
-			elseif($TempActuel >= 65 && $DeltaTime >= 2*60)
-				$this->checkAndUpdateCmd('BacteryProtect',false);
-			elseif($TempActuel >= 60 && $DeltaTime >= 30*60)
-				$this->checkAndUpdateCmd('BacteryProtect',false);
+			cache::set('ChauffeEau::TimeBacteryProtect::'.$this->getId(),$DeltaTime, 0);	
 		}else{
-			if($TempActuel > 25 && $TempActuel < 47 && $DeltaTime > self::_TempsNettoyage){
-				$this->checkAndUpdateCmd('BacteryProtect',true);
-				log::add('ChauffeEau','debug',$this->getHumanName().'[BacteryProtect] La température de l\'eau est comprise entre 25°C et 47°C pendant plus de '.self::_TempsNettoyage.'s, nous allons nettoyer le ballon');
+			
+			if($TempActuel > 25 && $TempActuel < 47){
+				cache::set('ChauffeEau::TimeBacteryProtect::'.$this->getId(),$DeltaTime + 60, 0);	
+				if($DeltaTime > self::_TempsNettoyage){
+					$this->checkAndUpdateCmd('BacteryProtect',true);
+					log::add('ChauffeEau','debug',$this->getHumanName().'[BacteryProtect] La température de l\'eau est comprise entre 25°C et 47°C pendant plus de '.self::_TempsNettoyage.'s, nous allons nettoyer le ballon');
+				}
 			}
 			if($TempActuel > 47)
 				$this->checkAndUpdateCmd('BacteryProtect',false);
@@ -472,8 +489,8 @@ class ChauffeEau extends eqLogic {
 		$BacteryProtect=$BacteryProtectCmd->execCmd();
 		$TempsAdditionnel=0;
 		if($this->getConfiguration('BacteryProtect') && $BacteryProtect){
-			if(!cache::byKey('ChauffeEau::BacteryProtect::'.$this->getId())->getValue(false))
-				log::add('ChauffeEau','debug',$this->getHumanName().'[BacteryProtect] Strategie de protection active et en cours');
+			//if(!cache::byKey('ChauffeEau::BacteryProtect::'.$this->getId())->getValue(false))
+			//	log::add('ChauffeEau','debug',$this->getHumanName().'[BacteryProtect] Strategie de protection active et en cours');
 			$LastUpdate=$BacteryProtectCmd->getCollectDate();
 			if($LastUpdate == '')
 				$LastUpdate=date('Y-m-d H:i:s');
