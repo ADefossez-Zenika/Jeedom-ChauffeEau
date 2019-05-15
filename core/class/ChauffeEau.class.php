@@ -2,9 +2,9 @@
 require_once dirname(__FILE__) . '/../../../../core/php/core.inc.php';
 class ChauffeEau extends eqLogic {
 	const _Temperatures=array(0,20,60,100);
-	const _Pertes=array(0.00001,0.0003,0.01,0.09);
-	const _TempsNettoyage= 4* 60 * 60;
-	const _TempsNettoyageRapide= 4* 60 * 60;
+	const _Pertes=array(0.00001,0.0001,0.01,0.09);
+	const _TempsAvantNettoyage= 10 * 60 * 60;
+	const _TempsNettoyageRapide= 15 * 60 * 60;
 	
 	public static function deamon_info() {
 		$return = array();
@@ -475,7 +475,7 @@ class ChauffeEau extends eqLogic {
 			
 			if($TempActuel > 25 && $TempActuel < 47){
 				cache::set('ChauffeEau::TimeBacteryProtect::'.$this->getId(),$DeltaTime + 60, 0);	
-				if($DeltaTime > self::_TempsNettoyage){
+				if($DeltaTime > self::_TempsAvantNettoyage){
 					$this->checkAndUpdateCmd('BacteryProtect',true);
 					log::add('ChauffeEau','debug',$this->getHumanName().'[BacteryProtect] La température de l\'eau est comprise entre 25°C et 47°C pendant plus de '.self::_TempsNettoyage.'s, nous allons nettoyer le ballon');
 				}
