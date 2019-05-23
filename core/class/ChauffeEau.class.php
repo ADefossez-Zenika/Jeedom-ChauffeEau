@@ -434,7 +434,7 @@ class ChauffeEau extends eqLogic {
 	}
 	public function EvaluatePowerTime($Consigne,$StartTemp) {	
 		$PowerTime = 0;
-		$TempsAdditionel = $this->BacteryProtect($StartTemp);
+		list($TempsAdditionel,$Consigne) = $this->BacteryProtect($StartTemp,$Consigne);
 		$DeltaTemp = $Consigne - $StartTemp;
 		if($DeltaTemp > 0){
 			$Energie=$this->getConfiguration('Capacite')*$DeltaTemp*4185;
@@ -484,7 +484,7 @@ class ChauffeEau extends eqLogic {
 				$this->checkAndUpdateCmd('BacteryProtect',false);
 		}
 	}
-	public function BacteryProtect($StartTemp){		
+	public function BacteryProtect($StartTemp,$Consigne){		
 		$BacteryProtectCmd=$this->getCmd(null,'BacteryProtect');
 		$BacteryProtect=$BacteryProtectCmd->execCmd();
 		$TempsAdditionnel=0;
@@ -499,18 +499,20 @@ class ChauffeEau extends eqLogic {
 				if($DeltaTime > self::_TempsNettoyageRapide){
 					if(!cache::byKey('ChauffeEau::BacteryProtect::'.$this->getId())->getValue(false))
 						log::add('ChauffeEau','debug',$this->getHumanName().'[BacteryProtect] Consigne a 65°C et temps additionnel de 120s');			
+					$Consigne=65;
 					$this->checkAndUpdateCmd('consigne',65);
 					$TempsAdditionnel = 2 * 60;
 				}else{
 					if(!cache::byKey('ChauffeEau::BacteryProtect::'.$this->getId())->getValue(false))
 						log::add('ChauffeEau','debug',$this->getHumanName().'[BacteryProtect] Consigne a 60°C et temps additionnel de 32min');			
 					$this->checkAndUpdateCmd('consigne',60);
+					$Consigne=60;
 					$TempsAdditionnel = 32 * 60;
 				}
 				cache::set('ChauffeEau::BacteryProtect::'.$this->getId(), true, 0);
 			}
 		}
-		return $TempsAdditionnel;
+		return array($TempsAdditionnel,$Consigne);
 	}
 	public function getCartoChauffeEau() {
 		$CartoChauffeEau = cache::byKey('ChauffeEau::DeltaTemp::'.$this->getId());
