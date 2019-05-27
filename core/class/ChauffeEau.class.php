@@ -477,7 +477,7 @@ class ChauffeEau extends eqLogic {
 				cache::set('ChauffeEau::TimeBacteryProtect::'.$this->getId(),$DeltaTime + 60, 0);	
 				if($DeltaTime > self::_TempsAvantNettoyage){
 					$this->checkAndUpdateCmd('BacteryProtect',true);
-					log::add('ChauffeEau','debug',$this->getHumanName().'[BacteryProtect] La température de l\'eau est comprise entre 25°C et 47°C pendant plus de '.self::_TempsNettoyage.'s, nous allons nettoyer le ballon');
+					log::add('ChauffeEau','debug',$this->getHumanName().'[BacteryProtect] La température de l\'eau est comprise entre 25°C et 47°C pendant plus de '.self::_TempsAvantNettoyage.'s, nous allons nettoyer le ballon');
 				}
 			}
 			if($TempActuel > 47)
