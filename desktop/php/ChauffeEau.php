@@ -113,14 +113,14 @@ $eqLogics = eqLogic::byType($plugin->getId());
 						<legend>Général</legend>
 						<fieldset>
 							<div class="form-group ">
-								<label class="col-sm-4 control-label">{{Nom de la Zone}}</label>
+								<label class="col-sm-3 control-label">{{Nom de la Zone}}</label>
 								<div class="col-sm-7">
 									<input type="text" class="eqLogicAttr form-control" data-l1key="id" style="display : none;" />
 									<input type="text" class="eqLogicAttr form-control" data-l1key="name" placeholder="{{Nom du groupe de zones}}"/>
 								</div>
 							</div>
 							<div class="form-group">
-								<label class="col-sm-4 control-label" >{{Objet parent}}</label>
+								<label class="col-sm-3 control-label" >{{Objet parent}}</label>
 								<div class="col-sm-7">
 									<select id="sel_object" class="eqLogicAttr form-control" data-l1key="object_id">
 										<option value="">{{Aucun}}</option>
@@ -132,7 +132,19 @@ $eqLogics = eqLogic::byType($plugin->getId());
 								</div>
 							</div>
 							<div class="form-group">
-								<label class="col-sm-4 control-label" ></label>
+								<label class="col-sm-3 control-label">{{Catégorie}}</label>
+								<div class="col-sm-9">
+									<?php
+										foreach (jeedom::getConfiguration('eqLogic:category') as $key => $value) {
+											echo '<label class="checkbox-inline">';
+											echo '<input type="checkbox" class="eqLogicAttr" data-l1key="category" data-l2key="' . $key . '" />' . $value['name'];
+											echo '</label>';
+										}
+									?>
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-3 control-label" ></label>
 								<div class="col-sm-7">
 									<label>{{Activer}}</label>
 									<input type="checkbox" class="eqLogicAttr" data-label-text="{{Activer}}" data-l1key="isEnable" checked/>
