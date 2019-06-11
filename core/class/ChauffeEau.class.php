@@ -46,11 +46,6 @@ class ChauffeEau extends eqLogic {
 		}
 	}
 	public static function cron() {	
-		$deamon_info = self::deamon_info();
-		if ($deamon_info['launchable'] != 'ok') 
-			return;
-		if ($deamon_info['state'] != 'ok') 
-			return;
 		foreach(eqLogic::byType('ChauffeEau') as $ChauffeEau){	
 			if($ChauffeEau->getIsEnable()){
 				$ChauffeEau->CheckChauffeEau();	
@@ -64,11 +59,6 @@ class ChauffeEau extends eqLogic {
 		}
 	}
 	public static function cron5() {
-		$deamon_info = self::deamon_info();
-		if ($deamon_info['launchable'] != 'ok') 
-			return;
-		if ($deamon_info['state'] != 'ok') 
-			return;
 		foreach(eqLogic::byType('ChauffeEau') as $ChauffeEau){		
 			if($ChauffeEau->getIsEnable()){
 				if ($ChauffeEau->getConfiguration('RepeatCmd') == "cron5"){
@@ -81,11 +71,6 @@ class ChauffeEau extends eqLogic {
 		}
 	}
 	public static function cron15() {
-		$deamon_info = self::deamon_info();
-		if ($deamon_info['launchable'] != 'ok') 
-			return;
-		if ($deamon_info['state'] != 'ok') 
-			return;
 		foreach(eqLogic::byType('ChauffeEau') as $ChauffeEau){		
 			if($ChauffeEau->getIsEnable()){
 				if ($ChauffeEau->getConfiguration('RepeatCmd') == "cron15"){	
@@ -98,11 +83,6 @@ class ChauffeEau extends eqLogic {
 		}
 	}
 	public static function cron30() {
-		$deamon_info = self::deamon_info();
-		if ($deamon_info['launchable'] != 'ok') 
-			return;
-		if ($deamon_info['state'] != 'ok') 
-			return;
 		foreach(eqLogic::byType('ChauffeEau') as $ChauffeEau){		
 			if($ChauffeEau->getIsEnable()){
 				if ($ChauffeEau->getConfiguration('RepeatCmd') == "cron30"){	
@@ -115,11 +95,6 @@ class ChauffeEau extends eqLogic {
 		}
 	}	
 	public static function cronHourly() {
-		$deamon_info = self::deamon_info();
-		if ($deamon_info['launchable'] != 'ok') 
-			return;
-		if ($deamon_info['state'] != 'ok') 
-			return;
 		foreach(eqLogic::byType('ChauffeEau') as $ChauffeEau){		
 			if($ChauffeEau->getIsEnable()){
 				if ($ChauffeEau->getConfiguration('RepeatCmd') == "cronHourly"){	
@@ -132,11 +107,6 @@ class ChauffeEau extends eqLogic {
 		}
 	}
 	public static function cronDaily() {
-		$deamon_info = self::deamon_info();
-		if ($deamon_info['launchable'] != 'ok') 
-			return;
-		if ($deamon_info['state'] != 'ok') 
-			return;
 		foreach(eqLogic::byType('ChauffeEau') as $ChauffeEau){		
 			if($ChauffeEau->getIsEnable()){
 				if ($ChauffeEau->getConfiguration('RepeatCmd') == "cronDaily"){		
