@@ -137,7 +137,7 @@ class ChauffeEau extends eqLogic {
 	}
 	public static function CheckChauffeEau(){
 		foreach(eqLogic::byType('ChauffeEau') as $ChauffeEau){	
-			if (!$this->getIsEnable()) 
+			if (!$ChauffeEau->getIsEnable()) 
 				return;
 			switch($ChauffeEau->getCmd(null,'etatCommut')->execCmd()){
 				case 'Marche Forcée':
