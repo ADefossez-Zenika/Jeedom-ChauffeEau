@@ -16,6 +16,9 @@ class ChauffeEau extends eqLogic {
 				$listener = listener::byClassAndFunction('ChauffeEau', 'pull', array('ChauffeEau_id' => $ChauffeEau->getId()));
 				if (!is_object($listener))	
 					return $return;
+				$cron = cron::byClassAndFunction('ChauffeEau', 'CheckChauffeEau', array('ChauffeEau_id' => $ChauffeEau->getId()));
+				if (!is_object($cron))	
+					return $return;
 			}
 		}
 		$return['state'] = 'ok';
@@ -37,6 +40,9 @@ class ChauffeEau extends eqLogic {
 			$listener = listener::byClassAndFunction('ChauffeEau', 'pull', array('ChauffeEau_id' => $ChauffeEau->getId()));
 			if (is_object($listener)) 	
 				$listener->remove();
+			$cron = cron::byClassAndFunction('ChauffeEau', 'CheckChauffeEau', array('ChauffeEau_id' => $ChauffeEau->getId()));
+			if(is_object($cron))	
+				$cron->remove();
 			$cache = cache::byKey('ChauffeEau::Run::'.$ChauffeEau->getId());
 			if (is_object($cache)) 	
 				$cache->remove();
@@ -48,7 +54,6 @@ class ChauffeEau extends eqLogic {
 	public static function cron() {	
 		foreach(eqLogic::byType('ChauffeEau') as $ChauffeEau){	
 			if($ChauffeEau->getIsEnable()){
-				$ChauffeEau->CheckChauffeEau();	
 				if ($ChauffeEau->getConfiguration('RepeatCmd') == "cron"){	
 					if(cache::byKey('ChauffeEau::Power::'.$ChauffeEau->getId())->getValue(false))
 						$ChauffeEau->ActionPowerStart();
@@ -130,48 +135,50 @@ class ChauffeEau extends eqLogic {
 		}
 		$this->setConfiguration('programation', $Programation);
 	}
-	public function CheckChauffeEau(){
-		if (!$this->getIsEnable()) 
-			return;
-		switch($this->getCmd(null,'etatCommut')->execCmd()){
-			case 'Marche Forcée':
-				if(!$this->getCmd(null,'state')->execCmd())
-					$this->PowerStart();
-				cache::set('ChauffeEau::Run::'.$this->getId(),true, 0);
-			break;
-			case 'Automatique':
-				$TempSouhaite = $this->getCmd(null,'consigne')->execCmd();
-				$this->EstimateTempActuel();	
-				$TempActuel=$this->getCmd(null,'TempActuel')->execCmd();
-				if($this->getConfiguration('BacteryProtect'))
-					$this->checkBacteryProtect($TempActuel);
-				$NextProg=$this->NextProg();
-				if($NextProg === false)
-					return;
-				$NextStart = DateTime::createFromFormat("d/m/Y H:i", $this->getCmd(null,'NextStart')->execCmd());
-				$NextStop = DateTime::createFromFormat("d/m/Y H:i", $this->getCmd(null,'NextStop')->execCmd());
-				if(mktime() > $NextStop->getTimestamp()){
-					//Action si le cycle est terminée
-					$NextProg=$this->EvaluateDelestage($NextStop->getTimestamp());
-					if($NextProg === false){
-						$this->DispoEnd();
+	public static function CheckChauffeEau(){
+		foreach(eqLogic::byType('ChauffeEau') as $ChauffeEau){	
+			if (!$this->getIsEnable()) 
+				return;
+			switch($ChauffeEau->getCmd(null,'etatCommut')->execCmd()){
+				case 'Marche Forcée':
+					if(!$ChauffeEau->getCmd(null,'state')->execCmd())
+						$ChauffeEau->PowerStart();
+					cache::set('ChauffeEau::Run::'.$ChauffeEau->getId(),true, 0);
+				break;
+				case 'Automatique':
+					$TempSouhaite = $ChauffeEau->getCmd(null,'consigne')->execCmd();
+					$ChauffeEau->EstimateTempActuel();	
+					$TempActuel=$ChauffeEau->getCmd(null,'TempActuel')->execCmd();
+					if($ChauffeEau->getConfiguration('BacteryProtect'))
+						$ChauffeEau->checkBacteryProtect($TempActuel);
+					$NextProg=$ChauffeEau->NextProg();
+					if($NextProg === false)
 						return;
+					$NextStart = DateTime::createFromFormat("d/m/Y H:i", $ChauffeEau->getCmd(null,'NextStart')->execCmd());
+					$NextStop = DateTime::createFromFormat("d/m/Y H:i", $ChauffeEau->getCmd(null,'NextStop')->execCmd());
+					if(mktime() > $NextStop->getTimestamp()){
+						//Action si le cycle est terminée
+						$NextProg=$ChauffeEau->EvaluateDelestage($NextStop->getTimestamp());
+						if($NextProg === false){
+							$ChauffeEau->DispoEnd();
+							return;
+						}
+					}elseif(mktime() > $NextStart->getTimestamp()){
+						$ChauffeEau->checkHysteresis($TempActuel, $TempSouhaite);
+					}else{
+						$ChauffeEau->PowerStop();
 					}
-				}elseif(mktime() > $NextStart->getTimestamp()){
-					$this->checkHysteresis($TempActuel, $TempSouhaite);
-				}else{
-					$this->PowerStop();
-				}
-					
-			break;
-			case 'Off':
-				$this->PowerStop();
-				cache::set('ChauffeEau::Run::'.$this->getId(),false, 0);
-			break;
-			case 'Délestage':
-				$this->PowerStop();
-				cache::set('ChauffeEau::Delestage::'.$this->getId(),true, 0);
-			break;
+
+				break;
+				case 'Off':
+					$ChauffeEau->PowerStop();
+					cache::set('ChauffeEau::Run::'.$ChauffeEau->getId(),false, 0);
+				break;
+				case 'Délestage':
+					$ChauffeEau->PowerStop();
+					cache::set('ChauffeEau::Delestage::'.$ChauffeEau->getId(),true, 0);
+				break;
+			}
 		}
 	}
 	public function checkHysteresis($Temperature, $TemperatureConsigne, $TemperatureBasse=null){
@@ -693,6 +700,18 @@ class ChauffeEau extends eqLogic {
 		$this->CheckChauffeEau();
 	}
 	public function createDeamon() {
+		$cron =cron::byClassAndFunction('ChauffeEau', 'CheckChauffeEau', array('id' => $this->getId()));
+		if (!is_object($cron)) {
+			$cron = new cron();
+			$cron->setClass('ChauffeEau');
+			$cron->setFunction('CheckChauffeEau');
+			$cron->setOption(array('ChauffeEau_id' => $this->getId()));
+			$cron->setEnable(1);
+			$cron->setTimeout('1');
+			$cron->setSchedule('* * * * * *');
+			$cron->save();
+		}
+		$cron->start();
 		cache::set('ChauffeEau::BacteryProtect::'.$this->getId(), false, 0);
 		$listener = listener::byClassAndFunction('ChauffeEau', 'pull', array('ChauffeEau_id' => $this->getId()));
 		if (is_object($listener)) 	
