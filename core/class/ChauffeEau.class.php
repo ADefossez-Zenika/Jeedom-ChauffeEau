@@ -403,6 +403,7 @@ class ChauffeEau extends eqLogic {
 			$this->checkAndUpdateCmd('NextStart',date('d/m/Y H:i',$nextTime-$PowerTime));
 			//log::add('ChauffeEau','debug',$this->getHumanName().' : Le prochain disponibilité est '. date("d/m/Y H:i", $nextTime));
 		}
+		$this->checkAndUpdateCmd('PowerTime',$PowerTime);
 		if(!cache::byKey('ChauffeEau::BacteryProtect::'.$this->getId())->getValue(false))
 			$this->checkAndUpdateCmd('consigne',jeedom::evaluateExpression($TempSouhaite));
 		if(!$validProg)	
@@ -419,7 +420,6 @@ class ChauffeEau extends eqLogic {
 			$PowerTime += $TempsAdditionel;	
 			if($this->getConfiguration('TempsAdditionel') != '' )
 				$PowerTime += $this->getConfiguration('TempsAdditionel') * 60;	
-			$this->checkAndUpdateCmd('PowerTime',$PowerTime);
 			$this->refreshWidget();
 		}
 		return $PowerTime;
