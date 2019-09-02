@@ -697,7 +697,7 @@ class ChauffeEau extends eqLogic {
 		$this->CheckChauffeEau();
 	}
 	public function createDeamon() {
-		$cron =cron::byClassAndFunction('ChauffeEau', 'CheckChauffeEau', array('id' => $this->getId()));
+		$cron = cron::byClassAndFunction('ChauffeEau', 'CheckChauffeEau', array('ChauffeEau_id' => $this->getId()));
 		if (!is_object($cron)) {
 			$cron = new cron();
 			$cron->setClass('ChauffeEau');
