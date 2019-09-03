@@ -459,7 +459,6 @@ class ChauffeEau extends eqLogic {
 			if($DeltaTime < 0)
 				$DeltaTime = 0;
 		}
-		log::add('ChauffeEau','debug',$this->getHumanName().'[BacteryProtect] Compteur de temps :'.$DeltaTime.' > '.self::_TempsAvantNettoyage.'s');
 		cache::set('ChauffeEau::TimeBacteryProtect::'.$this->getId(),$DeltaTime, 0);
 	}
 	public function BacteryProtect($StartTemp,$Consigne){		
