@@ -566,7 +566,7 @@ class ChauffeEau extends eqLogic {
 		if($this->getConfiguration('TempEauEstime')){
 			$TempActuelCmd=$this->getCmd(null,'TempActuel');
 			$TempActuel=$TempActuelCmd->execCmd();
-			$TempActuelDateTime = DateTime::createFromFormat("Y-m-d H:i:s", $TempActuelCmd->getValueDate())
+			$TempActuelDateTime = DateTime::createFromFormat("Y-m-d H:i:s", $TempActuelCmd->getValueDate());
 			if ($TempActuelDateTime == false)
 				return;
 			$DeltaTime= time() - $TempActuelDateTime->getTimestamp();
