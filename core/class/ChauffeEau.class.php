@@ -154,7 +154,11 @@ class ChauffeEau extends eqLogic {
 					if($NextProg === false)
 						return;
 					$NextStart = DateTime::createFromFormat("d/m/Y H:i", $ChauffeEau->getCmd(null,'NextStart')->execCmd());
+					if ($NextStart == false)
+						return;
 					$NextStop = DateTime::createFromFormat("d/m/Y H:i", $ChauffeEau->getCmd(null,'NextStop')->execCmd());
+					if ($NextStop == false)
+						return;
 					if(mktime() > $NextStop->getTimestamp()){
 						//Action si le cycle est terminée
 						$NextProg=$ChauffeEau->EvaluateDelestage($NextStop->getTimestamp());
@@ -472,7 +476,10 @@ class ChauffeEau extends eqLogic {
 			$Hysteresis=cache::byKey('ChauffeEau::Hysteresis::'.$this->getId())->getValue(0.5);
 			if($LastUpdate == '')
 				$LastUpdate=date('Y-m-d H:i:s');
-			$DeltaTime= time() - DateTime::createFromFormat("Y-m-d H:i:s", $LastUpdate)->getTimestamp();			
+			$LastUpdateDateTime = DateTime::createFromFormat("Y-m-d H:i:s", $LastUpdate);
+			if ($LastUpdateDateTime == false)
+				return;
+			$DeltaTime= time() - $LastUpdateDateTime->getTimestamp();			
 			if($DeltaTime > self::_TempsNettoyageRapide){
 				if(!cache::byKey('ChauffeEau::BacteryProtect::'.$this->getId())->getValue(false))
 					log::add('ChauffeEau','debug',$this->getHumanName().'[BacteryProtect] Consigne a 65°C et temps additionnel de 120s');			
@@ -509,6 +516,8 @@ class ChauffeEau extends eqLogic {
 		if(is_object($TemperatureEauCmd)){
 			$LastTemperatureEau = $TemperatureEauCmd->execCmd();
 			$LastTemperatureEauCollectDate=DateTime::createFromFormat("Y-m-d H:i:s", $TemperatureEauCmd->getValueDate());
+			if ($LastTemperatureEauCollectDate == false)
+				return;
 			if($LastTemperatureEauCollectDate !== false){
 				$DeltaTime= time() - $LastTemperatureEauCollectDate->getTimestamp();
 				if($DeltaTime > 0){
@@ -557,7 +566,10 @@ class ChauffeEau extends eqLogic {
 		if($this->getConfiguration('TempEauEstime')){
 			$TempActuelCmd=$this->getCmd(null,'TempActuel');
 			$TempActuel=$TempActuelCmd->execCmd();
-			$DeltaTime= time() - DateTime::createFromFormat("Y-m-d H:i:s", $TempActuelCmd->getValueDate())->getTimestamp();
+			$TempActuelDateTime = DateTime::createFromFormat("Y-m-d H:i:s", $TempActuelCmd->getValueDate())
+			if ($TempActuelDateTime == false)
+				return;
+			$DeltaTime= time() - $TempActuelDateTime->getTimestamp();
 			if($this->getCmd(null,'state')->execCmd() == 1){
 				//on augmente la température
 				$Capacite = $this->getConfiguration('Capacite');
