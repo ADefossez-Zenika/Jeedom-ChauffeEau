@@ -433,17 +433,17 @@ class ChauffeEau extends eqLogic {
 		$Hysteresis=cache::byKey('ChauffeEau::Hysteresis::'.$this->getId())->getValue(0.5);
 		if($BacteryProtect){
 			if($TempActuel >= 70 - $Hysteresis){
-				if($DeltaTime >= 60)
+				if($DeltaTime > 60)
 					$DeltaTime = 60;
 				else
 					$DeltaTime -= 60;
 			}elseif($TempActuel >= 65 - $Hysteresis){
-				if($DeltaTime >= 2*60)
+				if($DeltaTime > 2*60)
 					$DeltaTime = 2 * 60;
 				else
 					$DeltaTime -= 60;
 			}elseif($TempActuel >= 60 - $Hysteresis){
-				if($DeltaTime >= 30*60)
+				if($DeltaTime > 30*60)
 					$DeltaTime = 30*60;
 				else
 					$DeltaTime -= 60;
