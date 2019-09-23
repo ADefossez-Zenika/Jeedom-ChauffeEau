@@ -302,6 +302,13 @@ $("body").on('change',".expressionAttr[data-l1key=isHoraire]",function(){
 });
 $('.TempEauReel').show();
 $('.TempEauEstime').hide();
+
+$(".eqLogicAttr[data-l2key=BacteryProtect]").off().on('change',function(){
+	if($(this).is(':checked'))
+		$('.BacteryProtect').show();
+	else			
+		$('.BacteryProtect').hide();
+});
 $(".eqLogicAttr[data-l2key=TempEauEstime]").off().on('change',function(){
 	if($(this).is(':checked')){
 		$('.TempEauReel').hide();
