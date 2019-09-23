@@ -226,6 +226,12 @@ $eqLogics = eqLogic::byType($plugin->getId());
 									<input type="checkbox" class="eqLogicAttr" data-label-text="{{Activer}}" data-l1key="configuration" data-l2key="BacteryProtect" checked/>
 								</div>
 							</div>
+							<div class="form-group BacteryProtect">
+								<label class="col-sm-4 control-label" >{{Temps de protection}}</label>
+								<div class="col-sm-7 input-group">
+									<input class="eqLogicAttr form-control input-sm" data-l1key="configuration"  data-l2key="TempsBacteryProtect" placeholder="{{Saisir un temps, en minute, qui déterminera l'activation de l'alert. Si la température est dans la plage critique de 25°C > Temp > 47°C alors on incremente le temps}}">
+								</div>
+							</div>
 							<div class="form-group">
 								<label class="col-sm-4 control-label" >{{Répéter les commandes d'allumage et d'extinction}}</label>
 								<div class="col-sm-7 input-group">
