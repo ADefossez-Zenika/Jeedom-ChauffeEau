@@ -138,14 +138,14 @@ class ChauffeEau extends eqLogic {
 		foreach(eqLogic::byType('ChauffeEau') as $ChauffeEau){	
 			if (!$ChauffeEau->getIsEnable()) 
 				return;
+			$ChauffeEau->EstimateTempActuel();
 			switch($ChauffeEau->getCmd(null,'etatCommut')->execCmd()){
 				case 'Marche Forcée':
 					if(!$ChauffeEau->getCmd(null,'state')->execCmd())
 						$ChauffeEau->PowerStart();
 					cache::set('ChauffeEau::Run::'.$ChauffeEau->getId(),true, 0);
 				break;
-				case 'Automatique':
-					$ChauffeEau->EstimateTempActuel();	
+				case 'Automatique':	
 					$TempActuel=$ChauffeEau->getCmd(null,'TempActuel')->execCmd();
 					if($ChauffeEau->getConfiguration('BacteryProtect'))
 						$ChauffeEau->checkBacteryProtect($TempActuel);
