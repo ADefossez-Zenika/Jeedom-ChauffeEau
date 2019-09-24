@@ -138,14 +138,14 @@ class ChauffeEau extends eqLogic {
 		foreach(eqLogic::byType('ChauffeEau') as $ChauffeEau){	
 			if (!$ChauffeEau->getIsEnable()) 
 				return;
+			$ChauffeEau->EstimateTempActuel();
 			switch($ChauffeEau->getCmd(null,'etatCommut')->execCmd()){
 				case 'Marche Forcée':
 					if(!$ChauffeEau->getCmd(null,'state')->execCmd())
 						$ChauffeEau->PowerStart();
 					cache::set('ChauffeEau::Run::'.$ChauffeEau->getId(),true, 0);
 				break;
-				case 'Automatique':
-					$ChauffeEau->EstimateTempActuel();	
+				case 'Automatique':	
 					$TempActuel=$ChauffeEau->getCmd(null,'TempActuel')->execCmd();
 					if($ChauffeEau->getConfiguration('BacteryProtect'))
 						$ChauffeEau->checkBacteryProtect($TempActuel);
@@ -469,8 +469,8 @@ class ChauffeEau extends eqLogic {
 		$BacteryProtect=$BacteryProtectCmd->execCmd();
 		$TempsAdditionnel=0;
 		if($this->getConfiguration('BacteryProtect') && $BacteryProtect){
-			//if(!cache::byKey('ChauffeEau::BacteryProtect::'.$this->getId())->getValue(false))
-			//	log::add('ChauffeEau','debug',$this->getHumanName().'[BacteryProtect] Strategie de protection active et en cours');
+			if(!cache::byKey('ChauffeEau::BacteryProtect::'.$this->getId())->getValue(false))
+				log::add('ChauffeEau','debug',$this->getHumanName().'[BacteryProtect] Strategie de protection active et en cours');
 			$LastUpdate=$BacteryProtectCmd->getValueDate();	
 			$Hysteresis=cache::byKey('ChauffeEau::Hysteresis::'.$this->getId())->getValue(0.5);
 			if($LastUpdate == '')
@@ -566,9 +566,10 @@ class ChauffeEau extends eqLogic {
 			$TempActuelCmd=$this->getCmd(null,'TempActuel');
 			$TempActuel=$TempActuelCmd->execCmd();
 			$TempActuelDateTime = DateTime::createFromFormat("Y-m-d H:i:s", $TempActuelCmd->getValueDate());
-			if ($TempActuelDateTime == false)
-				return;
-			$DeltaTime= time() - $TempActuelDateTime->getTimestamp();
+			if ($TempActuelDateTime === false)
+             			$DeltaTime=0;
+			else
+				$DeltaTime= time() - $TempActuelDateTime->getTimestamp();
 			if($this->getCmd(null,'state')->execCmd() == 1){
 				//on augmente la température
 				$Capacite = $this->getConfiguration('Capacite');
