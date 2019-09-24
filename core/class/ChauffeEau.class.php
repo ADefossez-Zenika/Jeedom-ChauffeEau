@@ -138,7 +138,10 @@ class ChauffeEau extends eqLogic {
 		foreach(eqLogic::byType('ChauffeEau') as $ChauffeEau){	
 			if (!$ChauffeEau->getIsEnable()) 
 				return;
-			$ChauffeEau->EstimateTempActuel();
+			if($ChauffeEau->getConfiguration('TempEauEstime'))
+				$ChauffeEau->EstimateTempActuel();
+			else
+				$ChauffeEau->checkDefaillanceSonde();
 			switch($ChauffeEau->getCmd(null,'etatCommut')->execCmd()){
 				case 'Marche Forcée':
 					if(!$ChauffeEau->getCmd(null,'state')->execCmd())
@@ -268,7 +271,6 @@ class ChauffeEau extends eqLogic {
 		if($this->getConfiguration('Etat') == '')
 			$this->checkAndUpdateCmd('state',1);
 		log::add('ChauffeEau','info',$this->getHumanName().' : Alimentation électrique du chauffe-eau');
-		$this->EstimateTempActuel();	
 		$TempActuel=$this->getCmd(null,'TempActuel')->execCmd();
 		cache::set('ChauffeEau::Start::Temperature::'.$this->getId(),$TempActuel, 0);
 		cache::set('ChauffeEau::Start::Time::'.$this->getId(),time(), 0);
@@ -318,7 +320,6 @@ class ChauffeEau extends eqLogic {
 		if($this->getCmd(null,'state')->execCmd() == 0)
 			return;
 		$this->PowerStop();
-		$this->EstimateTempActuel();	
 		$TempActuel=$this->getCmd(null,'TempActuel')->execCmd();
 		$StartTime = cache::byKey('ChauffeEau::Start::Time::'.$this->getId());	
 		$StartTemps = cache::byKey('ChauffeEau::Start::Temperature::'.$this->getId());
@@ -340,7 +341,6 @@ class ChauffeEau extends eqLogic {
 		if($Delestage){
 			switch($this->getConfiguration('delestage')){
 				case 'Temp':
-					$this->EstimateTempActuel();	
 					$TempActuel=$this->getCmd(null,'TempActuel')->execCmd();
 					list($PowerTime,$Consigne) = $this->EvaluatePowerTime($this->getCmd(null,'consigne')->execCmd(),$TempActuel);
 					return $NextStop + $PowerTime;
@@ -354,7 +354,6 @@ class ChauffeEau extends eqLogic {
 	}
 	public function NextProg(){
 		$validProg=false;
-		$this->EstimateTempActuel();	
 		$TempActuel=$this->getCmd(null,'TempActuel')->execCmd();
 		$TempSouhaite=60;
 		foreach($this->getConfiguration('programation') as $ConigSchedule){
@@ -561,39 +560,51 @@ class ChauffeEau extends eqLogic {
 		}
 		return round($Temperature,1);
 	}
-	public function EstimateTempActuel(){
-		if($this->getConfiguration('TempEauEstime')){
-			$TempActuelCmd=$this->getCmd(null,'TempActuel');
-			$TempActuel=$TempActuelCmd->execCmd();
-			$TempActuelDateTime = DateTime::createFromFormat("Y-m-d H:i:s", $TempActuelCmd->getValueDate());
-			if ($TempActuelDateTime === false)
-             			$DeltaTime=0;
-			else
-				$DeltaTime= time() - $TempActuelDateTime->getTimestamp();
-			if($this->getCmd(null,'state')->execCmd() == 1){
-				//on augmente la température
-				$Capacite = $this->getConfiguration('Capacite');
-				$Puissance = $this->getPuissance();
-				$Energie= $DeltaTime * $Puissance;
-				$DeltaTemp = $Energie / ($Capacite*4181);
-				$TempActuel += $DeltaTemp;
-				if($TempActuel > 95)
-					$TempActuel=95;
-			}else{
-				//on baisse la température
-				$TempLocal=jeedom::evaluateExpression($this->getConfiguration('TempLocal'));
-				//$nbDouche=jeedom::evaluateExpression($this->getConfiguration('nbDouche'));
-				//$nbBain=jeedom::evaluateExpression($this->getConfiguration('nbBain'));
-				$DeltaTemp= $DeltaTime * $this->getDeltaTemperature($TempActuel);
-				$TempActuel -= $DeltaTemp;
-				if($TempActuel < $TempLocal)
-					$TempActuel = $TempLocal;
-			}
-			$TempActuel = round($TempActuel,1);
-			if($TempActuel != $TempActuelCmd->execCmd())
-				$this->checkAndUpdateCmd('TempActuel',$TempActuel);
+	public function checkDefaillanceSonde(){
+		$TempActuelCmd=$this->getCmd(null,'TempActuel');
+		$TempActuel=$TempActuelCmd->execCmd();
+		$TempActuelDateTime = DateTime::createFromFormat("Y-m-d H:i:s", $TempActuelCmd->getValueDate());
+		if ($TempActuelDateTime === false)
+			$DeltaTime=0;
+		else
+			$DeltaTime= time() - $TempActuelDateTime->getTimestamp();
+		$DeltaTemp = $DeltaTime * $this->getDeltaTemperature($TempActuel);
+		$TempEstime = $TempActuel - $DeltaTemp;
+		if($TempActuel > $TempEstime * 1.1){
+			message::add('ChauffeEau',$this->getHumanName().'[Défaillance][Sonde Température] : la température n\'a pas changé depuis '.$DeltaTime.'s, la température actel est '.$TempActuel.'°C et la température estimé est '.$TempActuel.'°C');
+			log::add('ChauffeEau','debug',$this->getHumanName().'[Défaillance][Sonde Température] : la température n\'a pas changé depuis '.$DeltaTime.'s, la température actel est '.$TempActuel.'°C et la température estimé est '.$TempActuel.'°C');
 		}
-		
+	}
+	public function EstimateTempActuel(){
+		$TempActuelCmd=$this->getCmd(null,'TempActuel');
+		$TempActuel=$TempActuelCmd->execCmd();
+		$TempActuelDateTime = DateTime::createFromFormat("Y-m-d H:i:s", $TempActuelCmd->getValueDate());
+		if ($TempActuelDateTime === false)
+			$DeltaTime=0;
+		else
+			$DeltaTime= time() - $TempActuelDateTime->getTimestamp();
+		if($this->getCmd(null,'state')->execCmd() == 1){
+			//on augmente la température
+			$Capacite = $this->getConfiguration('Capacite');
+			$Puissance = $this->getPuissance();
+			$Energie= $DeltaTime * $Puissance;
+			$DeltaTemp = $Energie / ($Capacite*4181);
+			$TempActuel += $DeltaTemp;
+			if($TempActuel > 95)
+				$TempActuel=95;
+		}else{
+			//on baisse la température
+			$TempLocal=jeedom::evaluateExpression($this->getConfiguration('TempLocal'));
+			//$nbDouche=jeedom::evaluateExpression($this->getConfiguration('nbDouche'));
+			//$nbBain=jeedom::evaluateExpression($this->getConfiguration('nbBain'));
+			$DeltaTemp= $DeltaTime * $this->getDeltaTemperature($TempActuel);
+			$TempActuel -= $DeltaTemp;
+			if($TempActuel < $TempLocal)
+				$TempActuel = $TempLocal;
+		}
+		$TempActuel = round($TempActuel,1);
+		if($TempActuel != $TempActuelCmd->execCmd())
+			$this->checkAndUpdateCmd('TempActuel',$TempActuel);		
 	}
 	public function Puissance($DeltaTemp,$DeltaTime) {
 		$Energie=$this->getConfiguration('Capacite')*$DeltaTemp*4185;
