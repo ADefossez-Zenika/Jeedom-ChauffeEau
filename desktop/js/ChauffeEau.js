@@ -274,7 +274,9 @@ function addParameters() {
 			.append($('<option value="off">')
 				.text('{{Extinction du chauffe-eau}}'))
 			.append($('<option value="dispo">')
-				.text('{{Heure de dispo}}')));		
+				.text('{{Heure de dispo}}'))
+			.append($('<option value="DefaillanceSonde">')
+				.text('{{Defaillance Sonde}}')));		
 }
 $('.ActionAttr[data-action=add]').off().on('click',function(){
 	addAction({},$(this).closest('.tab-pane').find('table'));

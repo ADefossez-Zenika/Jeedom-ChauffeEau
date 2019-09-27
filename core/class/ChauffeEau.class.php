@@ -245,6 +245,11 @@ class ChauffeEau extends eqLogic {
 				case str_replace('#','',$ChauffeEau->getConfiguration('TempActuel')):
 					$ChauffeEau->setDeltaTemperature($_option['value']);
 					$ChauffeEau->checkAndUpdateCmd('TempActuel',$_option['value']);
+					$IsDefaillanceSonde = cache::byKey('ChauffeEau::DefaillanceSonde::'.$ChauffeEau->getId());
+					if($IsDefaillanceSonde->getValue(false)){
+						cache::set('ChauffeEau::DefaillanceSonde::'.$ChauffeEau->getId(), false);
+						message::add('ChauffeEau',$ChauffeEau->getHumanName().'[Défaillance][Sonde Température] : Réception d\'une température '.$_option['value'].'°C nous revenue en mode Standard');
+					}
 				break;
 				case str_replace('#','',$ChauffeEau->getConfiguration('Etat')):
 					log::add('ChauffeEau','info',$ChauffeEau->getHumanName().' : l\'etat du chauffe eau est passé a '.$_option['value']);
@@ -570,9 +575,19 @@ class ChauffeEau extends eqLogic {
 			$DeltaTime= time() - $TempActuelDateTime->getTimestamp();
 		$DeltaTemp = $DeltaTime * $this->getDeltaTemperature($TempActuel);
 		$TempEstime = $TempActuel - $DeltaTemp;
+		$cache = cache::byKey('ChauffeEau::DefaillanceSonde::'.$this->getId());
 		if($TempActuel > $TempEstime * 1.1){
-			message::add('ChauffeEau',$this->getHumanName().'[Défaillance][Sonde Température] : la température n\'a pas changé depuis '.$DeltaTime.'s, la température actel est '.$TempActuel.'°C et la température estimé est '.$TempActuel.'°C');
-			log::add('ChauffeEau','debug',$this->getHumanName().'[Défaillance][Sonde Température] : la température n\'a pas changé depuis '.$DeltaTime.'s, la température actel est '.$TempActuel.'°C et la température estimé est '.$TempActuel.'°C');
+			if(!$cache->getValue(false)){
+				cache::set('ChauffeEau::DefaillanceSonde::'.$this->getId(), true);
+				message::add('ChauffeEau',$this->getHumanName().'[Défaillance][Sonde Température] : la température n\'a pas changé depuis '.$DeltaTime.'s, la température actel est '.$TempActuel.'°C et la température estimé est '.$TempEstime.'°C');
+			}
+			$this->checkAndUpdateCmd('TempActuel',$TempEstime);
+			foreach($this->getConfiguration('Action') as $cmd){
+				foreach($cmd['declencheur'] as $declencheur){
+					if($declencheur == 'DefaillanceSonde')
+						$this->ExecuteAction($cmd);
+				}
+			}
 		}
 	}
 	public function EstimateTempActuel(){
