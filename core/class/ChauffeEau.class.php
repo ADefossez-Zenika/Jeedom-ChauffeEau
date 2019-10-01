@@ -248,7 +248,7 @@ class ChauffeEau extends eqLogic {
 					$IsDefaillanceSonde = cache::byKey('ChauffeEau::DefaillanceSonde::'.$ChauffeEau->getId());
 					if($IsDefaillanceSonde->getValue(false)){
 						cache::set('ChauffeEau::DefaillanceSonde::'.$ChauffeEau->getId(), false);
-						message::add('ChauffeEau',$ChauffeEau->getHumanName().'[Défaillance][Sonde Température] : Réception d\'une température '.$_option['value'].'°C nous revenue en mode Standard');
+						message::add('ChauffeEau',$ChauffeEau->getHumanName().'[Défaillance][Sonde Température] : Réception d\'une température '.$_option['value'].'°C nous revenons en mode Standard');
 					}
 				break;
 				case str_replace('#','',$ChauffeEau->getConfiguration('Etat')):
@@ -574,12 +574,12 @@ class ChauffeEau extends eqLogic {
 		else
 			$DeltaTime= time() - $TempActuelDateTime->getTimestamp();
 		$DeltaTemp = $DeltaTime * $this->getDeltaTemperature($TempActuel);
-		$TempEstime = $TempActuel - $DeltaTemp;
+		$TempEstime = round($TempActuel - $DeltaTemp,1);
 		$cache = cache::byKey('ChauffeEau::DefaillanceSonde::'.$this->getId());
 		if($TempActuel > $TempEstime * 1.1){
 			if(!$cache->getValue(false)){
 				cache::set('ChauffeEau::DefaillanceSonde::'.$this->getId(), true);
-				message::add('ChauffeEau',$this->getHumanName().'[Défaillance][Sonde Température] : la température n\'a pas changé depuis '.$DeltaTime.'s, la température actel est '.$TempActuel.'°C et la température estimé est '.$TempEstime.'°C');
+				message::add('ChauffeEau',$this->getHumanName().'[Défaillance][Sonde Température] : la température n\'a pas changé depuis '.$DeltaTime.'s, la température actuelle est '.$TempActuel.'°C et la température estimée est '.$TempEstime.'°C');
 			}
 			$this->checkAndUpdateCmd('TempActuel',$TempEstime);
 			foreach($this->getConfiguration('Action') as $cmd){
