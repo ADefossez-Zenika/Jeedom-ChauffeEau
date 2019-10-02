@@ -11,10 +11,10 @@ $('.eqLogicAction[data-action=gotoHealth]').off().on('click', function () {
 	$('#md_modal').load('index.php?v=d&plugin=ChauffeEau&modal=health').dialog('open');
 });
 $('body').on('click','.Caracterisique',function(){
-	var eqId = $('.eqLogicAttr[data-l1key=id]).val();
+	var eqId = $('.eqLogicAttr[data-l1key=id]').val();
 	$('#md_modal').dialog({title: "{{Caracterisique du Chauffe-Eau}}"});
-	$('#md_modal').load('index.php?v=d&plugin=ChauffeEau&modal=Caracterisique&id='.eqId).dialog('open');
-}
+	$('#md_modal').load('index.php?v=d&plugin=ChauffeEau&modal=Caracterisique&id='+eqId).dialog('open');
+});
 function addCmdToTable(_cmd) {
 	var tr =$('<tr class="cmd" data-cmd_id="' + init(_cmd.id) + '">');
 	tr.append($('<td>')
