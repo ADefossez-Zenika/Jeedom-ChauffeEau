@@ -3,15 +3,19 @@ if (!isConnect('admin')) {
 	throw new Exception('{{401 - Accès non autorisé}}');
 }
 $eqLogic=eqLogic::byId(init('id'));
-if(is_object(eqLogic))
-  sendVarToJS('CartoChauffeEau', $eqLogic->getCartoChauffeEau());
+if(is_object($eqLogic))
+	sendVarToJS('CartoChauffeEau', $eqLogic->getCartoChauffeEau());
 ?>
-<div class="CartoChauffeEau"></div>
+<div id="CartoChauffeEau"></div>
 <script>
+var data = new Array();
+for(loop = 0;loop <CartoChauffeEau[1].length;loop++){
+	data[loop]=[CartoChauffeEau[0][loop],CartoChauffeEau[1][loop]]
+}
 var Series = [{
     step: false,
     name: '{{Caracterisitque du chauffe-eau}}',
-    data: CartoChauffeEau,
+    data: data,
     type: 'line',
     marker: {
       enabled: false
@@ -21,8 +25,8 @@ var Series = [{
     },
   }];
 if(CartoChauffeEau.length > 0)
-    drawSimpleGraph($('.CartoChauffeEau'),'{{Caracterisitque du chauffe-eau}}', Series);
-function drawSimpleGraph(_el,_name, _serie) {
+    drawSimpleGraph('CartoChauffeEau','{{Caracterisitque du chauffe-eau}}', Series,'Temperature (°C)','Delta (°C)');
+function drawSimpleGraph(_el,_name, _serie,_xLabel,_yLabel) {
     new Highcharts.chart({
       	title:{
           text:_name
@@ -30,7 +34,6 @@ function drawSimpleGraph(_el,_name, _serie) {
         chart: {
             zoomType: 'x',
             renderTo: _el,
-            height: 100,
             spacingTop: 0,
             spacingLeft: 0,
             spacingRight: 0,
@@ -55,7 +58,15 @@ function drawSimpleGraph(_el,_name, _serie) {
 	legend: {
 		enabled:false
 	},
+        xAxis: {
+		title: {
+		    text: _xLabel
+		},
+        },
         yAxis: {
+		title: {
+		    text: _yLabel
+		},
             format: '{value}',
             showEmpty: false,
             showLastLabel: true,
