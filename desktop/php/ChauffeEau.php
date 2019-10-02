@@ -217,7 +217,12 @@ $eqLogics = eqLogic::byType($plugin->getId());
 				</div>
 				<div class="col-sm-6">
 					<form class="form-horizontal">
-						<legend>Controle du chauffe eau</legend>
+						<legend>Controle du chauffe eau						
+							<a class="btn btn-danger btn-sm Caracterisique roundedRight">
+								<i class="icon techno-courbes"></i>
+								 {{Caracterisique}}
+							</a>
+						</legend>
 						<fieldset>	
 							<div class="form-group">
 								<label class="col-sm-4 control-label" >{{Protection Bacteriologique}}</label>
