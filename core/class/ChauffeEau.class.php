@@ -568,24 +568,31 @@ class ChauffeEau extends eqLogic {
 	public function checkDefaillanceSonde(){
 		$TempActuelCmd=$this->getCmd(null,'TempActuel');
 		$TempActuel=$TempActuelCmd->execCmd();
-		$TempActuelDateTime = DateTime::createFromFormat("Y-m-d H:i:s", $TempActuelCmd->getValueDate());
+		$TempActuelDateTime = DateTime::createFromFormat("Y-m-d H:i:s", $TempActuelCmd->getCollectDate());
 		if ($TempActuelDateTime === false)
 			$DeltaTime=0;
 		else
 			$DeltaTime= time() - $TempActuelDateTime->getTimestamp();
-		$DeltaTemp = $DeltaTime * $this->getDeltaTemperature($TempActuel);
-		$TempEstime = round($TempActuel - $DeltaTemp,1);
-		$cache = cache::byKey('ChauffeEau::DefaillanceSonde::'.$this->getId());
-		if($TempActuel > $TempEstime * 1.1){
-			if(!$cache->getValue(false)){
-				cache::set('ChauffeEau::DefaillanceSonde::'.$this->getId(), true);
-				message::add('ChauffeEau',$this->getHumanName().'[Défaillance][Sonde Température] : la température n\'a pas changé depuis '.$DeltaTime.'s, la température actuelle est '.$TempActuel.'°C et la température estimée est '.$TempEstime.'°C');
-			}
-			$this->checkAndUpdateCmd('TempActuel',$TempEstime);
-			foreach($this->getConfiguration('Action') as $cmd){
-				foreach($cmd['declencheur'] as $declencheur){
-					if($declencheur == 'DefaillanceSonde')
-						$this->ExecuteAction($cmd);
+		if($DeltaTime > 60){
+			$TempActuelDateTime = DateTime::createFromFormat("Y-m-d H:i:s", $TempActuelCmd->getValueDate());
+			if ($TempActuelDateTime === false)
+				$DeltaTime=0;
+			else
+				$DeltaTime= time() - $TempActuelDateTime->getTimestamp();
+			$DeltaTemp = $DeltaTime * $this->getDeltaTemperature($TempActuel);
+			$TempEstime = round($TempActuel - $DeltaTemp,1);
+			$cache = cache::byKey('ChauffeEau::DefaillanceSonde::'.$this->getId());
+			if($TempActuel > $TempEstime * 1.1){
+				if(!$cache->getValue(false)){
+					cache::set('ChauffeEau::DefaillanceSonde::'.$this->getId(), true);
+					message::add('ChauffeEau',$this->getHumanName().'[Défaillance][Sonde Température] : la température n\'a pas changé depuis '.$DeltaTime.'s, la température actuelle est '.$TempActuel.'°C et la température estimée est '.$TempEstime.'°C');
+				}
+				$this->checkAndUpdateCmd('TempActuel',$TempEstime);
+				foreach($this->getConfiguration('Action') as $cmd){
+					foreach($cmd['declencheur'] as $declencheur){
+						if($declencheur == 'DefaillanceSonde')
+							$this->ExecuteAction($cmd);
+					}
 				}
 			}
 		}
