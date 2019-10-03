@@ -160,19 +160,19 @@ $eqLogics = eqLogic::byType($plugin->getId());
 						<legend>Paramètre du chauffe-eau</legend>
 						<fieldset>
 							<div class="form-group">
-								<label class="col-sm-4 control-label" >{{Capacité du chauffe eau (Litre)}}</label>
+								<label class="col-sm-4 control-label" >{{Capacité du chauffe-eau (Litres)}}</label>
 								<div class="col-sm-7">
-									<input type="text" class="eqLogicAttr form-control" data-l1key="configuration"  data-l2key="Capacite" placeholder="{{Capacité du chauffe eau (Litre)}}"/>
+									<input type="text" class="eqLogicAttr form-control" data-l1key="configuration"  data-l2key="Capacite" placeholder="{{Capacité du chauffe-eau (Litres)}}"/>
 								</div>
 							</div>
 							<div class="form-group">
-								<label class="col-sm-4 control-label" >{{Puissance du chauffe eau (Watt)}}</label>
+								<label class="col-sm-4 control-label" >{{Puissance du chauffe-eau (Watts)}}</label>
 								<div class="col-sm-7">
-									<input type="text" class="eqLogicAttr form-control" data-l1key="configuration"  data-l2key="Puissance" placeholder="{{Puissance du chauffe eau (Watt)}}"/>
+									<input type="text" class="eqLogicAttr form-control" data-l1key="configuration"  data-l2key="Puissance" placeholder="{{Puissance du chauffe-eau (Watts)}}"/>
 								</div>
 							</div>
 							<div class="form-group">
-								<label class="col-sm-4 control-label" >{{Simuler la temperature du balon}}</label>
+								<label class="col-sm-4 control-label" >{{Simuler la température  du ballon}}</label>
 								<div class="col-sm-7">
 									<label>{{Activer}}</label>
 									<input type="checkbox" class="eqLogicAttr" data-label-text="{{Activer}}" data-l1key="configuration" data-l2key="TempEauEstime"/>
@@ -217,7 +217,7 @@ $eqLogics = eqLogic::byType($plugin->getId());
 				</div>
 				<div class="col-sm-6">
 					<form class="form-horizontal">
-						<legend>Controle du chauffe eau						
+						<legend>{{Controle du chauffe-eau}}						
 							<a class="btn btn-danger btn-sm Caracterisique roundedRight">
 								<i class="icon techno-courbes"></i>
 								 {{Caracterisique}}
