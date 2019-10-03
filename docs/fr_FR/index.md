@@ -31,7 +31,7 @@ Parametre général
 * Visible : permet de rendre l'équipement visible dans le Dashboard.		
 * Activer : permet d'activer l'équipement.		
 
-Parametre du chauffe eaux
+Parametre du chauffe-eau
 ---
 
 * Capacité du chauffe-eau (Litre) : indiquez le volume de votre chauffe-eau
@@ -41,14 +41,18 @@ Parametre du chauffe eaux
 * Sélectionner une commande de la température actuelle de l'eau : Choisissez un objet Jeedom représentant la valeur
 * Température de la piece : Temperature de la piece du balon (valeur mini de la simulation de temperature)
 
-Controle du chauffe eau
+Controle du chauffe-eau
 ---
 
-* Protection Bacteriologique (BETA): ce mode si actif permet au plugin de lancé automatiquement un nettoyage bacteriologique
+* Protection Bacteriologique : ce mode si actif permet au plugin de lancé automatiquement un nettoyage bacteriologique
+* Temps de protection : Defini le temps que le ballon reste en zonne critique (25°C > 47°C)
 * Répéter les commandes d'allumage et d'extinction : Permet donc configurer une recurence d'emission des ordres de commande et de s'assurer que le chauffe eau est toujours dans l'etat attendue
 * Commande d'etat du chauffe-eau : sélectionnez la commande d'etat de votre chauffe-eau afin de permetre au plugin de se mettre a jours > La commande de retour d'etat doit etre d'un sous-type binaire (0 => Eteint, 1 => Allumée)
 * Temps additionnel (min) : Ce temps définie en minute permet d'ajouté eu temps calculé un temps de sécurité au demarrage
 * Si délestage, le chauffe-eau doit : Choix du comportement que doit avoir le plugin en cas de delestage durant la chauffe
+
+Si vous utilisé une sonde de température reel, le plugin enregistre les caracteristiques de perte.
+Il est possible de visualiser cette caracteristique en cliquant sur le bouton "Caracterisitique"
 
 Programmation
 ==========
@@ -105,6 +109,7 @@ Il existe 3 declanchement
 * Allumage du chauffe-eau : Toutes les actions que l'on souhaite lorsque le plugin ordonera un allumage
 * Extinction du chauffe-eau : Toutes les actions que l'on souhaite lorsque le plugin ordonera une extinction
 * Heure de dispo : Toutes les actions que l'on souhaite lorsque le plugin mettera fin a son cycle
+* Defaillance Sonde : Si vous utilisé un sonde de température, le plugin vas la surveiller et exceuter ce type d'action pour corriger ou notifier.
 
 
 Mode de fonctionnement
