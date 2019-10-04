@@ -113,14 +113,24 @@ $eqLogics = eqLogic::byType($plugin->getId());
 						<legend>Général</legend>
 						<fieldset>
 							<div class="form-group ">
-								<label class="col-sm-3 control-label">{{Nom de la Zone}}</label>
+								<label class="col-sm-3 control-label">
+									{{Nom du chauffe-eau}}
+									<sup>
+										<i class="fa fa-question-circle tooltips" title="{{Saisir le nom de votre equipement}}"></i>
+									</sup>
+								</label>
 								<div class="col-sm-7">
 									<input type="text" class="eqLogicAttr form-control" data-l1key="id" style="display : none;" />
 									<input type="text" class="eqLogicAttr form-control" data-l1key="name" placeholder="{{Nom du groupe de zones}}"/>
 								</div>
 							</div>
 							<div class="form-group">
-								<label class="col-sm-3 control-label" >{{Objet parent}}</label>
+								<label class="col-sm-3 control-label" >
+									{{Objet parent}}
+									<sup>
+										<i class="fa fa-question-circle tooltips" title="{{Choisir l'objet ou se trouve votre chauffe-eau}}"></i>
+									</sup>
+								</label>
 								<div class="col-sm-7">
 									<select id="sel_object" class="eqLogicAttr form-control" data-l1key="object_id">
 										<option value="">{{Aucun}}</option>
@@ -132,7 +142,12 @@ $eqLogics = eqLogic::byType($plugin->getId());
 								</div>
 							</div>
 							<div class="form-group">
-								<label class="col-sm-3 control-label">{{Catégorie}}</label>
+								<label class="col-sm-3 control-label">
+									{{Catégorie}}
+									<sup>
+										<i class="fa fa-question-circle tooltips" title="{{Choisir une catégorie}}"></i>
+									</sup>
+								</label>
 								<div class="col-sm-9">
 									<?php
 										foreach (jeedom::getConfiguration('eqLogic:category') as $key => $value) {
@@ -160,26 +175,46 @@ $eqLogics = eqLogic::byType($plugin->getId());
 						<legend>Paramètre du chauffe-eau</legend>
 						<fieldset>
 							<div class="form-group">
-								<label class="col-sm-4 control-label" >{{Capacité du chauffe-eau (Litres)}}</label>
+								<label class="col-sm-4 control-label" >
+									{{Capacité du chauffe-eau (Litres)}}
+									<sup>
+										<i class="fa fa-question-circle tooltips" title="{{Quel est la capacité de votre chauffe-eau}}"></i>
+									</sup>
+								</label>
 								<div class="col-sm-7">
 									<input type="text" class="eqLogicAttr form-control" data-l1key="configuration"  data-l2key="Capacite" placeholder="{{Capacité du chauffe-eau (Litres)}}"/>
 								</div>
 							</div>
 							<div class="form-group">
-								<label class="col-sm-4 control-label" >{{Puissance du chauffe-eau (Watts)}}</label>
+								<label class="col-sm-4 control-label" >
+									{{Puissance du chauffe-eau (Watts)}}
+									<sup>
+										<i class="fa fa-question-circle tooltips" title="{{Quel est la puissance de votre chauffe-eau}}"></i>
+									</sup>
+								</label>
 								<div class="col-sm-7">
 									<input type="text" class="eqLogicAttr form-control" data-l1key="configuration"  data-l2key="Puissance" placeholder="{{Puissance du chauffe-eau (Watts)}}"/>
 								</div>
 							</div>
 							<div class="form-group">
-								<label class="col-sm-4 control-label" >{{Simuler la température  du ballon}}</label>
+								<label class="col-sm-4 control-label" >
+									{{Simuler la température  du ballon}}
+									<sup>
+										<i class="fa fa-question-circle tooltips" title="{{Voulez vous simulé la température du chauffe-eau ou vous avez une sonde connecté}}"></i>
+									</sup>
+								</label>
 								<div class="col-sm-7">
 									<label>{{Activer}}</label>
 									<input type="checkbox" class="eqLogicAttr" data-label-text="{{Activer}}" data-l1key="configuration" data-l2key="TempEauEstime"/>
 								</div>
 							</div>
 							<div class="form-group TempEauReel">
-								<label class="col-sm-4 control-label" >{{Sélectionner une commande de la température actuelle de l'eau}}</label>
+								<label class="col-sm-4 control-label" >
+									{{Température du chauffe-eau}}
+									<sup>
+										<i class="fa fa-question-circle tooltips" title="{{Sélectionner une commande de la température actuelle de l'eau}}"></i>
+									</sup>
+								</label>
 								<div class="col-sm-7 input-group">
 									<input class="eqLogicAttr form-control input-sm" data-l1key="configuration"  data-l2key="TempActuel" placeholder="{{Sélectionner un objet Jeedom de température, ou saisissez une valeur par defaut}}">
 									<span class="input-group-btn">
@@ -189,8 +224,25 @@ $eqLogics = eqLogic::byType($plugin->getId());
 									</span>
 								</div>
 							</div>  
+							<div class="form-group TempEauReel">
+								<label class="col-sm-4 control-label" >
+									{{Fréquence de mise a jours de la sonde (min)}}
+									<sup>
+										<i class="fa fa-question-circle tooltips" title="{{A quel fréquence la sonde envoie une valeur (Mode de défaillance)}}"></i>
+									</sup>
+								</label>
+								<div class="col-sm-7 input-group">
+									<input class="eqLogicAttr form-control input-sm" data-l1key="configuration"  data-l2key="FreqTempActuel" placeholder="{{Saisir la frequence de mise a jours}">
+
+								</div>
+							</div>  
 							<div class="form-group TempEauEstime">
-								<label class="col-sm-4 control-label" >{{Température de la piece}}</label>
+								<label class="col-sm-4 control-label" >
+									{{Température de la piece}}
+									<sup>
+										<i class="fa fa-question-circle tooltips" title="{{Température de la piece}}"></i>
+									</sup>
+								</label>
 								<div class="col-sm-7 input-group">
 									<input class="eqLogicAttr form-control input-sm" data-l1key="configuration"  data-l2key="TempLocal" placeholder="{{Sélectionner un objet Jeedom de température, ou Saisisser une valeur par defaut}}">
 									<span class="input-group-btn">
@@ -225,20 +277,35 @@ $eqLogics = eqLogic::byType($plugin->getId());
 						</legend>
 						<fieldset>	
 							<div class="form-group">
-								<label class="col-sm-4 control-label" >{{Protection Bacteriologique}}</label>
+								<label class="col-sm-4 control-label" >
+									{{Protection Bacteriologique}}
+									<sup>
+										<i class="fa fa-question-circle tooltips" title="{{Cette option vas automatisé le nettoyage de votre ballon}}"></i>
+									</sup>
+								</label>
 								<div class="col-sm-7">
 									<label>{{Activer}}</label>
 									<input type="checkbox" class="eqLogicAttr" data-label-text="{{Activer}}" data-l1key="configuration" data-l2key="BacteryProtect" checked/>
 								</div>
 							</div>
 							<div class="form-group BacteryProtect">
-								<label class="col-sm-4 control-label" >{{Temps de protection}}</label>
+								<label class="col-sm-4 control-label" >
+									{{Temps de protection}}
+									<sup>
+										<i class="fa fa-question-circle tooltips" title="{{Temps de déclanchement de l'alert ou la température est en zone critique 25°C et 47°C}}"></i>
+									</sup>
+								</label>
 								<div class="col-sm-7 input-group">
 									<input class="eqLogicAttr form-control input-sm" data-l1key="configuration"  data-l2key="TempsBacteryProtect" placeholder="{{Saisir un temps, en minute, qui déterminera l'activation de l'alert. Si la température est dans la plage critique de 25°C > Temp > 47°C alors on incremente le temps}}">
 								</div>
 							</div>
 							<div class="form-group">
-								<label class="col-sm-4 control-label" >{{Répéter les commandes d'allumage et d'extinction}}</label>
+								<label class="col-sm-4 control-label" >
+									{{Répéter les commandes d'allumage et d'extinction}}
+									<sup>
+										<i class="fa fa-question-circle tooltips" title="{{Frequence de répétition des action on et off}}"></i>
+									</sup>
+								</label>
 								<div class="col-sm-7 input-group">
 									<select class="eqLogicAttr form-control input-sm" data-l1key="configuration" data-l2key="RepeatCmd">
 										<option value="">{{Non}}</option>
@@ -252,7 +319,12 @@ $eqLogics = eqLogic::byType($plugin->getId());
 								</div>
 							</div>
 							<div class="form-group">
-								<label class="col-sm-4 control-label" >{{Commande d’état du chauffe-eau}}</label>
+								<label class="col-sm-4 control-label" >
+									{{Commande d’état du chauffe-eau}}
+									<sup>
+										<i class="fa fa-question-circle tooltips" title="{{Selectionner une commande de retour d'etat du chauff-eau}}"></i>
+									</sup>
+								</label>
 								<div class="col-sm-7 input-group">
 									<input class="eqLogicAttr form-control input-sm" data-l1key="configuration"  data-l2key="Etat" placeholder="{{Séléctioner l'objet de commande d'etat du chauffe eau}}">
 									<span class="input-group-btn">
@@ -263,13 +335,23 @@ $eqLogics = eqLogic::byType($plugin->getId());
 								</div>
 							</div>
 							<div class="form-group">
-								<label class="col-sm-4 control-label" >{{Temps additionnel (min)}}</label>
+								<label class="col-sm-4 control-label" >
+									{{Temps additionnel (min)}}
+									<sup>
+										<i class="fa fa-question-circle tooltips" title="{{Quel temps de sécurité voulez vous ajouter au temps de chauffe calculé}}"></i>
+									</sup>
+								</label>
 								<div class="col-sm-7 input-group">
 									<input class="eqLogicAttr form-control input-sm" data-l1key="configuration"  data-l2key="TempsAdditionel" placeholder="{{Saisir un temps en minute qui sera ajouté au temps de chauffage necessaire. Ceci pour garantir une chauffe complette}}">
 								</div>
 							</div>
 							<div class="form-group">
-								<label class="col-sm-4 control-label" >{{Si délestage, le chauffe-eau doit :}}</label>
+								<label class="col-sm-4 control-label" >
+									{{Si délestage, le chauffe-eau doit :}}
+									<sup>
+										<i class="fa fa-question-circle tooltips" title="{{Que faire en cas de delestage en cours de cycle}}"></i>
+									</sup>
+								</label>
 								<div class="col-sm-7">
 									<select class="eqLogicAttr form-control input-sm" data-l1key="configuration" data-l2key="delestage">
 										<option value="Heure">{{S'arreter a l'heure}}</option>
@@ -298,7 +380,7 @@ $eqLogics = eqLogic::byType($plugin->getId());
 					<fieldset>
 						<legend>{{Les programmations de la zone :}}
 							<sup>
-								<i class="fa fa-question-circle tooltips" title="Saisir toutes les programmations pour la zone"></i>
+								<i class="fa fa-question-circle tooltips" title="{{Saisir toutes les programmations pour la zone}}"></i>
 							</sup>
 							<a class="btn btn-success btn-sm ProgramationAttr pull-right" data-action="add" style="margin-top: 5px;">
 								<i class="fa fa-plus-circle"></i>
@@ -325,7 +407,7 @@ $eqLogics = eqLogic::byType($plugin->getId());
 					<fieldset>
 						<legend>{{Les conditions d'exécution :}}
 							<sup>
-								<i class="fa fa-question-circle tooltips" title="Saisir toutes les conditions d'exécution de la gestion"></i>
+								<i class="fa fa-question-circle tooltips" title="{{Saisir toutes les conditions d'exécution de la gestion}}"></i>
 							</sup>
 							<a class="btn btn-success btn-xs conditionAttr" data-action="add" style="margin-left: 5px;">
 								<i class="fa fa-plus-circle"></i>
@@ -349,7 +431,7 @@ $eqLogics = eqLogic::byType($plugin->getId());
 					<fieldset>
 						<legend>{{Les actions:}}
 							<sup>
-								<i class="fa fa-question-circle tooltips" title="Saisir toutes les actions à mener à l'ouverture"></i>
+								<i class="fa fa-question-circle tooltips" title="{{Saisir toutes les actions à mener à l'ouverture}}"></i>
 							</sup>
 							<a class="btn btn-success btn-xs ActionAttr" data-action="add" style="margin-left: 5px;">
 								<i class="fa fa-plus-circle"></i>
