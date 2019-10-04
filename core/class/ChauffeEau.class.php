@@ -573,7 +573,7 @@ class ChauffeEau extends eqLogic {
 			$DeltaTime=0;
 		else
 			$DeltaTime= time() - $TempActuelDateTime->getTimestamp();
-		if($DeltaTime > 60){
+		if($DeltaTime > $this->getConfiguration('FreqTempActuel',1) * 60){
 			$TempActuelDateTime = DateTime::createFromFormat("Y-m-d H:i:s", $TempActuelCmd->getValueDate());
 			if ($TempActuelDateTime === false)
 				$DeltaTime=0;
