@@ -25,7 +25,7 @@ var Series = [{
     },
   }];
 if(CartoChauffeEau.length > 0)
-    drawSimpleGraph('CartoChauffeEau','{{Caractéristiques du chauffe-eau}}', Series,'{{Température (°C)}}','{{Delta (°C)}}');
+    drawSimpleGraph('CartoChauffeEau','{{Caractéristique du chauffe-eau}}', Series,'{{Température (°C)}}','{{Delta (°C)}}');
 function drawSimpleGraph(_el,_name, _serie,_xLabel,_yLabel) {
     new Highcharts.chart({
       	title:{
