@@ -226,13 +226,13 @@ $eqLogics = eqLogic::byType($plugin->getId());
 							</div>  
 							<div class="form-group TempEauReel">
 								<label class="col-sm-4 control-label" >
-									{{Fréquence de mise a jours de la sonde (min)}}
+									{{Fréquence de mise à jour de la sonde (min)}}
 									<sup>
-										<i class="fa fa-question-circle tooltips" title="{{A quel fréquence la sonde envoie une valeur (Mode de défaillance)}}"></i>
+										<i class="fa fa-question-circle tooltips" title="{{A quel fréquence la sonde envoie une valeur (Mode de défaillance), ceci est le temps maximal de mise a jours avant le mode defaillance}}"></i>
 									</sup>
 								</label>
 								<div class="col-sm-7 input-group">
-									<input class="eqLogicAttr form-control input-sm" data-l1key="configuration"  data-l2key="FreqTempActuel" placeholder="{{Saisir la frequence de mise a jours}">
+									<input class="eqLogicAttr form-control input-sm" data-l1key="configuration"  data-l2key="FreqTempActuel" placeholder="{{Saisir la fréquence de mise à jour de la sonde (min)}}">
 
 								</div>
 							</div>  
@@ -272,7 +272,7 @@ $eqLogics = eqLogic::byType($plugin->getId());
 						<legend>{{Controle du chauffe-eau}}						
 							<a class="btn btn-danger btn-sm Caracterisique roundedRight">
 								<i class="icon techno-courbes"></i>
-								 {{Caracterisique}}
+								 {{Caractéristique}}
 							</a>
 						</legend>
 						<fieldset>	

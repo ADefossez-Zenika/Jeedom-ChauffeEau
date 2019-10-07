@@ -243,6 +243,7 @@ class ChauffeEau extends eqLogic {
 		if (is_object($ChauffeEau) && $ChauffeEau->getIsEnable()) {
 			switch($_option['event_id']){
 				case str_replace('#','',$ChauffeEau->getConfiguration('TempActuel')):
+					cache::set('ChauffeEau::LastUpdateSonde::'.$ChauffeEau->getId(), time());
 					$ChauffeEau->setDeltaTemperature($_option['value']);
 					$ChauffeEau->checkAndUpdateCmd('TempActuel',$_option['value']);
 					$IsDefaillanceSonde = cache::byKey('ChauffeEau::DefaillanceSonde::'.$ChauffeEau->getId());
@@ -574,11 +575,7 @@ class ChauffeEau extends eqLogic {
 		else
 			$DeltaTime= time() - $TempActuelDateTime->getTimestamp();
 		if($DeltaTime > $this->getConfiguration('FreqTempActuel',1) * 60){
-			$TempActuelDateTime = DateTime::createFromFormat("Y-m-d H:i:s", $TempActuelCmd->getValueDate());
-			if ($TempActuelDateTime === false)
-				$DeltaTime=0;
-			else
-				$DeltaTime= time() - $TempActuelDateTime->getTimestamp();
+			$DeltaTime= time() - cache::byKey('ChauffeEau::LastUpdateSonde::'.$this->getId())->getValue(time());
 			$DeltaTemp = $DeltaTime * $this->getDeltaTemperature($TempActuel);
 			$TempEstime = round($TempActuel - $DeltaTemp,1);
 			$cache = cache::byKey('ChauffeEau::DefaillanceSonde::'.$this->getId());
