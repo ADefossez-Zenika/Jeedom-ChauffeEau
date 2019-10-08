@@ -3,10 +3,10 @@ Description
 
 Ce plugin permet de gérer votre chauffe-eau.
 Il va estimer le temps nécessaire pour une chauffe complète de votre ballon.
-Si votre installation est equipé d'une sonde de température, le plugin stopera la chauffe des qu'il attendra sa température désiré.
-Aprés l'heure programmée, le plugin stopera le chauffage et attendera le prochain crénaux reduit du temps de chauffage calculé.
+Si votre installation est equipée d'une sonde de température, le plugin arrêtera la chauffe dès qu'il atteindra sa température désirée.
+Aprés l'heure programmée, le plugin arrêtera la chauffe et attendra le prochain créneau, reduit du temps de chauffage calculé.
 
-Le plugin embarque une regulation configurable par hystérésis
+Le plugin embarque une régulation configurable par hystérésis.
 
 ### Principe du mode hystérésis
 
