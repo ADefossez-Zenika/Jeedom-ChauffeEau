@@ -12,7 +12,7 @@ $('.eqLogicAction[data-action=gotoHealth]').off().on('click', function () {
 });
 $('body').on('click','.Caracterisique',function(){
 	var eqId = $('.eqLogicAttr[data-l1key=id]').val();
-	$('#md_modal').dialog({title: "{{Caractéristiques du Chauffe-Eau}}"});
+	$('#md_modal').dialog({title: "{{Caractéristique du Chauffe-Eau}}"});
 	$('#md_modal').load('index.php?v=d&plugin=ChauffeEau&modal=Caracterisique&id='+eqId).dialog('open');
 });
 function addCmdToTable(_cmd) {
